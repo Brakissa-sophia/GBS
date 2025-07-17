@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+
+<h1>{{ category.name|capitalize }}</h1>
+
+    <a class="btn btn-dark" href="{{ path('app_category_index') }}">Gestion des categories</a>
+
+    <table class="table table-striped table-hover table-bordered text-center mt-3">
+        <tbody>
+            <tr>
+                <th class="w-25">Id</th>
+                <td class="w-75">{{ category.id }}</td>
+            </tr>
+            <tr>
+                <th class="w-25">Titre</th>
+                <td class="w-75">{{ category.name }}</td>
+            </tr>
+            
+        </tbody>
+    </table>
+
+    <table class="table table-striped table-hover table-bordered text-center mt-3">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Prix (€)</th>
+                <th></th>
+            </tr>
+        </thead>
+
+            </table>
+
+    
+{% endblock %}
+        
+       {#} <tbody>
+            {% for product in category.products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.title|capitalize }}</td>
+                    <td>{{ product.price }}</td>
+                
+                    <td>
+                        {# Fiche complète #}
+                    {#}    <a 
+                            href="{{ path('app_product_show', {'id': product.id }) }}" 
+                            class="text-decoration-none"
+                        >
+                            {{ ux_icon('lucide:file', {'class':'text-warning sizeSvg20'}) }}   
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center text-danger" colspan="4">Aucun resultat</td>
+                </tr>
+            {% endfor %}
+        </tbody> #}
+

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1 class='mt-3'>Modifier la catégorie</h1>
+
+    <a class="btn btn-dark" href="{{ path('app_category_index') }}">Gestion des catégories</a>
+
+    {{ include('category/_form.html.twig', {'button_label': 'Modifier la catégorie'}) }}
+
+
+    {{ include('category/_delete_form.html.twig') }}
+{% endblock %}

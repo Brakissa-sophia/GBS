@@ -1,0 +1,135 @@
+<header class="header-sticky">
+    <!-- Bandeau défilant -->
+    <div class="bandeau-haut">
+        <p class="texte-defilant">
+            🎁 Offre spéciale : -20% sur tout le site avec le code GLOW20 🌟
+        </p>
+    </div>
+    
+    <div class="header-main container py-2 d-flex justify-content-between align-items-center">
+        <div class="icone-header">
+            <img src="{{ asset('images/recherche.png') }}" alt="Recherche" class="icone-illustration">
+        </div>
+        
+        <div class="logo-container">
+            <a href="{{ path('app_home') }}" class="logo-link">
+                <img src="{{ asset('images/log.png') }}" alt="Logo Glow Beauty Skin" class="logo-gbs">
+                <h1>Glow Beauty Skin</h1>
+            </a>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <!-- Dropdown utilisateur -->
+            <div class="dropdown icone-header">
+                <img src="{{ asset('images/utilisateur.png') }}" 
+                     alt="Compte utilisateur" 
+                     class="icone-illustration" 
+                     data-bs-toggle="dropdown" 
+                     aria-expanded="false"
+                     role="button">
+                
+                {% if app.user %}
+                    <!-- Menu pour utilisateur connecté -->
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                        <li class="dropdown-header">
+                            <strong>Bonjour {{ app.user.firstName ?? app.user.email }}</strong>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_account') }}">
+                                Mon compte
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_order') }}">
+                                 Mes commandes
+                            </a>
+                        </li>
+                      
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_addresse') }}">
+                                 Mes adresses
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_setting') }}">
+                                 Paramètres
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
+                                 Se déconnecter
+                            </a>
+                        </li>
+                    </ul>
+                {% else %}
+                    <!-- Menu pour utilisateur non connecté -->
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                        <li class="dropdown-header">
+                            <strong>Mon compte</strong>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_login') }}">
+                                 Se connecter
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ path('app_register') }}">
+                                 Inscription
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                 Suivre ma commande
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="icone-header">
+             <a class="dropdown-item" href="{{ path('app_favorite') }}">
+                <img src="{{ asset('images/favoris.png') }}" alt="Favoris" class="icone-illustration">
+              </a>
+            </div>
+
+            
+            <div class="icone-header">
+                <img src="{{ asset('images/panier.png') }}" alt="Panier" class="icone-illustration">
+            </div>
+        </div>
+    </div>
+    
+    <nav class="d-flex justify-content-center">
+        <ul class="nav-principale">
+            <li>
+                <a href="{{ path('app_home') }}">ACCUEIL</a>
+            </li>
+            
+            <li class="dropdown">
+                <a href="{{ path('app_brand') }}">MARQUES</a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ path('app_brand') }}">Anua</a></li>
+                    <li><a href="{{ path('app_brand') }}">Beauty of Joseon</a></li>
+                    <li><a href="{{ path('app_brand') }}">Medicube</a></li>
+                    <li><a href="{{ path('app_brand') }}">Skin1004</a></li>
+                </ul>
+            </li>
+            
+            <li>
+                <a href="{{ path('app_catalog') }}">PRODUITS</a>
+            </li>
+            
+            <li>
+                <a href="{{ path('app_device') }}">APPAREILS</a>
+            </li>
+            
+            <li>
+                <a href="{{ path('app_contact') }}">CONTACT</a>
+            </li>
+        </ul>
+    </nav>
+</header>

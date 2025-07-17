@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+<div class="container">
+<div class="form">
+
+<h1 class='mt-3'> Ajouter une catégorie</h1>
+
+    <a class="btn btn-dark" href="{{ path('app_category_index') }}">Gestion des catégories</a>
+
+ {{ form_start(form) }}
+          
+{{ form_row(form.name) }}
+
+<input type="submit" value="sauvegarder" class="btn btn-success">
+               
+{{ form_end(form) }}
+
+</div>
+
+
+
+</div>
+
+{% endblock %}

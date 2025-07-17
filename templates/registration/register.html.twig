@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Inscription {% endblock %}
+{% block description %}{{ parent() }} | Inscription {% endblock %}
+{% block keywords %}{{ parent() }} | Inscription {% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="registration-wrapper">
+        <!-- Formulaire -->
+        <div class="form-side">
+            <h1>Inscription</h1>
+            
+            {{ form_errors(registrationForm) }}
+            {{ form_start(registrationForm) }}
+            
+            {{ form_row(registrationForm.firstName) }}
+            {{ form_row(registrationForm.lastName) }}
+            {{ form_row(registrationForm.email) }}
+            {{ form_row(registrationForm.plainPassword) }}
+           
+            
+            {{ form_row(registrationForm.agreeTerms, {
+                'label':'<span class="terms-text"> En créant votre compte, vous confirmez que vous avez lu et que vous acceptez nos <a href="' ~ path('app_cgu') ~ '" target="_blank">conditions générales d\'utilisation</a> et notre <a href="' ~ path('app_politique_confidentialite') ~ '" target="_blank">politique de confidentialité</a> de Glow Beauty Skin.'
+            }) }}
+            
+            <button type="submit" class="submit-btn">S'inscrire</button>
+            
+            <p class="text-center">Vous avez déjà un compte? <a href="{{ path('app_login') }}">Connectez-vous</a></p>
+            <p class="required-info">Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires</p>
+            
+            {{ form_end(registrationForm) }}
+        </div>
+        
+        <!-- Image -->
+        <div class="image-side">
+            <img src="{{ asset('images/inscription_img.avif') }}" alt="Image inscription">
+        </div>
+    </div>
+</div>
+{% endblock %}

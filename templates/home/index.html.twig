@@ -1,0 +1,196 @@
+{% extends 'base.html.twig' %}
+
+ {% block title %}{{ parent() }} | Page d'accueil {% endblock %}
+ {% block description %}{{ parent() }} | Page d'accueil{% endblock %}
+ {% block keywords %}{{ parent() }} | Page d'accueil{% endblock %}
+
+{% block body %}
+
+<img 
+src="{{ asset('images/1.png') }}"
+alt=""
+class="image-principale">
+
+
+  <!-- Section À propos -->
+    <section class="a-propos-conteneur">
+        <div class="a-propos-section" style="background-image: url('{{ asset('images/fond2.jpg') }}');">
+            <div class="a-propos-boite">
+                <div class="a-propos-texte">
+                    <h2>À propos Glow Beauty Skin</h2>
+                    <p>
+                        Chez <em>Glow Beauty Skin</em>, nous croyons que chaque peau mérite attention, douceur et lumière, quelle que soit son origine ou son histoire.
+                        Offrez à votre peau l’excellence de la skincare coréenne.
+                        Notre boutique en ligne sélectionne avec rigueur les meilleurs soins venus de Corée, réputés pour leur efficacité, leur douceur et leurs formules innovantes.
+                        Sérums concentrés, nettoyants doux, crèmes hydratantes et masques ciblés : chaque produit est choisi pour répondre aux besoins spécifiques de votre peau.
+                        Pour vous offrir une routine complète et sensorielle.
+                        Nos soins s’adressent à toutes les peaux, qu’il s’agisse de femmes ou d’hommes, car prendre soin de sa peau n’a pas de genre seulement des besoins.
+                        Laissez votre peau s’épanouir, chaque jour, dans la lumière d’un glow naturel.
+                        Parce qu’un vrai glow commence par le respect de votre peau.
+                        Explorez nos collections et découvrez votre nouvelle routine beauté.
+                    </p>
+                </div>
+                <div class="a-propos-image">
+                    <img src="{{ asset('images/imgp2.jpg') }}" alt="Soins Glow Beauty Skin">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 10 étapes -->
+ <section class="etapes-soin-conteneur">
+    <h2 class="mt-2 mb-12">Les 10 étapes de la skincare coréenne</h2>
+    
+    <!-- Ligne 1 -->
+    <div class="ligne-etapes ligne-1">
+        {% for i in 1..4 %}
+        <div class="etape">
+            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
+                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
+            </div>
+            <p><strong>{{ i }}</strong> {{ ['Démaquillant','Nettoyant','Exfoliant','Tonique'][i-1] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Ligne 2 -->
+    <div class="ligne-etapes ligne-2">
+        {% for i in 5..9 %}
+        <div class="etape">
+            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
+                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
+            </div>
+            <p><strong>{{ i }}</strong> {{ ['Essence','Sérum','Masque','Contour des yeux','Hydratant'][i-5] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Ligne 3 -->
+    <div class="ligne-etapes ligne-3 ligne-centree">
+        <div class="etape">
+            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-10">
+                <img src="{{ asset('images/etape10.png') }}" alt="Protection solaire">
+            </div>
+            <p><strong>10</strong> Protection solaire</p>
+        </div>
+    </div>
+</section>
+
+<!-- MODALES POUR CHAQUE ÉTAPE -->
+{% set etapes_titres = [
+    'Démaquillant',
+    'Nettoyant', 
+    'Exfoliant',
+    'Tonique',
+    'Essence',
+    'Sérum',
+    'Masque',
+    'Contour des yeux',
+    'Hydratant',
+    'Protection solaire'
+] %}
+
+{% set etapes_descriptions = [
+    'Le démaquillage est la première étape essentielle de votre routine coréenne. Utilisez une huile démaquillante ou un baume pour dissoudre en douceur le maquillage, même waterproof, et les impuretés accumulées durant la journée. Cette étape prépare votre peau au nettoyage suivant.',
+    'Le double nettoyage continue avec un nettoyant à base d\'eau (gel, mousse ou crème). Cette seconde étape élimine les résidus d\'huile, la transpiration et la pollution. Choisissez un nettoyant adapté à votre type de peau pour un nettoyage en profondeur sans agresser.',
+    'L\'exfoliation (2-3 fois par semaine) élimine les cellules mortes et révèle une peau plus lisse et éclatante. Privilégiez les exfoliants chimiques doux (AHA/BHA) aux gommages mécaniques. Cette étape améliore l\'absorption des soins suivants et affine le grain de peau.',
+    'Le tonique rééquilibre le pH de votre peau après le nettoyage et apporte une première couche d\'hydratation. Contrairement aux toniques occidentaux, les versions coréennes sont douces et nourrissantes. Appliquez avec les mains en tapotant délicatement ou avec un coton.',
+    'L\'essence est le cœur de la routine coréenne. Cette lotion légère, entre le tonique et le sérum, prépare la peau à recevoir les traitements suivants. Riche en ingrédients actifs, elle booste le renouvellement cellulaire et apporte une hydratation profonde.',
+    'Le sérum cible des problématiques spécifiques : anti-âge, éclat, hydratation, acné... Sa formule concentrée en actifs pénètre profondément dans la peau. Vous pouvez utiliser plusieurs sérums en les superposant du plus liquide au plus épais.',
+    'Les masques en tissu (sheet masks) sont emblématiques de la K-Beauty. Gorgés de sérum, ils offrent un boost d\'hydratation et de nutrition intense. À utiliser 2-3 fois par semaine selon vos besoins. Laissez poser 15-20 minutes puis massez l\'excédent.',
+    'La zone délicate du contour des yeux nécessite un soin spécifique. Appliquez une crème ou un sérum adapté en tapotant délicatement avec l\'annulaire. Ces soins ciblent les ridules, les cernes et le manque de fermeté de cette zone particulièrement fragile.',
+    'La crème hydratante scelle tous les soins précédents et maintient l\'hydratation de la peau. Choisissez une texture adaptée : gel pour les peaux grasses, crème pour les peaux sèches. Cette étape forme une barrière protectrice et prévient la déshydratation.',
+    'La protection solaire est l\'étape finale indispensable de votre routine matinale. Utilisez un SPF minimum 30, même en intérieur ou par temps nuageux. Les coréens privilégient des textures légères et non collantes. Cette protection prévient le vieillissement prématuré et les taches pigmentaires.'
+] %}
+
+<!-- Génération des modales avec boucle Twig -->
+{% for i in 1..10 %}
+<div class="modal fade" id="modal-etape-{{ i }}" tabindex="-1" aria-labelledby="modalLabel{{ i }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h4 class="modal-title mb-4">Étape {{ i }} : {{ etapes_titres[i-1] }}</h4>
+                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="{{ etapes_titres[i-1] }}" class="img-fluid mb-4 modal-image">
+                <p class="modal-text">{{ etapes_descriptions[i-1] }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+    </section>
+
+    <!-- Section type de peau -->
+<section class="type-de-peau">
+    <h2 class="titre-section mt-2 mb-12 text-center">
+        Découvrez à quel type appartient votre peau
+    </h2>
+    <div class="type-de-peau-conteneur" style="background-image: url('{{ asset('images/fond2.jpg') }}');">
+        <div class="type-de-peau-boite">
+            <div class="type-de-peau-image">
+                <img src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage">
+            </div>
+            <div class="type-de-peau-texte">
+                <h4>Vous ne connaissez pas votre type de peau ?</h4>
+                <p>
+                    Identifiez-le en quelques secondes et découvrez les produits les plus adaptés à vos besoins.<br><br>
+                    🌿 Avant de commencer, nettoyez votre visage avec un nettoyant doux.<br>
+                    🌿 Patientez 30 minutes sans appliquer aucun produit (ni crème, ni tonique, ni sérum), cela permet à votre peau de revenir à son état naturel.<br><br>
+                    Observez votre peau dans un miroir à la lumière naturelle et découvrez à quel type appartient votre peau parmi les descriptions suivantes :
+                </p>
+                <div class="types-peau-ligne">
+                    {% set descriptions = {
+                        'seche': 'Votre peau tiraille et présente des zones de sécheresse, elle manque de souplesse et d’hydratation.',
+                        'grasse': 'Votre peau brille sur l’ensemble du visage, avec des pores dilatés et une tendance aux imperfections.',
+                        'normal': 'Votre peau est équilibrée, douce, sans zones de sécheresse ni excès de sébum.',
+                        'mixte': 'Votre peau est grasse sur la zone T (front, nez, menton) et sèche ou normale sur les joues.'
+                    } %}
+                    {% for type in ['seche', 'grasse', 'normal', 'mixte'] %}
+                    <div class="type-peau">
+                        <img src="{{ asset('images/peau-' ~ type ~ '.jpg') }}" alt="Peau {{ type }}">
+                        <p>
+                            <em>{{ descriptions[type] }}</em><br>
+                            ➜ <strong class="highlight">Vous avez la peau {{ type }}.</strong>
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Section marques -->
+    <section class="section-marques">
+        <h2 class="titre-section mt-2 mb-12 text-center">Marques</h2>
+        <div class="carte-marques">
+            {% for marque in ['anua', 'skin1004', 'medicube', 'beautyofjoseon'] %}
+            <div class="logo-marque">
+                <img src="{{ asset('images/' ~ marque ~ '.webp') }}" alt="{{ marque|capitalize }}">
+                <p class="nom-marque">{{ marque|capitalize }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Section produits/appareils -->
+   <section class="section-produits-appareils">
+    <div class="conteneur-produits-appareils">
+        {% for bloc in ['Produits', 'Appareils'] %}
+        {% if bloc == 'Produits' %}
+            <a href="{{ path('app_catalog') }}" class="bloc">
+        {% else %}
+            <a href="{{ path('app_device') }}" class="bloc">
+        {% endif %}
+                <h3 class="titre-bloc">{{ bloc }}</h3>
+                <div class="image-bloc">
+                    <img src="{{ asset('images/' ~ bloc|lower ~ '.webp') }}" alt="{{ bloc }}">
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
