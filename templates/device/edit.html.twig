@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Modifier appareil {% endblock %}
+{% block description %}{{ parent() }} | Modifier appareil {% endblock %}
+{% block keywords %}{{ parent() }} | Modifier appareil {% endblock %}
+
+{% block body %}
+<h2>Modifier l'appareil "{{ device.title|capitalize}}"</h2>
+
+<a class="btn btn-dark" href="{{ path('app_device_index') }}">Gestion des appareils</a>
+<a class="btn btn-outline-primary" href="{{ path('app_device_show', {'id': device.id}) }}">Afficher l'appareil</a>
+
+{{ form_start(formDevice) }}
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formDevice.title) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.price) }}
+    </div>
+</div>
+
+{{ form_row(formDevice.description) }}
+{{ form_row(formDevice.category) }}
+{{ form_row(formDevice.brand) }}
+{{ form_row(formDevice.skinType) }}
+
+{# 🆕 NOUVEAUX CHAMPS - Composants et Mode d'emploi #}
+<div class="row mt-3">
+    <div class="col-md-6">
+        {{ form_row(formDevice.ingredients) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.usageAdvice) }}
+    </div>
+</div>
+
+{# Stock actuel #}
+<div class="mb-3">
+    <label class="form-label">Stock actuel :</label>
+    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+        <strong>{{ device.stock }} unités</strong>
+        <div>
+            <a href="{{ path('app_device_stock_add', {'id': device.id}) }}" class="btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Ajouter stock
+            </a>
+            <a href="{{ path('app_device_stock_add_history', {'id': device.id}) }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-history"></i> Historique
+            </a>
+        </div>
+    </div>
+</div>
+
+{# Gestion des images avec noms des fichiers existants #}
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(formDevice.image1, 'Image principale') }}
+            {% if existingImages[1] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[1] }}</span></small>
+            {% endif %}
+            {{ form_widget(formDevice.image1) }}
+            {{ form_errors(formDevice.image1) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(formDevice.image2, 'Image 2') }}
+            {% if existingImages[2] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[2] }}</span></small>
+            {% endif %}
+            {{ form_widget(formDevice.image2) }}
+            {{ form_errors(formDevice.image2) }}
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(formDevice.image3, 'Image 3') }}
+            {% if existingImages[3] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[3] }}</span></small>
+            {% endif %}
+            {{ form_widget(formDevice.image3) }}
+            {{ form_errors(formDevice.image3) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(formDevice.image4, 'Image 4') }}
+            {% if existingImages[4] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[4] }}</span></small>
+            {% endif %}
+            {{ form_widget(formDevice.image4) }}
+            {{ form_errors(formDevice.image4) }}
+        </div>
+    </div>
+</div>
+
+{{ form_rest(formDevice) }}
+<input type="submit" value="Modifier l'appareil" class="btn btn-dark w-100 mt-3">
+
+{{ form_end(formDevice) }}
+
+{% endblock %}

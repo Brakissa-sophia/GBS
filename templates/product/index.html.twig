@@ -1,20 +1,147 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProductController!{% endblock %}
+ {% block title %}{{ parent() }} | Gestion des produits  {% endblock %}
+ {% block description %}{{ parent() }} | Gestion des produits {% endblock %}
+ {% block keywords %}{{ parent() }} | Gestion des produits  {% endblock %}
+
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+ <h2 class="pt-5">Gestion des produits  ({{ products|length}})</h2>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+ <a class="btn btn-success" href="{{ path('app_admin') }}">Back Office</a>
+ <a class="btn btn-dark" href="{{ path('app_product_new') }}">Ajouter un produit</a>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/dev/projectgbs/src/Controller/ProductController.php</code></li>
-        <li>Your template at <code>C:/dev/projectgbs/templates/product/index.html.twig</code></li>
-    </ul>
-</div>
-{% endblock %}
+
+    <table class="table table-striped table-hover table-bordered text-center mt-3">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Prix (€)</th>
+                <th>Description</th>
+                <th>Catégorie</th>
+                <th>Marque</th>
+                <th>Type de peau</th>
+                <th>Stock</th>
+                <th></th>
+            </tr>
+        </thead>
+        
+        <tbody>
+        
+            {% for product in products %}
+                <tr>
+               
+                    <td>{{ product.id }}</td>
+                    <td class="w-25 text-wrap">{{ product.title|capitalize }}</td>
+                    <td>{{ product.price }}</td>
+
+                    <td>
+                        {% if product.description %}
+                            {% if product.description|length > 20 %}
+                            {{ product.description|slice(0,20) }}...
+                            {% else %}
+                                {{ product.description }}
+                            {% endif %}
+                        {% else %}
+                             <span class="fst-italic text-danger">N.R</span> 
+                           
+                        {% endif %}
+                    </td>
+
+                    <td>
+                    {% if product.category %}
+                            <a class="text-decoration-none text-dark" href="{{ path('app_category_show', {'id': product.category.id} ) }}">
+                                {{ product.category.name }}
+                            </a>
+                        {% else %}
+                            <span class="fst-italic text-danger">N.R</span>
+                        {% endif %}
+                    </td>
+                    
+                    <td>
+                    {% if product.brand %}
+                            <a class="text-decoration-none text-dark" href="{{ path('app_brand_show', {'id': product.brand.id} ) }}">
+                                {{ product.brand.title }}
+                            </a>
+                        {% else %}
+                            <span class="fst-italic text-danger">N.R</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                    {% if product.skinType is not empty %}
+                        {% set skinTypeText = '' %}
+                        {% for type in product.skinType %}
+                            {% set skinTypeText = skinTypeText ~ type.title %}
+                            {% if not loop.last %}{% set skinTypeText = skinTypeText ~ ', ' %}{% endif %}
+                        {% endfor %}
+                        
+                        {% if skinTypeText|length > 7 %}
+                            {{ skinTypeText|slice(0,7) }}...
+                        {% else %}
+                            {{ skinTypeText }}
+                        {% endif %}
+                    {% else %}
+                        <span class="fst-italic text-danger">N.R</span>
+                    {% endif %}
+                    </td>
+                    <td>
+                    {% if product.stock > 0 %}
+                     {{ product.stock}}
+                     {% else %}
+                         <span class="fst-italic text-bg-danger">Stock épuisée</span>
+                    {% endif %}
+
+                     </td>
+
+
+                      
+                    
+                     <td>
+                        {# Fiche complète #}
+
+
+                        <a 
+                            href="{{ path('app_product_show', {'id': product.id }) }}" 
+                            class="text-decoration-none"
+                        >
+                            <img src="{{ asset('images/fiche.png') }}" alt="voir" class="sizeSvg30">  
+                        </a>
+
+                        {# Modifier #}
+                        <a 
+                            href="{{ path('app_product_edit', {'id': product.id }) }}" 
+                            class="text-decoration-none"
+                        >
+                            <img src="{{ asset('images/edit.png')}}" alt="modifier" class="sizeSvg30">
+                        </a>
+
+                        {# Supprimer #}
+                        <a 
+                            href="{{ path('app_product_delete', {'id': product.id }) }}" 
+                            class="text-decoration-none"
+                            onclick="return confirm('êtes-vous sûr de vouloir supprimer ce produit ?')"
+                        >
+                            <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
+                        </a>
+
+                        {# Ajouter stock #}
+                        <a 
+                            href="{{ path('app_product_stock_add', {'id': product.id }) }}"
+                            class="text-decoration-none"
+                        >
+                            <img src="{{ asset('images/ajouter.png')}}" alt="modifier" class="sizeSvg30">
+                        </a>
+
+
+                        </td>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %} 

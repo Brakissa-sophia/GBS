@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Historique stock {% endblock %}
+{% block description %}{{ parent() }} | Historique stock {% endblock %}
+{% block keywords %}{{ parent() }} | Historique stock {% endblock %}
+
+{% block body %}
+<h2 class="pt-5">Historique stock - {{ device.title|capitalize }}</h2>
+
+<a class="btn btn-dark" href="{{ path('app_device_index') }}">Gestion des appareils</a>
+
+<a class="btn btn-outline-primary" href="{{ path('app_device_show', {'id': device.id}) }}">Afficher l'appareil</a>
+
+<a class="btn btn-outline-warning" href="{{ path('app_device_edit',{'id':device.id}) }}">Modifier l'appareil</a>
+
+<div class="container">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Quantité ajoutée</th>
+                <th>Date d'ajout</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for deviceAdded in devicesAdded %}
+            <tr>
+                <td>{{ deviceAdded.id }}</td>
+                <td><span class="badge bg-success">+{{ deviceAdded.qte }}</span></td>
+                <td>{{ deviceAdded.createdAt|date('d-m-Y H:i') }}</td> 
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="text-center fst-italic text-muted">
+                    Aucun historique d'ajout de stock pour cet appareil
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

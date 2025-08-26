@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+    <h2>Modifier la marque"{{brand.title|capitalize}}"</h2>
+
+    
+    <a class="btn btn-dark mb-3" href="{{ path('app_brand_index') }}">Gestion des marques</a>
+
+    {{ include('brand/_form.html.twig', {'button_label': 'Modifier la marque'}) }}
+
+
+    <form 
+    method="post" 
+    action="{{ path('app_brand_delete', {'id': brand.id}) }}" 
+    onsubmit="return confirm('Etes-vous sûr de vouloir cette marque?');"
+>
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ brand.id) }}">
+    
+    <div class="d-grid mt-1">
+  <button class="btn btn-danger" type="button">Supprimer</button>
+  
+</div>
+       
+    
+</form>
+{% endblock %}

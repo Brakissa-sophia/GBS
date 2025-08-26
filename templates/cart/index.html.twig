@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Panier{% endblock %}
+{% block description %}{{ parent() }} | Panier{% endblock %}
+{% block keywords %}{{ parent() }} | Panier{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3 py-md-4">
+    <div class="row g-3">
+        <!-- Section Panier -->
+        <div class="{% if total > 0 %}col-12 col-lg-8{% else %}col-12{% endif %} order-2 order-lg-1">
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <thead>
+                            <tr>
+                                <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium">Panier</th>
+                                <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium text-center d-none d-md-table-cell">Prix</th>
+                                <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium text-center">Quantité</th>
+                                <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr class="border-bottom">
+                                <td class="py-3 py-md-4 px-3 px-md-4">
+                                    <div class="d-flex flex-column flex-md-row align-items-center">
+                                        <a href="{{ path('app_cart_remove', {'type': item.type, 'id': item.product.id})}}">
+                                            <button class="btn btn-sm btn-outline-danger border-0 me-md-3 rounded-circle p-2 text-muted remove-item">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </a>
+                                        {% if item.image and item.image != '/images/no-image.jpg' %}
+                                            <img src="{{ asset(item.image) }}" alt="{{ item.product.title }}" class="rounded-2 mb-2 mb-md-0 me-md-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded-2 d-flex align-items-center justify-content-center mb-2 mb-md-0 me-md-3" style="width: 60px; height: 60px;">
+                                                <small class="text-muted fw-bold">IMG</small>
+                                            </div>
+                                        {% endif %}
+                                        <span class="fw-medium text-dark text-center text-md-start">{{ item.product.title }}</span>
+                                        <!-- Prix mobile -->
+                                        <div class="d-md-none mt-2">
+                                            <span class="fw-medium">€{{ item.product.price }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Prix desktop -->
+                                <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle d-none d-md-table-cell">
+                                    <span class="fw-medium">€{{ item.product.price }}</span>
+                                </td>
+                                <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <button class="btn btn-sm btn-outline-secondary border rounded-1 quantity-btn" style="width: 25px; height: 25px;" data-action="decrease">−</button>
+                                        <span class="mx-2 mx-md-3 fw-medium quantity-display" data-product-id="{{ item.product.id }}">{{ item.quantity }}</span>
+                                        <button class="btn btn-sm btn-outline-secondary border rounded-1 quantity-btn" style="width: 25px; height: 25px;" data-action="increase">+</button>
+                                    </div>
+                                </td>
+                                <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle total-cell" data-product-id="{{ item.product.id }}" data-price="{{ item.product.price }}">
+                                    <span class="fw-bold">€{{ item.product.price * item.quantity }}</span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 py-md-5 text-muted">
+                                    <i class="fas fa-shopping-cart fa-3x mb-3 opacity-50"></i>
+                                    <p class="mb-0">Votre panier est vide</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if total > 0 %}
+                <div class="mt-3">
+                    <a href="{{ path('app_cart_clear') }}" class="btn btn-outline-danger w-md-auto">Vider le panier</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Section Sidebar -->
+        {% if total > 0 %}
+        <div class="col-12 col-lg-4 order-1 order-lg-2 mb-3 mb-lg-0">
+            <div class="card shadow-sm rounded-3 border-0">
+                <table class="table table-borderless mb-0">
+                    <thead class="cart-header">
+                        <tr>
+                            <th class="py-3 px-4 text-white fw-medium">Paiements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                <!-- Paiements -->
+                                {% if total > 0 and total < 49 %}
+                                    <div class="alert alert-info small mb-3">
+                                        Plus que €{{ (49 - total)|number_format(2, '.', ',') }} pour bénéficier de la livraison gratuite !
+                                    </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between text-muted mb-4">
+                                    <span>Expédition</span>
+                                    <span>{% if total > 49 %}Gratuit{% else %}€5.99{% endif %}</span>
+                                </div>
+                                
+                                <!-- Total -->
+                                <div class="border-top pt-3 mb-4">
+                                    <div class="d-flex justify-content-between fw-bold fs-5">
+                                        <span>TOTAL</span>
+                                        <span id="cart-total">€{{ total > 49 ? total : total + 5.99 }}</span>
+                                    </div>
+                                </div>
+
+
+                               
+                                <button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
+                                    Continue
+                                </button>
+                                
+                                <!-- Moyens de paiement -->
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/visa.png') }}" alt="visa" class="img-fluid">
+                                    </div>
+
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/paypal.png') }}" alt="paypal" class="img-fluid">
+                                    </div>
+
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/mastercard.png') }}" alt="mastercard" class="img-fluid">
+                                    </div>
+
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/amex.png') }}" alt="american express" class="img-fluid">
+                                    </div>
+
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/jcb.png') }}" alt="jcb" class="img-fluid">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            const container = this.closest('div');
+            const quantityDisplay = container.querySelector('.quantity-display');
+            const productId = quantityDisplay.getAttribute('data-product-id');
+            let currentValue = parseInt(quantityDisplay.textContent);
+            
+            // Modifier la quantité
+            if (action === 'increase') {
+                currentValue++;
+            } else if (action === 'decrease' && currentValue > 1) {
+                currentValue--;
+            }
+            
+            // Mettre à jour l'affichage de la quantité
+            quantityDisplay.textContent = currentValue;
+            
+            // Mettre à jour le total de la ligne
+            const row = this.closest('tr');
+            const priceCell = row.querySelector('td:nth-child(2) span');
+            const price = parseFloat(priceCell.textContent.replace('€', ''));
+            const totalCell = row.querySelector('.total-cell span');
+            totalCell.textContent = `€${(price * currentValue).toFixed(2)}`;
+            
+            // Calculer le sous-total avant frais de port
+            let subtotal = 0;
+            document.querySelectorAll('.total-cell span').forEach(cell => {
+                subtotal += parseFloat(cell.textContent.replace('€', ''));
+            });
+            
+            // Ajouter les frais d'expédition si le sous-total est inférieur à 49€
+            let cartTotal = subtotal;
+            if (subtotal < 49) {
+                cartTotal += 5.99;
+            }
+            
+            // Mettre à jour l'affichage du total
+            document.getElementById('cart-total').textContent = `€${cartTotal.toFixed(2)}`;
+        });
+    });
+});
+</script>
+
+
+{% endblock %}

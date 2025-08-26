@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Ajouter le stock {% endblock %}
+{% block description %}{{ parent() }} | Ajouter le stock {% endblock %}
+{% block keywords %}{{ parent() }} | Ajouter le stock {% endblock %}
+
+{% block body %}
+
+<h2 class="pt-5">Ajouter le stock: "{{ device.title|capitalize}}"</h2>
+
+<a class="btn btn-dark" href="{{ path('app_device_index') }}">Gestion des appareils</a>
+
+<a class="btn btn-outline-secondary" href="{{ path('app_device_stock_add_history',{'id':device.id}) }}">Afficher l'historique d'ajout du stock</a>
+
+{% include "_include/_flashes.html.twig" %}
+{{ form_start(form) }}
+
+<div class="row">
+    {{ form_row(form.qte) }}
+    
+    {{ form_rest(form.qte) }}
+    <input type="submit" value="Enregistrer" class="btn btn-dark w-100 mt-3">
+</div>
+
+{{ form_end(form) }}
+
+{% endblock %}

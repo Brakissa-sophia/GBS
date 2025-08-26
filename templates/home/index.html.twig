@@ -1,196 +1,394 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Page d'accueil {% endblock %}
- {% block description %}{{ parent() }} | Page d'accueil{% endblock %}
- {% block keywords %}{{ parent() }} | Page d'accueil{% endblock %}
+{% block title %}{{ parent() }} | Page d'accueil {% endblock %}
+{% block description %}{{ parent() }} | Page d'accueil{% endblock %}
+{% block keywords %}{{ parent() }} | Page d'accueil{% endblock %}
 
 {% block body %}
 
-<img 
-src="{{ asset('images/1.png') }}"
-alt=""
-class="image-principale">
-
-
-  <!-- Section À propos -->
-    <section class="a-propos-conteneur">
-        <div class="a-propos-section" style="background-image: url('{{ asset('images/fond2.jpg') }}');">
-            <div class="a-propos-boite">
-                <div class="a-propos-texte">
-                    <h2>À propos Glow Beauty Skin</h2>
-                    <p>
-                        Chez <em>Glow Beauty Skin</em>, nous croyons que chaque peau mérite attention, douceur et lumière, quelle que soit son origine ou son histoire.
-                        Offrez à votre peau l’excellence de la skincare coréenne.
-                        Notre boutique en ligne sélectionne avec rigueur les meilleurs soins venus de Corée, réputés pour leur efficacité, leur douceur et leurs formules innovantes.
-                        Sérums concentrés, nettoyants doux, crèmes hydratantes et masques ciblés : chaque produit est choisi pour répondre aux besoins spécifiques de votre peau.
-                        Pour vous offrir une routine complète et sensorielle.
-                        Nos soins s’adressent à toutes les peaux, qu’il s’agisse de femmes ou d’hommes, car prendre soin de sa peau n’a pas de genre seulement des besoins.
-                        Laissez votre peau s’épanouir, chaque jour, dans la lumière d’un glow naturel.
-                        Parce qu’un vrai glow commence par le respect de votre peau.
-                        Explorez nos collections et découvrez votre nouvelle routine beauté.
-                    </p>
-                </div>
-                <div class="a-propos-image">
-                    <img src="{{ asset('images/imgp2.jpg') }}" alt="Soins Glow Beauty Skin">
+<main class="container">
+    <!-- Carousel Bootstrap -->
+    <section id="carousel" class="carousel slide d-none d-md-block mb-md-4" data-bs-ride="carousel">
+        <!-- Carousel puces de navigation -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carousel" data-bs-slide-to="0" aria-label="slide 1" aria-current="true" class="active"></button>
+            <button type="button" data-bs-target="#carousel" data-bs-slide-to="1" aria-label="slide 2"></button>
+            <button type="button" data-bs-target="#carousel" data-bs-slide-to="2" aria-label="slide 3"></button>
+            <button type="button" data-bs-target="#carousel" data-bs-slide-to="3" aria-label="slide 4"></button>
+            <button type="button" data-bs-target="#carousel" data-bs-slide-to="4" aria-label="slide 5"></button>
+        </div>
+        
+        <!-- Éléments conteneurs des images -->
+        <div class="carousel-inner">
+            <!-- Élément 1 -->
+            <div class="carousel-item active">
+                <picture class="d-flex w-100">
+                    <source srcset="{{ asset('images/carou1.png') }}" media="(min-width:1280px)">
+                    <source srcset="{{ asset('images/carou1.png') }}" media="(min-width:768px)">
+                    <img class="img-fluid d-block w-100" src="{{ asset('images/carou1.png') }}" alt="">
+                </picture>
+                <div class="carousel-caption d-flex flex-column text-start w-50">
+                    <h2>Game Création : Design Environemental</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, iure ipsum numquam excepturi minus nisi vitae atque magni totam delectus.</p>
                 </div>
             </div>
+            
+            <!-- Élément 2 -->
+            <div class="carousel-item">
+                <picture class="d-flex w-100">
+                    <source srcset="{{ asset('images/carou5.png') }}" media="(min-width:1280px)">
+                    <source srcset="{{ asset('images/carou5.png') }}" media="(min-width:768px)">
+                    <img class="img-fluid d-block w-100" src="{{ asset('images/carou5.png') }}" alt="">
+                </picture>
+                <div class="carousel-caption d-flex flex-column text-start w-50">
+                    <h2>Game Création : PixelArt, Artistique conception</h2>
+                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores quidem quasi recusandae temporibus dolorem porro nihil, vel exercitationem.</p>
+                </div>
+            </div>
+            
+            <!-- Élément 3 -->
+            <div class="carousel-item">
+                <picture class="d-flex w-100">
+                    <source srcset="{{ asset('images/carou2.png') }}" media="(min-width:1280px)">
+                    <source srcset="{{ asset('images/carou2.png') }}" media="(min-width:768px)">
+                    <img class="img-fluid d-block w-100" src="{{ asset('images/carou2.png') }}" alt="">
+                </picture>
+                <div class="carousel-caption d-flex flex-column text-start w-50">
+                    <h2>Game Création : Art et Level Design</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae sequi voluptatem blanditiis, aliquam hic dolore.</p>
+                </div>
+            </div>
+            
+            <!-- Élément 4 -->
+            <div class="carousel-item">
+                <picture class="d-flex w-100">
+                    <source srcset="{{ asset('images/carou10.png') }}" media="(min-width:1280px)">
+                    <source srcset="{{ asset('images/carou10.png') }}" media="(min-width:768px)">
+                    <img class="img-fluid d-block w-100" src="{{ asset('images/carou10.png') }}" alt="">
+                </picture>
+                <div class="carousel-caption d-flex flex-column text-start w-50">
+                    <h2>Game Création : Conception Props</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit perferendis repellendus nam incidunt maxime dicta provident.</p>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <picture class="d-flex w-100">
+                    <source srcset="{{ asset('images/carou11.jpg') }}" media="(min-width:1280px)">
+                    <source srcset="{{ asset('images/carou11.jpg') }}" media="(min-width:768px)">
+                    <img class="img-fluid d-block w-100" src="{{ asset('images/carou11.jpg') }}" alt="">
+                </picture>
+                <div class="carousel-caption d-flex flex-column text-end w-50">
+                    <h2>Game Création : Conception Props</h2>
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit perferendis repellendus nam incidunt maxime dicta provident.</p>
+                </div>
+            </div>
         </div>
+        
+        <button type="button" class="carousel-control-prev" data-bs-target="#carousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Prev</span>
+        </button>
+        <button type="button" class="carousel-control-next" data-bs-target="#carousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </section>
 
-    <!-- Section 10 étapes -->
- <section class="etapes-soin-conteneur">
-    <h2 class="mt-2 mb-12">Les 10 étapes de la skincare coréenne</h2>
-    
-    <!-- Ligne 1 -->
-    <div class="ligne-etapes ligne-1">
-        {% for i in 1..4 %}
-        <div class="etape">
-            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
-                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
-            </div>
-            <p><strong>{{ i }}</strong> {{ ['Démaquillant','Nettoyant','Exfoliant','Tonique'][i-1] }}</p>
-        </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Ligne 2 -->
-    <div class="ligne-etapes ligne-2">
-        {% for i in 5..9 %}
-        <div class="etape">
-            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
-                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
-            </div>
-            <p><strong>{{ i }}</strong> {{ ['Essence','Sérum','Masque','Contour des yeux','Hydratant'][i-5] }}</p>
-        </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Ligne 3 -->
-    <div class="ligne-etapes ligne-3 ligne-centree">
-        <div class="etape">
-            <div class="demi-cercle" data-bs-toggle="modal" data-bs-target="#modal-etape-10">
-                <img src="{{ asset('images/etape10.png') }}" alt="Protection solaire">
-            </div>
-            <p><strong>10</strong> Protection solaire</p>
-        </div>
-    </div>
-</section>
-
-<!-- MODALES POUR CHAQUE ÉTAPE -->
-{% set etapes_titres = [
-    'Démaquillant',
-    'Nettoyant', 
-    'Exfoliant',
-    'Tonique',
-    'Essence',
-    'Sérum',
-    'Masque',
-    'Contour des yeux',
-    'Hydratant',
-    'Protection solaire'
-] %}
-
-{% set etapes_descriptions = [
-    'Le démaquillage est la première étape essentielle de votre routine coréenne. Utilisez une huile démaquillante ou un baume pour dissoudre en douceur le maquillage, même waterproof, et les impuretés accumulées durant la journée. Cette étape prépare votre peau au nettoyage suivant.',
-    'Le double nettoyage continue avec un nettoyant à base d\'eau (gel, mousse ou crème). Cette seconde étape élimine les résidus d\'huile, la transpiration et la pollution. Choisissez un nettoyant adapté à votre type de peau pour un nettoyage en profondeur sans agresser.',
-    'L\'exfoliation (2-3 fois par semaine) élimine les cellules mortes et révèle une peau plus lisse et éclatante. Privilégiez les exfoliants chimiques doux (AHA/BHA) aux gommages mécaniques. Cette étape améliore l\'absorption des soins suivants et affine le grain de peau.',
-    'Le tonique rééquilibre le pH de votre peau après le nettoyage et apporte une première couche d\'hydratation. Contrairement aux toniques occidentaux, les versions coréennes sont douces et nourrissantes. Appliquez avec les mains en tapotant délicatement ou avec un coton.',
-    'L\'essence est le cœur de la routine coréenne. Cette lotion légère, entre le tonique et le sérum, prépare la peau à recevoir les traitements suivants. Riche en ingrédients actifs, elle booste le renouvellement cellulaire et apporte une hydratation profonde.',
-    'Le sérum cible des problématiques spécifiques : anti-âge, éclat, hydratation, acné... Sa formule concentrée en actifs pénètre profondément dans la peau. Vous pouvez utiliser plusieurs sérums en les superposant du plus liquide au plus épais.',
-    'Les masques en tissu (sheet masks) sont emblématiques de la K-Beauty. Gorgés de sérum, ils offrent un boost d\'hydratation et de nutrition intense. À utiliser 2-3 fois par semaine selon vos besoins. Laissez poser 15-20 minutes puis massez l\'excédent.',
-    'La zone délicate du contour des yeux nécessite un soin spécifique. Appliquez une crème ou un sérum adapté en tapotant délicatement avec l\'annulaire. Ces soins ciblent les ridules, les cernes et le manque de fermeté de cette zone particulièrement fragile.',
-    'La crème hydratante scelle tous les soins précédents et maintient l\'hydratation de la peau. Choisissez une texture adaptée : gel pour les peaux grasses, crème pour les peaux sèches. Cette étape forme une barrière protectrice et prévient la déshydratation.',
-    'La protection solaire est l\'étape finale indispensable de votre routine matinale. Utilisez un SPF minimum 30, même en intérieur ou par temps nuageux. Les coréens privilégient des textures légères et non collantes. Cette protection prévient le vieillissement prématuré et les taches pigmentaires.'
-] %}
-
-<!-- Génération des modales avec boucle Twig -->
-{% for i in 1..10 %}
-<div class="modal fade" id="modal-etape-{{ i }}" tabindex="-1" aria-labelledby="modalLabel{{ i }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center p-4">
-                <h4 class="modal-title mb-4">Étape {{ i }} : {{ etapes_titres[i-1] }}</h4>
-                <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="{{ etapes_titres[i-1] }}" class="img-fluid mb-4 modal-image">
-                <p class="modal-text">{{ etapes_descriptions[i-1] }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-    </section>
-
-    <!-- Section type de peau -->
-<section class="type-de-peau">
-    <h2 class="titre-section mt-2 mb-12 text-center">
-        Découvrez à quel type appartient votre peau
-    </h2>
-    <div class="type-de-peau-conteneur" style="background-image: url('{{ asset('images/fond2.jpg') }}');">
-        <div class="type-de-peau-boite">
-            <div class="type-de-peau-image">
-                <img src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage">
-            </div>
-            <div class="type-de-peau-texte">
-                <h4>Vous ne connaissez pas votre type de peau ?</h4>
-                <p>
-                    Identifiez-le en quelques secondes et découvrez les produits les plus adaptés à vos besoins.<br><br>
-                    🌿 Avant de commencer, nettoyez votre visage avec un nettoyant doux.<br>
-                    🌿 Patientez 30 minutes sans appliquer aucun produit (ni crème, ni tonique, ni sérum), cela permet à votre peau de revenir à son état naturel.<br><br>
-                    Observez votre peau dans un miroir à la lumière naturelle et découvrez à quel type appartient votre peau parmi les descriptions suivantes :
+    <!-- Section Hero -->
+    <section class="gbs_hero">
+        <div class="hero-bg row">
+            <figure class="col-lg-6 py-lg-4">
+                <picture class="d-block">
+                    <img class="hero-img img-fluid w-100 rounded shadow" src="{{ asset('images/imgp2.jpg') }}" alt="Soins Glow Beauty Skin"> 
+                </picture> 
+            </figure> 
+            <div class="col-lg-6 gbs-hero-text p-1 py-lg-4">
+                <h2 class="py-2">À propos Glow Beauty Skin</h2>
+                <p class="fs-0.90 mb-1 mb-sm-2">
+                    Chez <em>Glow Beauty Skin</em>, nous croyons que chaque peau mérite attention, douceur et lumière, quelle que soit son origine ou son histoire.
+                    Offrez à votre peau l'excellence de la skincare coréenne.
+                    Notre boutique en ligne sélectionne avec rigueur les meilleurs soins venus de Corée, réputés pour leur efficacité, leur douceur et leurs formules innovantes.
+                    Sérums concentrés, nettoyants doux, crèmes hydratantes et masques ciblés : chaque produit est choisi pour répondre aux besoins spécifiques de votre peau.
+                    Pour vous offrir une routine complète et sensorielle.
+                    Nos soins s'adressent à toutes les peaux, qu'il s'agisse de femmes ou d'hommes, car prendre soin de sa peau n'a pas de genre seulement des besoins.
+                    Laissez votre peau s'épanouir, chaque jour, dans la lumière d'un glow naturel.
+                    Parce qu'un vrai glow commence par le respect de votre peau.
+                    Explorez nos collections et découvrez votre nouvelle routine beauté.
                 </p>
-                <div class="types-peau-ligne">
-                    {% set descriptions = {
-                        'seche': 'Votre peau tiraille et présente des zones de sécheresse, elle manque de souplesse et d’hydratation.',
-                        'grasse': 'Votre peau brille sur l’ensemble du visage, avec des pores dilatés et une tendance aux imperfections.',
-                        'normal': 'Votre peau est équilibrée, douce, sans zones de sécheresse ni excès de sébum.',
-                        'mixte': 'Votre peau est grasse sur la zone T (front, nez, menton) et sèche ou normale sur les joues.'
-                    } %}
-                    {% for type in ['seche', 'grasse', 'normal', 'mixte'] %}
-                    <div class="type-peau">
-                        <img src="{{ asset('images/peau-' ~ type ~ '.jpg') }}" alt="Peau {{ type }}">
-                        <p>
-                            <em>{{ descriptions[type] }}</em><br>
-                            ➜ <strong class="highlight">Vous avez la peau {{ type }}.</strong>
-                        </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 10 étapes - Mobile First: 3-3-3-1 | Desktop: 4-5-1 -->
+    <section class="container-fluid py-5 text-center etapes-soin-conteneur">
+        <h2 class="mb-5">Les 10 étapes de la skincare coréenne</h2>
+        
+        <!-- LIGNE 1: Mobile 3 étapes (1,2,3) | Desktop 4 étapes (1,2,3,4) -->
+        <div class="row justify-content-center mb-4 mb-md-5 ligne-etapes-1">
+            <!-- Étapes 1, 2, 3 - Toujours visibles -->
+            {% for i in 1..3 %}
+            <div class="col-4 col-md-3 col-lg-2 mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
+                        <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
                     </div>
-                    {% endfor %}
+                    <p class="small mb-0"><strong>{{ i }}</strong> {{ ['Démaquillant','Nettoyant','Exfoliant'][i-1] }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Étape 4 - Visible SEULEMENT sur desktop -->
+            <div class="col-md-3 col-lg-2 mb-3 d-none d-md-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-4">
+                        <img src="{{ asset('images/etape4.png') }}" alt="Étape 4">
+                    </div>
+                    <p class="small mb-0"><strong>4</strong> Tonique</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-
-    <!-- Section marques -->
-    <section class="section-marques">
-        <h2 class="titre-section mt-2 mb-12 text-center">Marques</h2>
-        <div class="carte-marques">
-            {% for marque in ['anua', 'skin1004', 'medicube', 'beautyofjoseon'] %}
-            <div class="logo-marque">
-                <img src="{{ asset('images/' ~ marque ~ '.webp') }}" alt="{{ marque|capitalize }}">
-                <p class="nom-marque">{{ marque|capitalize }}</p>
+        
+        <!-- LIGNE 2: Mobile 3 étapes (4,5,6) | Desktop 5 étapes (5,6,7,8,9) -->
+        <div class="row justify-content-center mb-4 mb-md-5 ligne-etapes-2">
+            <!-- Mobile uniquement: Étapes 4, 5, 6 -->
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-4">
+                        <img src="{{ asset('images/etape4.png') }}" alt="Étape 4">
+                    </div>
+                    <p class="small mb-0"><strong>4</strong> Tonique</p>
+                </div>
+            </div>
+            
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-5">
+                        <img src="{{ asset('images/etape5.png') }}" alt="Étape 5">
+                    </div>
+                    <p class="small mb-0"><strong>5</strong> Essence</p>
+                </div>
+            </div>
+            
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-6">
+                        <img src="{{ asset('images/etape6.png') }}" alt="Étape 6">
+                    </div>
+                    <p class="small mb-0"><strong>6</strong> Sérum</p>
+                </div>
+            </div>
+            
+            <!-- Desktop uniquement: Étapes 5, 6, 7, 8, 9 -->
+            {% for i in 5..9 %}
+            <div class="col-md-2 col-lg-2 mb-3 d-none d-md-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-{{ i }}">
+                        <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="Étape {{ i }}">
+                    </div>
+                    <p class="small mb-0"><strong>{{ i }}</strong> {{ ['Essence','Sérum','Masque','Contour des yeux','Hydratant'][i-5] }}</p>
+                </div>
             </div>
             {% endfor %}
         </div>
+        
+        <!-- LIGNE 3: Mobile 3 étapes (7,8,9) | Desktop 1 étape centrée (10) -->
+        <div class="row justify-content-center mb-4 mb-md-0 ligne-etapes-3">
+            <!-- Mobile uniquement: Étapes 7, 8, 9 -->
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-7">
+                         <img src="{{ asset('images/etape7.png') }}" alt="Étape 7">
+                    </div>
+                    <p class="small mb-0"><strong>7</strong> Masque</p>
+                </div>
+            </div>
+            
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-8">
+                        <img src="{{ asset('images/etape8.png') }}" alt="Étape 8">
+                    </div>
+                    <p class="small mb-0"><strong>8</strong> Contour des yeux</p>
+                </div>
+            </div>
+            
+            <div class="col-4 d-md-none mb-3 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-9">
+                        <img src="{{ asset('images/etape9.png') }}" alt="Étape 9">
+                    </div>
+                    <p class="small mb-0"><strong>9</strong> Hydratant</p>
+                </div>
+            </div>
+            
+            <!-- Desktop uniquement: Étape 10 centrée -->
+            <div class="col-md-3 col-lg-2 d-none d-md-flex justify-content-center">
+                <div class="etape-item text-center etape-finale">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-10">
+                        <img src="{{ asset('images/etape10.png') }}" alt="Protection solaire">
+                    </div>
+                    <p class="small mb-0"><strong>10</strong> Protection solaire</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LIGNE 4: Mobile uniquement - 1 étape centrée (10) -->
+        <div class="row justify-content-center d-md-none ligne-etapes-4">
+            <div class="col-6 col-sm-4 d-flex justify-content-center">
+                <div class="etape-item text-center">
+                    <div class="etape-cercle mx-auto mb-2" data-bs-toggle="modal" data-bs-target="#modal-etape-10">
+                        <img src="{{ asset('images/etape10.png') }}" alt="Protection solaire">
+                    </div>
+                    <p class="small mb-0"><strong>10</strong> Protection solaire</p>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- Section produits/appareils -->
-   <section class="section-produits-appareils">
-    <div class="conteneur-produits-appareils">
-        {% for bloc in ['Produits', 'Appareils'] %}
-        {% if bloc == 'Produits' %}
-            <a href="{{ path('app_catalog') }}" class="bloc">
-        {% else %}
-            <a href="{{ path('app_device') }}" class="bloc">
-        {% endif %}
-                <h3 class="titre-bloc">{{ bloc }}</h3>
-                <div class="image-bloc">
-                    <img src="{{ asset('images/' ~ bloc|lower ~ '.webp') }}" alt="{{ bloc }}">
+    <!-- MODALES POUR CHAQUE ÉTAPE -->
+    {% set etapes_titres = [
+        'Démaquillant',
+        'Nettoyant', 
+        'Exfoliant',
+        'Tonique',
+        'Essence',
+        'Sérum',
+        'Masque',
+        'Contour des yeux',
+        'Hydratant',
+        'Protection solaire'
+    ] %}
+
+    {% set etapes_descriptions = [
+        'Le démaquillage est la première étape essentielle de votre routine coréenne. Utilisez une huile démaquillante ou un baume pour dissoudre en douceur le maquillage, même waterproof, et les impuretés accumulées durant la journée. Cette étape prépare votre peau au nettoyage suivant.',
+        'Le double nettoyage continue avec un nettoyant à base d\'eau (gel, mousse ou crème). Cette seconde étape élimine les résidus d\'huile, la transpiration et la pollution. Choisissez un nettoyant adapté à votre type de peau pour un nettoyage en profondeur sans agresser.',
+        'L\'exfoliation (2-3 fois par semaine) élimine les cellules mortes et révèle une peau plus lisse et éclatante. Privilégiez les exfoliants chimiques doux (AHA/BHA) aux gommages mécaniques. Cette étape améliore l\'absorption des soins suivants et affine le grain de peau.',
+        'Le tonique rééquilibre le pH de votre peau après le nettoyage et apporte une première couche d\'hydratation. Contrairement aux toniques occidentaux, les versions coréennes sont douces et nourrissantes. Appliquez avec les mains en tapotant délicatement ou avec un coton.',
+        'L\'essence est le cœur de la routine coréenne. Cette lotion légère, entre le tonique et le sérum, prépare la peau à recevoir les traitements suivants. Riche en ingrédients actifs, elle booste le renouvellement cellulaire et apporte une hydratation profonde.',
+        'Le sérum cible des problématiques spécifiques : anti-âge, éclat, hydratation, acné... Sa formule concentrée en actifs pénètre profondément dans la peau. Vous pouvez utiliser plusieurs sérums en les superposant du plus liquide au plus épais.',
+        'Les masques en tissu (sheet masks) sont emblématiques de la K-Beauty. Gorgés de sérum, ils offrent un boost d\'hydratation et de nutrition intense. À utiliser 2-3 fois par semaine selon vos besoins. Laissez poser 15-20 minutes puis massez l\'excédent.',
+        'La zone délicate du contour des yeux nécessite un soin spécifique. Appliquez une crème ou un sérum adapté en tapotant délicatement avec l\'annulaire. Ces soins ciblent les ridules, les cernes et le manque de fermeté de cette zone particulièrement fragile.',
+        'La crème hydratante scelle tous les soins précédents et maintient l\'hydratation de la peau. Choisissez une texture adaptée : gel pour les peaux grasses, crème pour les peaux sèches. Cette étape forme une barrière protectrice et prévient la déshydratation.',
+        'La protection solaire est l\'étape finale indispensable de votre routine matinale. Utilisez un SPF minimum 30, même en intérieur ou par temps nuageux. Les coréens privilégient des textures légères et non collantes. Cette protection prévient le vieillissement prématuré et les taches pigmentaires.'
+    ] %}
+
+    <!-- Génération des modales avec boucle Twig -->
+    {% for i in 1..10 %}
+    <div class="modal fade" id="modal-etape-{{ i }}" tabindex="-1" aria-labelledby="modalLabel{{ i }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 rounded-3 shadow-lg">
+                <div class="modal-header border-0 bg-gradient-sauge">
+                    <button type="button" class="btn-close btn-close-white rounded-pill" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </a>
-        {% endfor %}
+                <div class="modal-body text-center p-4 p-md-5">
+                    <h4 class="modal-title mb-4">Étape {{ i }} : {{ etapes_titres[i-1] }}</h4>
+                    <img src="{{ asset('images/etape' ~ i ~ '.png') }}" alt="{{ etapes_titres[i-1] }}" class="mb-4 rounded-3 shadow modal-image">
+                    <p class="fs-6 lh-base text-justify px-2 px-md-4">{{ etapes_descriptions[i-1] }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Section type de peau -->
+    <section class="container-fluid py-3 type-de-peau">
+        <h2 class="mb-5 text-center">
+            Découvrez à quel type appartient votre peau
+        </h2>
+        <div class="position-relative type-de-peau-conteneur">
+            <div class="container">
+                <div class="row justify-content-center align-items-stretch min-vh-50 type-de-peau-boite">
+                    <!-- Image pour mobile (visible sur mobile uniquement) -->
+                    <div class="col-12 d-md-none text-end mb-4">
+                        <img class="img-fluid rounded-3" src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage">
+                    </div>
+                                     
+                    <!-- Image pour desktop (visible sur desktop uniquement) -->
+                    <div class="col-lg-5 d-none d-md-block d-flex align-items-center justify-content-center pt-5">
+                        <img class="img-fluid rounded-3 shadow-lg" src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage">
+                    </div>
+                                     
+                    <div class="col-12 col-lg-7 py-lg-5 type-de-peau-texte d-flex flex-column justify-content-center">
+                        <h4 class="mb-3 text-center text-md-start">Vous ne connaissez pas votre type de peau ?</h4>
+                        <p class="fs-6 lh-base mb-4">
+                            Identifiez-le en quelques secondes et découvrez les produits les plus adaptés à vos besoins.<br><br>
+                            Avant de commencer, nettoyez votre visage avec un nettoyant doux.<br>
+                            Patientez 30 minutes sans appliquer aucun produit (ni crème, ni tonique, ni sérum), cela permet à votre peau de revenir à son état naturel.<br><br>
+                            Observez votre peau dans un miroir à la lumière naturelle et découvrez à quel type appartient votre peau parmi les descriptions suivantes :
+                        </p>
+                                             
+                        <div class="row g-3 types-peau-ligne">
+                            {% set descriptions = {
+                                'seche': 'Votre peau tiraille et présente des zones de sécheresse, elle manque de souplesse et d\'hydratation.',
+                                'grasse': 'Votre peau brille sur l\'ensemble du visage, avec des pores dilatés et une tendance aux imperfections.',
+                                'normal': 'Votre peau est équilibrée, douce, sans zones de sécheresse ni excès de sébum.',
+                                'mixte': 'Votre peau est grasse sur la zone T (front, nez, menton) et sèche ou normale sur les joues.'
+                            } %}
+                            {% for type in ['seche', 'grasse', 'normal', 'mixte'] %}
+                            <div class="col-6 col-lg-3 mb-3">
+                                <div class="type-peau text-center h-100">
+                                    <img class="img-fluid rounded mb-2 w-50" src="{{ asset('images/peau-' ~ type ~ '.jpg') }}" alt="Peau {{ type }}">
+                                    <p class="small">
+                                        <em>{{ descriptions[type] }}</em><br>
+                                        ➜ <strong class="gbs_text-color">Vous avez la peau {{ type }}.</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <!-- Section marques -->
+<section class="container-fluid py-5 section-marques">
+    <h2 class="mb-5 text-center">Marques</h2>
+    
+    <!-- Conteneur avec fond en desktop -->
+    <div class="position-relative marques-conteneur">
+        <div class="container">
+            <div class="row justify-content-center align-items-start marques-boite">
+                {% for brand in brand %}
+                <div class="col-6 col-md-3 mb-4 text-center logo-marque">
+                    <a href="{{ path('app_catalog_brand', {'id': brand.id}) }}" class="text-decoration-none text-dark">
+                        <img src="{{ asset('images/' ~ brand.title|lower|replace({' ': ''}) ~ '.webp') }}" 
+                            alt="{{ brand.title }}" 
+                            class="shadow marque-image">
+                        <p class="mt-3 fw-bold nom-marque">{{ brand.title }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </section>
+
+    <!-- Section produits et appareils -->
+    <section class="container-fluid py-4 my-5 section-produits-appareils">
+        <div class="container">
+            <div class="row g-4">
+                {% for bloc in ['Produits', 'Appareils'] %}
+                <div class="col-12 col-md-6">
+                    {% if bloc == 'Produits' %}
+                        <a href="{{ path('app_catalog') }}" class="bloc d-block text-decoration-none text-dark bg-white rounded shadow p-4 h-100">
+                    {% else %}
+                        <a href="{{ path('app_device_catalog') }}" class="bloc d-block text-decoration-none text-dark bg-white rounded shadow p-4 h-100">
+                    {% endif %}
+                        <h3 class="text-center fw-bold mb-4 titre-bloc">{{ bloc }}</h3>
+                        <div class="image-bloc">
+                            <img src="{{ asset('images/' ~ bloc|lower ~ '.webp') }}" 
+                                 alt="{{ bloc }}" 
+                                 class="img-fluid rounded w-100 bloc-image">
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
 
 {% endblock %}

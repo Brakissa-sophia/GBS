@@ -1,0 +1,20 @@
+<!-- Section marques -->
+<section class="container-fluid py-5 section-marques">
+    <h2 class="mb-5 text-center">Marques</h2>
+    
+    <!-- Conteneur avec fond vert en desktop -->
+    <div class="position-relative marques-conteneur">
+        <div class="container">
+            <div class="row justify-content-center align-items-start marques-boite">
+                {% for marque in ['anua', 'skin1004', 'medicube', 'beautyofjoseon'] %}
+                <div class="col-6 col-md-3 mb-4 text-center logo-marque">
+                    <img src="{{ asset('images/' ~ marque ~ '.webp') }}" 
+                         alt="{{ marque|capitalize }}" 
+                         class="img-fluid shadow marque-image">
+                    <p class="mt-3 fw-bold nom-marque">{{ marque|capitalize }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

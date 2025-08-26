@@ -1,9 +1,51 @@
-{% extends "base.html.twig" %}
-
-
-
-
-
-
-
-{% block body %}{% endblock %}
+<!-- Section type de peau -->
+<section class="container-fluid py-3 type-de-peau">
+    <h2 class="mb-5 text-center">
+        Découvrez à quel type appartient votre peau
+    </h2>
+    <div class="position-relative type-de-peau-conteneur">
+        <div class="container">
+            <div class="row justify-content-center align-items-stretch min-vh-50 type-de-peau-boite">
+                <!-- Image pour mobile (visible sur mobile uniquement) -->
+                <div class="col-12 d-md-none text-end mb-4">
+                    <img class="img-fluid rounded-3 " src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage">
+                </div>
+                                 
+                <!-- Image pour desktop (visible sur desktop uniquement) -->
+                <div class="col-lg-5 d-none d-md-block d-flex align-items-center justify-content-center pt-5">
+                    <img class="img-fluid rounded-3 shadow-lg" src="{{ asset('images/peau.png') }}" alt="Femme qui se mouille le visage" >
+                </div>
+                                 
+                <div class="col-12 col-lg-7 py-lg-5 type-de-peau-texte d-flex flex-column justify-content-center">
+                    <h4 class="mb-3 text-center text-md-start">Vous ne connaissez pas votre type de peau ?</h4>
+                    <p class="fs-6 lh-base mb-4">
+                        Identifiez-le en quelques secondes et découvrez les produits les plus adaptés à vos besoins.<br><br>
+                        Avant de commencer, nettoyez votre visage avec un nettoyant doux.<br>
+                        Patientez 30 minutes sans appliquer aucun produit (ni crème, ni tonique, ni sérum), cela permet à votre peau de revenir à son état naturel.<br><br>
+                        Observez votre peau dans un miroir à la lumière naturelle et découvrez à quel type appartient votre peau parmi les descriptions suivantes :
+                    </p>
+                                         
+                    <div class="row g-3 types-peau-ligne">
+                        {% set descriptions = {
+                            'seche': 'Votre peau tiraille et présente des zones de sécheresse, elle manque de souplesse et d\'hydratation.',
+                            'grasse': 'Votre peau brille sur l\'ensemble du visage, avec des pores dilatés et une tendance aux imperfections.',
+                            'normal': 'Votre peau est équilibrée, douce, sans zones de sécheresse ni excès de sébum.',
+                            'mixte': 'Votre peau est grasse sur la zone T (front, nez, menton) et sèche ou normale sur les joues.'
+                        } %}
+                        {% for type in ['seche', 'grasse', 'normal', 'mixte'] %}
+                        <div class="col-6 col-lg-3 mb-3">
+                            <div class="type-peau text-center h-100">
+                                <img class="img-fluid rounded mb-2 w-50" src="{{ asset('images/peau-' ~ type ~ '.jpg') }}" alt="Peau {{ type }}">
+                                <p class="small">
+                                    <em>{{ descriptions[type] }}</em><br>
+                                    ➜ <strong class="gbs_text-color">Vous avez la peau {{ type }}.</strong>
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

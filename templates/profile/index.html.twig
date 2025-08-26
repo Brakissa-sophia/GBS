@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+ {% block title %}{{ parent() }} | Mon compte {% endblock %}
+ {% block description %}{{ parent() }} | Mon compte {% endblock %}
+ {% block keywords %}{{ parent() }} | Mon compte  {% endblock %}
+
+
+{% block body %}
+ <h2>Mon compte</h2>
+
+
+<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-dark">
+
+<ul class="list-group list-group-horizontal">
+<li class="list-group-item list-group-item-dark w-100">Coordonées personnel</li>
+</ul>
+
+<ul class="list-group list-group-horizontal">
+  <li class="list-group-item w-25">Email</li>
+  <li class="list-group-item w-75">{{app.user.email}}</li>
+  
+</ul>
+<ul class="list-group list-group-horizontal">
+  <li class="list-group-item w-25">Nom</li>
+  <li class="list-group-item w-75">{{app.user.firstName}}</li>
+  
+</ul>
+<ul class="list-group list-group-horizontal">
+  <li class="list-group-item w-25">Prénom </li>
+  <li class="list-group-item w-75">{{app.user.lastName}}</li>
+  
+</ul>
+
+<a class="btn btn-warning w-100 mb-2 mt-3" href="{{ path('app_profile_edit')}}"> Modifier mon compte</a>
+<a class="btn btn-warning w-100 my-2" href="{{ path('app_profile_password_edit')}}"> Modifier mon mot de passe</a>
+<a class="btn btn-danger w-100 my-2" href="{{ path('app_profile_delete')}}"> Supprimer mon compte</a>
+</div>
+
+
+{% endblock %}  

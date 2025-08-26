@@ -1,53 +1,57 @@
+<!-- Footer -->
 <hr>
-<footer class="footer">
-  <div class="container-footer">
-    <div class="footer-columns">
-      <!-- Colonne 1 -->
-      <div class="footer-col">
-        <h4>SHOPPING</h4>
-        <ul>
-          <li><a href="{{ path('app_legal_notices') }}">Mentions légales</a></li>
-          <li><a href="{{ path('app_cgv') }}">Condition général de vente</a></li>
-          <li><a href="{{ path('app_cgu') }}">Condition génral d'utilisation</a></li>
-          
-        </ul>
-      </div>
+<footer class="footer py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Colonne 1 -->
+            <div class="col-6 col-lg-3">
+                <h4 class="footer-title mb-3 text-start">SHOPPING</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{{ path('app_legal_notices') }}" class="text-decoration-none footer-link">Mentions légales</a></li>
+                    <li class="mb-2"><a href="{{ path('app_cgv') }}" class="text-decoration-none footer-link">Condition général de vente</a></li>
+                    <li class="mb-2"><a href="{{ path('app_cgu') }}" class="text-decoration-none footer-link">Condition génral d'utilisation</a></li>
+                </ul>
+            </div>
 
-      <!-- Colonne 2 -->
-      <div class="footer-col">
-        <h4>LIENS UTILES</h4>
-        <ul>
-          <li><a href="{{ path('app_contact') }}">Contactez-nous</a></li>
-          <li><a href="#">Modes de paiement</a></li>
-          <li><a href="#">Politique de confidentialité</a></li>
-         
-        </ul>
-      </div>
+            <!-- Colonne 2 -->
+            <div class="col-6 col-lg-3">
+                <h4 class="footer-title mb-3 text-start">LIENS UTILES</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{{ path('app_contact') }}" class="text-decoration-none footer-link">Contactez-nous</a></li>
+                    <li class="mb-2"><a href="#" class="text-decoration-none footer-link">Modes de paiement</a></li>
+                    <li class="mb-2"><a href="#" class="text-decoration-none footer-link">Politique de confidentialité</a></li>
+                </ul>
+            </div>
 
-      <!-- Newsletter -->
-      <div class="footer-col newsletter">
-        <h4>NEWSLETTER</h4>
-        <p>Inscrivez-vous pour recevoir nos nouveautés, promotions et conseils skincare :</p>
-        <div class="newsletter-form">
-          <input type="email" placeholder="Votre adresse e-mail">
-          <button>S'inscrire</button>
+            <!-- Newsletter -->
+            <div class="col-12 col-lg-6">
+                <h4 class="footer-title mb-3 text-start">NEWSLETTER</h4>
+                <p class="mb-3">Inscrivez-vous pour recevoir nos nouveautés, promotions et conseils skincare :</p>
+                <div class="mb-3">
+                    <input type="email" 
+                           placeholder="Votre adresse e-mail" 
+                           class="form-control mb-3 newsletter-input">
+                    <button class="btn btn-newsletter w-100">S'inscrire</button>
+                </div>
+                <p class="privacy-text small">
+                    En vous inscrivant, vous acceptez de recevoir nos emails et d'avoir lu notre 
+                    <a href="#" class="text-decoration-none privacy-link">Politique de confidentialité</a>.
+                </p>
+
+                <!-- Moyens de paiement -->
+                <div class="d-flex gap-3 justify-content-center justify-content-md-start mt-4 flex-wrap">
+                    <img src="{{ asset('images/paypal.png') }}" alt="Paypal" class="payment-icon">
+                    <img src="{{ asset('images/visa.png') }}" alt="Visa" class="payment-icon">
+                    <img src="{{ asset('images/mastercard.png') }}" alt="Mastercard" class="payment-icon">
+                    <img src="{{ asset('images/jcb.png') }}" alt="Carte Bleue" class="payment-icon">
+                    <img src="{{ asset('images/amex.png') }}" alt="Amex" class="payment-icon">
+                </div>
+            </div>
         </div>
-        <p class="privacy-text">En vous inscrivant, vous acceptez de recevoir nos emails et d’avoir lu notre <a href="#">Politique de confidentialité</a>.</p>
-
-        <!-- Moyens de paiement -->
-        <div class="paiement-icons">
-          <img src="images/paypal.png" alt="Paypal">
-          <img src="images/visa.png" alt="Visa">
-          <img src="images/mastercard.png" alt="Mastercard">
-          <img src="images/jcb.png" alt="Carte Bleue">
-          <img src="images/amex.png" alt="Amex">
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Bas de page -->
-  <div class="footer-bottom">
-    <p>&copy; 2025 Glow Beauty Skin | Tous droits réservés</p>
-  </div>
+    <!-- Bas de page -->
+    <div class="footer-bottom text-center mt-4 pt-4 border-top">
+        <p class="mb-0 small">&copy; 2025 Glow Beauty Skin | Tous droits réservés</p>
+    </div>
 </footer>

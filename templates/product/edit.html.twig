@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Modifier produits {% endblock %}
+{% block description %}{{ parent() }} | Modifier produits {% endblock %}
+{% block keywords %}{{ parent() }} | Modifier produits {% endblock %}
+
+{% block body %}
+<h2>Modifier le produit "{{ product.title|capitalize}}"</h2>
+
+<a class="btn btn-dark" href="{{ path('app_product_index') }}">Gestion des produits</a>
+<a class="btn btn-outline-primary" href="{{ path('app_product_show', {'id': product.id}) }}">Affiche produit</a>
+
+{{ form_start(formProduct) }}
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formProduct.title) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formProduct.price) }}
+    </div>
+</div>
+
+{{ form_row(formProduct.description) }}
+{{ form_row(formProduct.category) }}
+{{ form_row(formProduct.brand) }}
+{{ form_row(formProduct.skinType) }}
+
+{# 🆕 NOUVEAUX CHAMPS - Ingrédients et Conseils d'utilisation #}
+<div class="row mt-3">
+    <div class="col-md-6">
+        {{ form_row(formProduct.ingredients) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formProduct.usageAdvice) }}
+    </div>
+</div>
+
+{# Stock actuel #}
+<div class="mb-3">
+    <label class="form-label">Stock actuel :</label>
+    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+        <strong>{{ product.stock }} unités</strong>
+        <div>
+            <a href="{{ path('app_product_stock_add', {'id': product.id}) }}" class="btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Ajouter stock
+            </a>
+            <a href="{{ path('app_product_stock_add_history', {'id': product.id}) }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-history"></i> Historique
+            </a>
+        </div>
+    </div>
+</div>
+
+{# Gestion des images avec noms des fichiers existants #}
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(formProduct.image1, 'Image principale') }}
+            {% if existingImages[1] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[1] }}</span></small>
+            {% endif %}
+            {{ form_widget(formProduct.image1) }}
+            {{ form_errors(formProduct.image1) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(formProduct.image2, 'Image 2') }}
+            {% if existingImages[2] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[2] }}</span></small>
+            {% endif %}
+            {{ form_widget(formProduct.image2) }}
+            {{ form_errors(formProduct.image2) }}
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="mb-3">
+            {{ form_label(formProduct.image3, 'Image 3') }}
+            {% if existingImages[3] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[3] }}</span></small>
+            {% endif %}
+            {{ form_widget(formProduct.image3) }}
+            {{ form_errors(formProduct.image3) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(formProduct.image4, 'Image 4') }}
+            {% if existingImages[4] is defined %}
+                <small class="d-block fs-6"><strong>Actuel :</strong> <span class="text-danger fst-italic">{{ existingImages[4] }}</span></small>
+            {% endif %}
+            {{ form_widget(formProduct.image4) }}
+            {{ form_errors(formProduct.image4) }}
+        </div>
+    </div>
+</div>
+
+{{ form_rest(formProduct) }}
+<input type="submit" value="Modifier le produit" class="btn btn-dark w-100 mt-3">
+
+{{ form_end(formProduct) }}
+
+{% endblock %}

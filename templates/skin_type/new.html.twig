@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+    <h2>Ajouter un type de peau</h2>
+
+    <a class="btn btn-dark" href="{{ path('app_skin_type_index') }}">Gestion type de peau</a>
+
+    {{ include('skin_type/_form.html.twig') }}
+
+    
+{% endblock %}

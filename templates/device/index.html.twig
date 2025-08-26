@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Gestion des outils de beauté {% endblock %}
+{% block description %}{{ parent() }} | Gestion des outils de beauté {% endblock %}
+{% block keywords %}{{ parent() }} | Gestion des outils de beauté {% endblock %}
+
+{% block body %}
+<h2>Gestion des outils de beauté ({{ devices|length}})</h2>
+
+<a class="btn btn-success" href="{{ path('app_admin') }}">Back Office</a>
+<a class="btn btn-dark" href="{{ path('app_device_new') }}">Ajouter un outil de beauté</a>
+
+<table class="table table-striped table-hover table-bordered text-center mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Prix (€)</th>
+            <th>Description</th>
+            <th>Catégorie</th>
+            <th>Marque</th>
+            <th>Type de peau</th>
+            <th>Stock</th>
+            <th></th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        {% for device in devices %}
+            <tr>
+                <td>{{ device.id }}</td>
+                <td class="w-25 text-wrap">{{ device.title|capitalize }}</td>
+                <td>{{ device.price }}</td>
+
+                <td>
+                    {% if device.description %}
+                        {% if device.description|length > 20 %}
+                        {{ device.description|slice(0,20) }}...
+                        {% else %}
+                            {{ device.description }}
+                        {% endif %}
+                    {% else %}
+                         <span class="fst-italic text-danger">N.R</span> 
+                    {% endif %}
+                </td>
+
+                <td>
+                {% if device.category %}
+                        <a class="text-decoration-none text-dark" href="{{ path('app_category_show', {'id': device.category.id} ) }}">
+                            {{ device.category.name }}
+                        </a>
+                    {% else %}
+                        <span class="fst-italic text-danger">N.R</span>
+                    {% endif %}
+                </td>
+                
+                <td>
+                {% if device.brand %}
+                        <a class="text-decoration-none text-dark" href="{{ path('app_brand_show', {'id': device.brand.id} ) }}">
+                            {{ device.brand.title }}
+                        </a>
+                    {% else %}
+                        <span class="fst-italic text-danger">N.R</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                {% if device.skinType is not empty %}
+                    {% set skinTypeText = '' %}
+                    {% for type in device.skinType %}
+                        {% set skinTypeText = skinTypeText ~ type.title %}
+                        {% if not loop.last %}{% set skinTypeText = skinTypeText ~ ', ' %}{% endif %}
+                    {% endfor %}
+                    
+                    {% if skinTypeText|length > 7 %}
+                        {{ skinTypeText|slice(0,7) }}...
+                    {% else %}
+                        {{ skinTypeText }}
+                    {% endif %}
+                {% else %}
+                    <span class="fst-italic text-danger">N.R</span>
+                {% endif %}
+                </td>
+                <td>
+                {% if device.stock > 0 %}
+                 {{ device.stock}}
+                 {% else %}
+                     <span class="fst-italic text-bg-danger">Stock épuisé</span>
+                {% endif %}
+                 </td>
+
+                 <td>
+                    {# Fiche complète #}
+                    <a 
+                        href="{{ path('app_device_show', {'id': device.id }) }}" 
+                        class="text-decoration-none"
+                    >
+                        <img src="{{ asset('images/fiche.png') }}" alt="voir" class="sizeSvg30">  
+                    </a>
+
+                    {# Modifier #}
+                    <a 
+                        href="{{ path('app_device_edit', {'id': device.id }) }}" 
+                        class="text-decoration-none"
+                    >
+                        <img src="{{ asset('images/edit.png')}}" alt="modifier" class="sizeSvg30">
+                    </a>
+
+                    {# Supprimer #}
+                    <a 
+                        href="{{ path('app_device_delete', {'id': device.id }) }}" 
+                        class="text-decoration-none"
+                        onclick="return confirm('Attention ! Supprimer cet appareil supprimera également tout son historique de stock. Êtes-vous sûr de vouloir supprimer cet outil de beauté ?')"
+                    >
+                        <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
+                    </a>
+
+                    {# Ajouter stock #}
+                    <a 
+                        href="{{ path('app_device_stock_add', {'id': device.id }) }}"
+                        class="text-decoration-none"
+                    >
+                        <img src="{{ asset('images/ajouter.png')}}" alt="modifier" class="sizeSvg30">
+                    </a>
+                    </td>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | {{ device.title }} {% endblock %}
+{% block description %}{{ parent() }} | {{ device.title }} {% endblock %}
+{% block keywords %}{{ parent() }} | {{ device.title }} {% endblock %}
+
+{% block body %}
+<h2>{{ device.title }}</h2>
+
+<div class="container-fluid my-4" style="background-color: #f6ecdd;">
+ <div class="row g-3 align-items-stretch">
+     
+<!-- COLONNE 1 : 3 images miniatures -->
+<div class="d-none d-md-flex col-md-2 col-lg-1 order-1 order-md-1 order-lg-1">
+  <div class="rounded w-100">
+      <div class="d-flex flex-row flex-md-column flex-lg-column gap-2">
+          {% for i in 1..4 %}
+              {% if deviceWithImages.images[i] %}
+                  <img src="{{ asset(deviceWithImages.images[i]) }}" 
+                       class="border rounded w-100"
+                       style="height: 140px; object-fit: cover; cursor: pointer;"
+                       onclick="changeMainImage('{{ asset(deviceWithImages.images[i]) }}', this)"
+                       alt="Image {{ i }}">
+              {% else %}
+                  <div class="bg-light border rounded d-flex align-items-center justify-content-center w-100" 
+                       style="height: 120px;">
+                      <span class="text-muted small">{{ i }}</span>
+                  </div>
+              {% endif %}
+          {% endfor %}
+      </div>
+  </div>
+</div>
+     
+     <!-- COLONNE 2 : Image principale -->
+     <div class="col-12 col-md-10 col-lg-5 d-flex order-2 order-md-2 order-lg-2">
+         <div class="bg-white rounded w-100 overflow-hidden">
+             {% if deviceWithImages.mainImage %}
+                 <img id="mainImage"
+                      src="{{ asset(deviceWithImages.mainImage) }}" 
+                      class="w-100 h-100"
+                      style="object-fit: cover;"
+                      alt="{{ device.title }}">
+             {% else %}
+                 <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                     <span class="text-muted">Image principale</span>
+                 </div>
+             {% endif %}
+         </div>
+     </div>
+     
+     <!-- COLONNE 3 : Informations outil de beauté -->
+     <div class="col-12 col-md-12 col-lg-6 d-flex order-3 order-md-3 order-lg-3 rounded">
+         <div class="bg-white p-4 rounded w-100">
+             <h4 class="text-start text-dark">{{ device.title }}</h4>
+             <h3 class="text-success text-end text-lg-start">{{ device.price }}€</h3>
+             <p class="text-muted text-start">{{ device.description }}</p>
+             
+             <!-- Quantité + Panier + Favori sur même ligne -->
+           <div class="row align-items-center mb-3 g-0">
+                 <!-- Quantité - 3 colonnes -->
+                 <div class="col-2">
+                     <div class="d-flex align-items-center justify-content-center">
+                         <button class="btn btn-sm btn-outline-secondary border rounded-1 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" onclick="changeQty(-1)">−</button>
+                         <span class="mx-2 fw-medium" id="qty-display">1</span>
+                         <button class="btn btn-sm btn-outline-secondary border rounded-1 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" onclick="changeQty(1)">+</button>
+                     </div>
+                 </div>
+                 
+                 <!-- Ajouter au panier - 6 colonnes -->
+                 <div class="col-8">
+                     <a href="{{ path('app_cart_add', {'type': 'device', 'id': device.id}) }}" class="w-100">
+                         <button class=" p-2 btn btn-success w-100">Ajouter au panier</button>
+                     </a>
+                 </div>
+                 
+                 <!-- Favori - 3 colonnes -->
+                 <div class="col-2 d-flex justify-content-center">
+                     <button class="btn btn-outline-danger" onclick="toggleHeart(this)">
+                         <i class="far fa-heart"></i>
+                     </button>
+                 </div>
+             </div>
+
+           <!-- Onglets Bootstrap pour Composants et Mode d'emploi -->
+           <div class="pt-4">
+               <ul class="nav nav-tabs" id="deviceTab" role="tablist">
+                   <li class="nav-item" role="presentation">
+                       <button class="nav-link active" id="usage-tab" data-bs-toggle="tab" data-bs-target="#usage-tab-pane" type="button" role="tab" aria-controls="usage-tab-pane" aria-selected="true">Composants</button>
+                   </li>
+                   <li class="nav-item" role="presentation">
+                       <button class="nav-link" id="components-tab" data-bs-toggle="tab" data-bs-target="#components-tab-pane" type="button" role="tab" aria-controls="components-tab-pane" aria-selected="false">Mode d'emploi</button>
+                   </li>
+               </ul>
+               <div class="tab-content" id="deviceTabContent">
+                   <div class="tab-pane fade show active small pt-3" id="usage-tab-pane" role="tabpanel" aria-labelledby="usage-tab" tabindex="0">
+                       {% if deviceWithImages.ingredients is defined and deviceWithImages.ingredients %}
+                           {{ deviceWithImages.ingredients|nl2br }}
+                       {% else %}
+                           <span class="fst-italic text-muted">Informations non renseignées</span>
+                       {% endif %}
+                       
+                   </div>
+                   <div class="tab-pane fade small pt-3" id="components-tab-pane" role="tabpanel" aria-labelledby="components-tab" tabindex="0">
+                       {% if deviceWithImages.usageAdvice is defined and deviceWithImages.usageAdvice %}
+                           {{ deviceWithImages.usageAdvice|nl2br }}
+                       {% else %}
+                           <span class="fst-italic text-muted">Informations non renseignées</span>
+                       {% endif %}
+                        
+                   </div>
+               </div>
+           </div>
+         </div>
+     </div>   
+ </div>
+
+<div class="my-4">
+    <h4 class="text-center pt-5 mb-4">Outils de beauté similaires</h4>
+    
+    <div class="d-flex justify-content-center gap-3" style="align-items: stretch;">
+        {% for item in similarDevices %}
+            <div class="card" style="width: 18rem;">
+                {% if item.image %}
+                    <a class="text-decoration-none text-dark" href="{{ path('app_device_catalog_show', {'id': item.device.id}) }}">
+                        <img src="{{ asset(item.image) }}" 
+                             class="card-img-top" 
+                             alt="{{ item.device.title }}"
+                             style="height: 300px; object-fit: cover;">
+                    </a>
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 300px;">
+                        <span class="text-muted">Pas d'image</span>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <a class="text-decoration-none text-dark" href="{{ path('app_device_catalog_show', {'id': item.device.id}) }}">
+                        <h5 class="card-title">{{ item.device.title }}</h5>
+                    </a>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-end mb-2">
+                            <span class="text-success fw-bold">{{ item.device.price }}€</span>
+                        </div>
+                        <a href="{{ path('app_cart_add', {'type': 'device', 'id': item.device.id}) }}" class="btn btn-outline-success w-100">Ajouter au panier</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+function changeMainImage(src, element) {
+ document.getElementById('mainImage').src = src;
+ 
+ document.querySelectorAll('.d-none img, .d-md-flex img').forEach(img => {
+     img.classList.remove('border-success');
+     img.classList.add('border-secondary');
+ });
+ 
+ element.classList.remove('border-secondary');
+ element.classList.add('border-success');
+}
+
+function changeQty(change) {
+ const display = document.getElementById('qty-display');
+ let value = parseInt(display.textContent) + change;
+ if (value >= 1) display.textContent = value;
+}
+
+</script>
+{% endblock %}

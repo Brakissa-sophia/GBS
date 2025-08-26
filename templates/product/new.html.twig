@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+ {% block title %}{{ parent() }} | Produit ajouter  {% endblock %}
+ {% block description %}{{ parent() }} | Produit ajouter {% endblock %}
+ {% block keywords %}{{ parent() }} | Produit ajouter  {% endblock %}
+
+
+{% block body %}
+ <h2>Produit ajouter</h2>
+
+<a class="btn btn-dark" href="{{ path('app_product_index') }}">Gestion des produits</a>
+
+    
+    {{ form_start(formProduct) }}
+   
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(formProduct.title) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(formProduct.price) }}
+              
+            </div>
+        </div>
+        {{ form_row(formProduct.description) }}
+        {{ form_row(formProduct.category) }}
+        {{ form_row(formProduct.brand) }}
+        {{ form_row(formProduct.skinType) }}
+        
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(formProduct.ingredients) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(formProduct.usageAdvice) }}
+            </div>
+        </div>
+        {{ form_row(formProduct.stock) }} 
+
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(formProduct.image1) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(formProduct.image2) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(formProduct.image3) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(formProduct.image4) }}
+              
+            </div>
+        </div>
+
+
+
+
+        
+        {{ form_rest(formProduct) }}
+        <input type="submit" value="Ajouter un produit" class="btn btn-dark w-100 mt-3">
+
+        
+
+    {{ form_end(formProduct) }}
+ 
+
+
+{% endblock %} 

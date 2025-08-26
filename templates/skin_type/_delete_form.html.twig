@@ -1,0 +1,12 @@
+<form 
+    class="d-inline-block"
+    method="post" 
+    action="{{ path('app_skin_type_delete', {'id': skin_type.id}) }}" 
+    onsubmit="return confirm('Etes-vous sûr de vouloir ce type de peau?');"
+>
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ skin_type.id) }}">
+    <button class="text-decoration-none" >
+       <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
+    </button>
+</form>
+ 

@@ -15,3 +15,12 @@
         {{notification}}
     </div>
 {% endfor %}
+
+
+{% for label, messages in app.flashes %}
+    <div class="alert alert-{{ label }} w-75 mx-auto text-center my-2">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endfor %}

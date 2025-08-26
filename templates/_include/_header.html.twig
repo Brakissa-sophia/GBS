@@ -1,135 +1,161 @@
-<header class="header-sticky">
-    <!-- Bandeau défilant -->
-    <div class="bandeau-haut">
-        <p class="texte-defilant">
-            🎁 Offre spéciale : -20% sur tout le site avec le code GLOW20 🌟
-        </p>
+<header class="container-fluid fixed-top px-0">    
+    <div class="scrolling-text">             
+        <span>Offre spéciale : -20% sur tout le site avec le code GLOW20</span>         
     </div>
-    
-    <div class="header-main container py-2 d-flex justify-content-between align-items-center">
-        <div class="icone-header">
-            <img src="{{ asset('images/recherche.png') }}" alt="Recherche" class="icone-illustration">
-        </div>
-        
-        <div class="logo-container">
-            <a href="{{ path('app_home') }}" class="logo-link">
-                <img src="{{ asset('images/log.png') }}" alt="Logo Glow Beauty Skin" class="logo-gbs">
-                <h1>Glow Beauty Skin</h1>
-            </a>
-        </div>
-        
-        <div class="d-flex gap-3">
-            <!-- Dropdown utilisateur -->
-            <div class="dropdown icone-header">
-                <img src="{{ asset('images/utilisateur.png') }}" 
-                     alt="Compte utilisateur" 
-                     class="icone-illustration" 
-                     data-bs-toggle="dropdown" 
-                     aria-expanded="false"
-                     role="button">
-                
-                {% if app.user %}
-                    <!-- Menu pour utilisateur connecté -->
-                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
-                        <li class="dropdown-header">
-                            <strong>Bonjour {{ app.user.firstName ?? app.user.email }}</strong>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_account') }}">
-                                Mon compte
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_order') }}">
-                                 Mes commandes
-                            </a>
-                        </li>
-                      
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_addresse') }}">
-                                 Mes adresses
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_setting') }}">
-                                 Paramètres
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
-                                 Se déconnecter
-                            </a>
-                        </li>
-                    </ul>
-                {% else %}
-                    <!-- Menu pour utilisateur non connecté -->
-                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
-                        <li class="dropdown-header">
-                            <strong>Mon compte</strong>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_login') }}">
-                                 Se connecter
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ path('app_register') }}">
-                                 Inscription
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                 Suivre ma commande
-                            </a>
-                        </li>
-                    </ul>
-                {% endif %}
-            </div>
-            
-            <div class="icone-header">
-             <a class="dropdown-item" href="{{ path('app_favorite') }}">
-                <img src="{{ asset('images/favoris.png') }}" alt="Favoris" class="icone-illustration">
-              </a>
-            </div>
 
+    <div class="container h-100">
+        <div class="row align-items-center">
+            <!-- Début : Menu hamburger (mobile) + Icône recherche (desktop) -->
+            <div class="col-4">
+                <!-- Menu hamburger pour mobile avec toutes les classes Bootstrap -->
+                <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Icône recherche pour desktop -->
+                <button class="btn p-0 border-0 d-none d-lg-block">
+                    <img class="img-fluid" src="{{ asset('images/recherche.png') }}" alt="Rechercher">
+                </button>
+            </div>
             
-            <div class="icone-header">
-                <img src="{{ asset('images/panier.png') }}" alt="Panier" class="icone-illustration">
+            <!-- Centre : Logo -->
+            <div class="col-4 text-center">
+                <a href="{{ path('app_home') }}" class="text-decoration-none">
+                    <img class="img-fluid rounded-circle" src="{{ asset('images/log.png') }}" alt="Logo">
+                </a>
+            </div>
+            
+            <!-- Fin : Icônes utilisateur, favoris, panier -->
+            <div class="col-4 text-end">
+                <!-- Dropdown utilisateur -->
+                <div class="dropdown d-inline-block me-2">
+                    <button class="btn p-0 border-0" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img class="img-fluid" src="{{ asset('images/utilisateur.png') }}" alt="Compte utilisateur">
+                    </button>
+                    {% if app.user %}
+                        <!-- Menu pour utilisateur connecté -->
+                        <ul class="dropdown-menu py-lg-0">
+                            <li><h6 class="dropdown-header">Bonjour {{ (app.user.firstName ?? app.user.email)|capitalize }}</h6></li>
+                            <li><hr class="dropdown-divider m-lg-0"></li>
+                            <li><a class="dropdown-item fw-bold py-lg-2 fw-bold" href="{{ path('app_profile_index') }}">Mon compte</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_order') }}">Mes commandes</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_addresse') }}">Mes adresses</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_setting') }}">Paramètres</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_admin') }}">Back office</a></li>
+                            <li><hr class="dropdown-divider m-lg-0"></li>
+                            <li><a class="dropdown-item text-danger py-lg-2" href="{{ path('app_logout') }}">Se déconnecter</a></li>
+                        </ul>
+                    {% else %}
+                        <!-- Menu pour utilisateur non connecté -->
+                        <ul class="dropdown-menu py-lg-0">
+                            <li><h6 class="dropdown-header fw-bold py-lg-2 fw-bold">Mon compte</h6></li>
+                            <li><hr class="dropdown-divider m-lg-0"></li>
+                            <li><a class="dropdown-item" href="{{ path('app_login') }}">Se connecter</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_register') }}">Inscription</a></li>
+                            <li><hr class="dropdown-divider m-lg-0"></li>
+                            <li><a class="dropdown-item py-lg-2" href="#">Suivre ma commande</a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <a class="text-decoration-none me-2" href="{{ path('app_favorite') }}">
+                    <img class="img-fluid" src="{{ asset('images/favoris.png') }}" alt="Favoris">
+                </a>
+                <a class="text-decoration-none" href="{{ path('app_cart') }}">
+                    <img class="img-fluid" src="{{ asset('images/panier.png') }}" alt="Panier">
+                </a>
             </div>
         </div>
+        
+        <!-- Titre - caché en mobile -->
+        <div class="d-none d-lg-block">
+            <h1 class="fw-bold text-center">Glow Beauty Skin</h1>
+        </div>
+        
+        <!-- NAV avec w-100 et justify-content-between -->
+        <nav class="navbar navbar-expand-lg w-100 p-0">
+            <!-- conteneur rétractable sur tablette et mobile contenant les liens du menu -->
+            <div class="collapse navbar-collapse d-none d-lg-block" id="menu-global">
+                <!-- menu avec justify-content-between pour étaler sur toute la largeur -->
+                <ul class="navbar-nav w-100 justify-content-between px-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
+                    </li>
+                    
+                    <!-- Dropdown Marques -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMarques" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Marque
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMarques">
+                           {% for brand in get_brands() %}
+    <li><a class="dropdown-item" href="{{ path('app_catalog_brand', {'id': brand.id }) }}">{{ brand.title }}</a></li>
+{% endfor %}
+                        </ul>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_catalog') }}">Produit</a>
+                    </li>
+                   
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_device_catalog') }}">Outils de beauté</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_contact') }}">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+        <!-- Menu Offcanvas pour mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    
-    <nav class="d-flex justify-content-center">
-        <ul class="nav-principale">
-            <li>
-                <a href="{{ path('app_home') }}">ACCUEIL</a>
+    <div class="offcanvas-body">
+        <!-- Barre de recherche mobile -->
+        <div class="mb-4">
+            <h6 class="text-muted mb-2 fw-bold">Rechercher</h6>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Rechercher...">
+                <button class="btn btn-success" type="submit">Rechercher</button>
+            </div>
+        </div>
+        
+        <!-- Navigation mobile -->
+        <ul class="navbar-nav">
+            <li class="nav-item mb-2">
+                <a class="nav-link py-2" href="{{ path('app_home') }}">Accueil</a>
             </li>
             
-            <li class="dropdown">
-                <a href="{{ path('app_brand') }}">MARQUES</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{{ path('app_brand') }}">Anua</a></li>
-                    <li><a href="{{ path('app_brand') }}">Beauty of Joseon</a></li>
-                    <li><a href="{{ path('app_brand') }}">Medicube</a></li>
-                    <li><a href="{{ path('app_brand') }}">Skin1004</a></li>
+            <!-- Dropdown Marques pour mobile -->
+            <li class="nav-item dropdown mb-2">
+                <a class="nav-link dropdown-toggle py-2" href="#" id="offcanvasDropdownMarques" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Marque
+                </a>
+                <ul class="dropdown-menu w-100" aria-labelledby="offcanvasDropdownMarques">
+                    <li><a class="dropdown-item" href="#">Anua</a></li>
+                    <li><a class="dropdown-item" href="#">Beauty Of Joseon</a></li>
+                    <li><a class="dropdown-item" href="#">Medicube</a></li>
+                    <li><a class="dropdown-item" href="#">Skin1004</a></li>
                 </ul>
             </li>
             
-            <li>
-                <a href="{{ path('app_catalog') }}">PRODUITS</a>
+            <li class="nav-item mb-2">
+                <a class="nav-link py-2" href="{{ path('app_catalog') }}">Produit</a>
+            </li>
+           
+            <li class="nav-item mb-2">
+                <a class="nav-link py-2" href="{{ path('app_device') }}">Outils de beauté</a>
             </li>
             
-            <li>
-                <a href="{{ path('app_device') }}">APPAREILS</a>
-            </li>
-            
-            <li>
-                <a href="{{ path('app_contact') }}">CONTACT</a>
+            <li class="nav-item mb-2">
+                <a class="nav-link py-2" href="{{ path('app_contact') }}">Contact</a>
             </li>
         </ul>
-    </nav>
+    </div>
+  </div>
+ </div>
 </header>

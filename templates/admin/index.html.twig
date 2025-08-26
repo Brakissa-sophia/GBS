@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Back office {% endblock %}
+{% block description %}{{ parent() }} | Back office {% endblock %}
+{% block keywords %}{{ parent() }} | Back office  {% endblock %}
+
+{% block body %}
+<h2>Back Office</h2>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4"> Dashboard Admin</h2>
+    <p class="text-center text-muted mb-5">Gérez tous les éléments de votre site depuis cet espace</p>
+
+    <div class="row g-4">
+        <!-- Produits -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header bg-black text-white text-center">
+                     Produits
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <a href="{{ path('app_product_index') }}" class="btn btn-success btn-sm w-100 mb-2">Tous les produits</a>
+                    <a href="{{ path('app_product_new') }}" class="btn btn-outline-success btn-sm w-100">Ajouter</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appareils -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header bg-black text-white text-center">
+                     Appareils
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <a href="{{ path('app_device_index') }}" class="btn btn-success btn-sm w-100 mb-2">Tous les appareils</a>
+                    <a href="{{ path('app_device_new') }}" class="btn btn-outline-success btn-sm w-100">Ajouter</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Catégories -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header bg-black text-white text-center">
+                     Catégories
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <a href="{{ path('app_category_index') }}" class="btn btn-success btn-sm w-100 mb-2">Toutes les catégories</a>
+                    <a href="{{ path('app_category_new') }}" class="btn btn-outline-success btn-sm w-100">Ajouter</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Type de peau -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header bg-black text-white text-center">
+                     Type de peau
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <a href="{{ path('app_skin_type_index') }}" class="btn btn-success btn-sm w-100 mb-2">Tous les types de peaux</a>
+                    <a href="{{ path('app_skin_type_new') }}" class="btn btn-outline-success btn-sm w-100">Ajouter</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marques -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-header bg-black text-white text-center">
+                     Marques
+                </div>
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <a href="{{ path('app_brand_index') }}" class="btn btn-success btn-sm w-100 mb-2">Toutes les marques</a>
+                    <a href="{{ path('app_brand_new') }}" class="btn btn-outline-success btn-sm w-100">Ajouter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +8,15 @@
     
     <meta name="description" content="{% block description %}{{compagny}}Glow Beauty Skin est une boutique en ligne spécialisée en skincare coréen. Découvrez une sélection de produits doux, efficaces et adaptés à chaque type de peau, pour révéler votre éclat naturel. Produits testés, actifs reconnus, résultats visibles.{% endblock %}"> 
     <meta name="keywords" content="{% block keywords %}{{compagny}}{% endblock %}">
-    <link rel="icon" href="{{ asset('images/log.png') }}">
+    {#<link rel="icon" href="{{ asset('images/log.png') }}">#}
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
     
     {% block stylesheets %} {% endblock %}
 </head>
@@ -22,17 +24,20 @@
 
 <body>
   {% include '_include/_header.html.twig' %}
+   {% include "_include/_flashes.html.twig" %}
    
-<main>
+<main class="min-vh-100 container main-content">
 
-    {% include "_include/_flashes.html.twig" %}
+    
     {% block body %}{% endblock %}
 </main> 
 
     {% include '_include/_footer.html.twig' %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-<script src="{{ asset('js/script.js') }}"></script>
+{#<script src="{{ asset('js/script.js') }}"></script>
+<script src="{{ asset('js/bootstrap.js') }}"></script>#}
+
 {% block javascripts %}
     {# {% block importmap %}{{ importmap('app') }}{% endblock %} #}
 {% endblock %}

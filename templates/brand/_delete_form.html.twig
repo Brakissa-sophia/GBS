@@ -1,0 +1,12 @@
+<form 
+    class="d-inline-block"
+    method="post" 
+    action="{{ path('app_brand_delete', {'id': brand.id}) }}" 
+    onsubmit="return confirm('Etes-vous sûr de vouloir cette marque?');"
+>
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ brand.id) }}">
+    <button class="text-decoration-none" >
+       <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
+    </button>
+</form>
+ 

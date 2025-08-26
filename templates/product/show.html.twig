@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Produit fiche{% endblock %}
+{% block description %}{{ parent() }} | Produit fiche{% endblock %}
+{% block keywords %}{{ parent() }} | Produit fiche{% endblock %}
+
+{% block body %}
+<h2>{{ product.title|capitalize }}</h2>
+
+<a class="btn btn-outline-dark" href="{{ path('app_product_index') }}">Gestion des produits</a>
+<a class="btn btn-outline-secondary" href="{{ path('app_product_stock_add_history',{'id':product.id}) }}">Afficher l'historique d'ajout du stock</a>
+<a class="btn btn-outline-warning" href="{{ path('app_product_edit', {'id': product.id}) }}">Modifier le produit</a>
+
+<table class="table table-striped table-hover table-bordered text-center mt-3">
+    <tr>
+        <th class="w-25">ID</th>
+        <td class="w-75">{{ product.id }}</td>
+    </tr>
+    <tr>
+        <th class="w-25">Titre</th>
+        <td class="w-75">{{ product.title|capitalize }}</td>
+    </tr>
+    <tr>
+        <th class="w-25">Prix</th>
+        <td class="w-75">{{ product.price }}€</td>
+    </tr>
+    <tr>
+        <th class="w-25">Description</th>
+        <td class="w-75">
+            {% if product.description %}
+                {{ product.description }}
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Catégorie</th>
+        <td class="w-75">
+            {% if product.category %}
+                <a class="text-decoration-none text-dark" href="{{ path('app_category_show', {'id': product.category.id} ) }}">
+                    {{ product.category.name }}
+                </a>
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Marque</th>
+        <td class="w-75">
+            {% if product.brand %}
+                <a class="text-decoration-none text-dark" href="{{ path('app_brand_show', {'id': product.brand.id} ) }}">
+                    {{ product.brand.title }}
+                </a>
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Type de peau</th>
+        <td class="w-75">
+            {% if product.skinType is not empty %}
+                {% for type in product.skinType %}
+                    <a class="text-decoration-none text-dark" href="{{ path('app_skin_type_show', {'id': type.id}) }}">
+                        {{ type.title }}
+                    </a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Ingrédients</th>
+        <td class="w-75 text-start">
+            {% if product.ingredients %}
+                {{ product.ingredients|nl2br }}
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Conseil d'utilisation</th>
+        <td class="w-75 text-start">
+            {% if product.usageAdvice %}
+                {{ product.usageAdvice|nl2br }}
+            {% else %}
+                <span class="fst-italic text-danger">N.R</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Stock</th>
+        <td class="w-75">
+            {% if product.stock > 0 %}
+                <span class="badge bg-success">{{ product.stock }} unités</span>
+            {% else %}
+                <span class="badge bg-danger">Stock épuisé</span>
+            {% endif %}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="w-25">Images</th>
+        <td class="w-75 text-start">
+            {% if productImages is defined and productImages is not empty %}
+                {% for imageNumber in 1..4 %}
+                    {% if productImages[imageNumber] is defined %}
+                        <div class="mb-1">
+                            <strong>Image {{ imageNumber }} :</strong>
+                            <span class="fst-italic fs-6">{{ productImages[imageNumber] }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <span class="fst-italic text-danger">Aucune image</span>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+{% endblock %}

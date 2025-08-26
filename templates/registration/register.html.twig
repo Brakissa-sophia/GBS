@@ -4,38 +4,85 @@
 {% block description %}{{ parent() }} | Inscription {% endblock %}
 {% block keywords %}{{ parent() }} | Inscription {% endblock %}
 
+
 {% block body %}
-<div class="container">
-    <div class="registration-wrapper">
-        <!-- Formulaire -->
-        <div class="form-side">
-            <h1>Inscription</h1>
+    <div class="container-fluid d-flex justify-content-center align-items-start">
+        <div class="registration-container row rounded overflow-hidden">
             
-            {{ form_errors(registrationForm) }}
-            {{ form_start(registrationForm) }}
+            <!-- Formulaire -->
+            <div class="form-side col-12 col-lg-6 d-flex align-items-center justify-content-center p-0">
+                <div class="w-100 p-sm-4 d-flex flex-column h-100">
+                    <div class="flex-grow-1 d-flex flex-column justify-content-start pt-2 pt-lg-3">
+                        <h3 class="text-center mb-3">Inscription</h3>
+                        
+                        {{ form_errors(registrationForm) }}
+                        {{ form_start(registrationForm) }}
+
+                        
+                      <div class="mb-0" >
+                        {{ form_row(registrationForm.sexe, {
+                            'label_attr': {'class': 'form-label small fw-medium'}
+                        }) }}
+                    </div>
+                    
+
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.firstName, {
+                                'attr': {'class': 'form-control form-control-sm'},
+                                'label_attr': {'class': 'form-label small fw-medium'}
+                            }) }}
+                        </div>
+                        
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.lastName, {
+                                'attr': {'class': 'form-control form-control-sm'},
+                                'label_attr': {'class': 'form-label small fw-medium'}
+                            }) }}
+                        </div>
+                        
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.email, {
+                                'attr': {'class': 'form-control form-control-sm'},
+                                'label_attr': {'class': 'form-label small fw-medium'}
+                            }) }}
+                        </div>
+                        
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.plainPassword.first, {
+                                'attr': {'class': 'form-control form-control-sm'},
+                                'label_attr': {'class': 'form-label small fw-medium'}
+                            }) }}
+                        </div>
+                        
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.plainPassword.second, {
+                                'attr': {'class': 'form-control form-control-sm'},
+                                'label_attr': {'class': 'form-label small fw-medium'}
+                            }) }}
+                        </div>
+                                
+                        <div class="mb-3 mb-lg-2">
+                            {{ form_row(registrationForm.agreeTerms, {
+                                'label':'<span class="small text-muted"> En créant votre compte, vous confirmez que vous avez lu et que vous acceptez nos <a href="' ~ path('app_cgu') ~ '" target="_blank" class="text-decoration-none">conditions générales d\'utilisation</a> et notre <a href="' ~ path('app_politique_confidentialite') ~ '" target="_blank" class="text-decoration-none">politique de confidentialité</a> de Glow Beauty Skin.</span>'
+                            }) }}
+                        </div>
+                        
+                        <button type="submit" class="submit-btn btn btn-sm w-100 mb-2 mb-lg-1">S'inscrire</button>
+                        
+                        <p class="text-center mb-3 mb-lg-0 small pt-1">Vous avez déjà un compte? <a href="{{ path('app_login') }}" class="text-decoration-none">Connectez-vous</a></p>
+                        
+                        {{ form_end(registrationForm) }}
+                    </div>
+                    
+                    <p class="text-muted small d-none d-lg-block pt-3 mb-0">Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires</p>
+                </div>
+            </div>
             
-            {{ form_row(registrationForm.firstName) }}
-            {{ form_row(registrationForm.lastName) }}
-            {{ form_row(registrationForm.email) }}
-            {{ form_row(registrationForm.plainPassword) }}
-           
+            <!-- Image visible uniquement sur desktop -->
+            <div class="image-side col-lg-6 d-none d-lg-flex align-items-center justify-content-center p-0">
+                <img src="{{ asset('images/inscription_img.avif') }}" alt="Image inscription" class="img-fluid w-100 h-100 object-fit-cover">
+            </div>
             
-            {{ form_row(registrationForm.agreeTerms, {
-                'label':'<span class="terms-text"> En créant votre compte, vous confirmez que vous avez lu et que vous acceptez nos <a href="' ~ path('app_cgu') ~ '" target="_blank">conditions générales d\'utilisation</a> et notre <a href="' ~ path('app_politique_confidentialite') ~ '" target="_blank">politique de confidentialité</a> de Glow Beauty Skin.'
-            }) }}
-            
-            <button type="submit" class="submit-btn">S'inscrire</button>
-            
-            <p class="text-center">Vous avez déjà un compte? <a href="{{ path('app_login') }}">Connectez-vous</a></p>
-            <p class="required-info">Les champs marqués d'un astérisque (<span class="text-danger">*</span>) sont obligatoires</p>
-            
-            {{ form_end(registrationForm) }}
-        </div>
-        
-        <!-- Image -->
-        <div class="image-side">
-            <img src="{{ asset('images/inscription_img.avif') }}" alt="Image inscription">
         </div>
     </div>
-</div>
 {% endblock %}

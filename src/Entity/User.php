@@ -40,6 +40,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $lastName = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $sexe = null;
+
+   #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $birthDate = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $phone = null;
+
 
     public function getId(): ?int
     {
@@ -134,6 +143,52 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(string $sexe): static
+    {
+        $this->sexe = $sexe;
+
+        return $this;
+    }
+
+   public function getBirthDateFr(): ?string
+{
+    if ($this->birthDate === null) {
+        return null;
+    }
+    
+    return $this->birthDate->format('d/m/Y');
+}
+
+/**
+ * Définit la date en format français
+ */
+public function setBirthDateFromFr(string $dateStr): static
+{
+    $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+    if ($date !== false) {
+        $this->birthDate = $date;
+    }
+    
+    return $this;
+}
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
 
         return $this;
     }

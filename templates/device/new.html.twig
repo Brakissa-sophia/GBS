@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Ajouter un outil de beauté {% endblock %}
+{% block description %}{{ parent() }} | Ajouter un outil de beauté {% endblock %}
+{% block keywords %}{{ parent() }} | Ajouter un outil de beauté {% endblock %}
+
+{% block body %}
+<h2>Ajouter un outil de beauté</h2>
+
+<a class="btn btn-dark" href="{{ path('app_device_index') }}">Gestion des outils de beauté</a>
+
+{{ form_start(formDevice) }}
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formDevice.title) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.price) }}
+    </div>
+</div>
+
+{{ form_row(formDevice.description) }}
+{{ form_row(formDevice.category) }}
+{{ form_row(formDevice.brand) }}
+{{ form_row(formDevice.skinType) }}
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formDevice.ingredients) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.usageAdvice) }}
+    </div>
+</div>
+
+{{ form_row(formDevice.stock) }} 
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formDevice.image1) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.image2) }}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(formDevice.image3) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(formDevice.image4) }}
+    </div>
+</div>
+
+{{ form_rest(formDevice) }}
+<input type="submit" value="Ajouter un outil de beauté" class="btn btn-dark w-100 mt-3">
+
+{{ form_end(formDevice) }}
+
+{% endblock %}
