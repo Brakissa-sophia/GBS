@@ -78,7 +78,9 @@ header {
 
 .scrolling-text span {
     display: inline-block;
-    animation: scroll-left 15s linear infinite;
+    position: absolute;
+    right: 0;
+animation: scroll-left 15s linear infinite;
   
 }
 
@@ -87,7 +89,7 @@ header {
         transform: translateX(100%); 
     }
     100% { 
-        transform: translateX(-100%); 
+        transform: translateX(-300%); 
     }
 }
 
@@ -656,8 +658,3 @@ footer p {
                 width: 50%;
             }
         }
-
-
-        
-    
-  

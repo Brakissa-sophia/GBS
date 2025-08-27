@@ -5,9 +5,9 @@
 
     <div class="container h-100">
         <div class="row align-items-center">
-            <!-- Début : Menu hamburger (mobile) + Icône recherche (desktop) -->
+           
             <div class="col-4">
-                <!-- Menu hamburger pour mobile avec toutes les classes Bootstrap -->
+               
                 <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -25,7 +25,7 @@
                 </a>
             </div>
             
-            <!-- Fin : Icônes utilisateur, favoris, panier -->
+           
             <div class="col-4 text-end">
                 <!-- Dropdown utilisateur -->
                 <div class="dropdown d-inline-block me-2">
@@ -72,11 +72,11 @@
             <h1 class="fw-bold text-center">Glow Beauty Skin</h1>
         </div>
         
-        <!-- NAV avec w-100 et justify-content-between -->
+       
         <nav class="navbar navbar-expand-lg w-100 p-0">
-            <!-- conteneur rétractable sur tablette et mobile contenant les liens du menu -->
+           
             <div class="collapse navbar-collapse d-none d-lg-block" id="menu-global">
-                <!-- menu avec justify-content-between pour étaler sur toute la largeur -->
+                
                 <ul class="navbar-nav w-100 justify-content-between px-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
@@ -108,14 +108,14 @@
             </div>
         </nav>
         
-        <!-- Menu Offcanvas pour mobile -->
+        
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menu</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <!-- Barre de recherche mobile -->
+        
         <div class="mb-4">
             <h6 class="text-muted mb-2 fw-bold">Rechercher</h6>
             <div class="input-group">
@@ -124,13 +124,13 @@
             </div>
         </div>
         
-        <!-- Navigation mobile -->
+        
         <ul class="navbar-nav">
             <li class="nav-item mb-2">
                 <a class="nav-link py-2" href="{{ path('app_home') }}">Accueil</a>
             </li>
             
-            <!-- Dropdown Marques pour mobile -->
+           
             <li class="nav-item dropdown mb-2">
                 <a class="nav-link dropdown-toggle py-2" href="#" id="offcanvasDropdownMarques" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Marque

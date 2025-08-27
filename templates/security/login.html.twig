@@ -5,13 +5,14 @@
 {% block keywords %}{{ parent() }} | ConnexionI  {% endblock %}
 
 {% block body %}
+{% if error %}
+    <div class="alert alert-danger text-center rounded-3 mb-4">{{ 'Identifiant ou mot de passe incorrect. Veuillez réessayer.' }}</div>
+ {% endif %}
 
 <div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
     <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
         <form method="post">
-            {% if error %}
-                <div class="alert alert-danger rounded-3 mb-4">{{ 'Identifiant ou mot de passe incorrect. Veuillez réessayer.' }}</div>
-            {% endif %}
+            
 
             {% if app.user %}
                 <div class="mb-3 alert alert-info rounded-3">

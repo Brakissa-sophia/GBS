@@ -46,7 +46,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $birthDate = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
 
@@ -159,27 +159,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-   public function getBirthDateFr(): ?string
-{
-    if ($this->birthDate === null) {
-        return null;
+    public function getBirthDate(): ?\DateTime
+    {
+        return $this->birthDate;
     }
-    
-    return $this->birthDate->format('d/m/Y');
-}
 
-/**
- * Définit la date en format français
- */
-public function setBirthDateFromFr(string $dateStr): static
-{
-    $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
-    if ($date !== false) {
-        $this->birthDate = $date;
+   
+    public function setBirthDate(?\DateTime $birthDate): static
+    {
+        $this->birthDate = $birthDate;
+        return $this;
     }
-    
-    return $this;
-}
 
     public function getPhone(): ?string
     {
