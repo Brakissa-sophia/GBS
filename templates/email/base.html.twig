@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+</head>
+<body style="background-color:#f6ecdd">
+<div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+  <img 
+    src="http://127.0.0.1:8000/images/logo/gbs_logo.png" 
+    alt="logo glow beauty skin"
+    style="width:90px; border-radius:50%;">
+  <span style="color:#698866; font-size:40px; font-weight:bold;">
+    Glow Beauty Skin
+  </span>
+</div>
+
+    <main style=" width:80%; margin: 0 auto; padding: 20px; font-size:20px; line-height:1.5; font-weight: 700">
+        
+    </main>
+
+    <div style=" width:80%; margin: 0 auto; padding: 20px; border: 10px solid #ebd4bd; background-color:transparent; border-radius:10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+    <p>Bonjour {{user.lastName|capitalize}},</p>
+    
+    {% block body %}{% endblock %}
+    <br>
+    <p>Merci de votre confiance, à très vite.</p>
+    <p>L'équipe Glow Beauty Skin</p>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,27 @@
+ {% extends 'email/base.html.twig' %}
+
+
+{% block body %}
+
+<p>Merci pour votre inscription.</p>
+<p>Cliquez ci-dessous pour activer votre compte: </p>
+
+<a href="{{ url('app_activation_account', {token: user.token}) }}" 
+   style="display:block; 
+   margin: 0 auto; 
+   text-align: center;
+          padding: 12px 20px; 
+          background-color: transparent;
+          border: 2px solid #698866;
+          color: #698866;
+          font-size: 20px; 
+          text-decoration: none; 
+          width: fit-content;
+          border-radius: 5px; 
+          font-weight: bold;">
+    Activez mon compte
+</a>
+
+
+<p>Si vous n’êtes pas à l’origine de cette inscription, vous pouvez ignorer ce message</p>
+{% endblock %}

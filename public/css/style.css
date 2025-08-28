@@ -554,14 +554,14 @@ footer p {
 
 .container-login {
     background-color: var(--color-beigef);
-    max-width: 550px; 
+    max-width: 670px; 
     margin: 0 auto; 
 
 }
 
 .carte-login {
     background-color: var(--color-beige);
-    max-width: 450px;
+    max-width: 570px;
 }
 
 .titre-connexion {
@@ -575,8 +575,13 @@ footer p {
    
 }
 
-.mdp-oublie:hover {
-    text-decoration: underline;
+.mdp-oublie:hover{
+    text-decoration: underline !important;
+}
+
+.card-reset{
+    background-color: var(--color-beigef);
+    margin: 0 auto;
 }
 
 

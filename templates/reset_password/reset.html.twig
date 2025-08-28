@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+ {% block title %}{{ parent() }} |Réinitialiser{% endblock %}
+ {% block description %}{{ parent() }} |Réinitialiser{% endblock %}
+ {% block keywords %}{{ parent() }} |Réinitialiser{% endblock %}
+
+
+{% block body %}
+    <h3 class="mb-3">Réinitialiser votre mot de passe</h3>
+  <div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
+     <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
+
+    {{ form_start(resetForm) }}
+        {{ form_row(resetForm.plainPassword) }}
+        <button class="submit-btn w-100 rounded-2 fw-semibold my-3">Réinitialiser</button>
+    {{ form_end(resetForm) }}
+
+    </div>
+{% endblock %}
