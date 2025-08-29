@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Checkout{% endblock %}
+{% block description %}{{ parent() }} | Checkout{% endblock %}
+{% block keywords %}{{ parent() }} | Checkout{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3 py-md-4">
+    <div class="row g-3">
+        <!-- Section Adresse d'expédition -->
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
+            <div class="card shadow-sm rounded-3 border-0">
+                <table class="table table-borderless mb-0">
+                    <thead>
+                        <tr>
+                            <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium">Adresse d'expédition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                {{ form_start(form, {'attr': {'class': 'checkout-form'}}) }}
+                                
+                                <div class="row g-3">
+                                    <!-- Prénom et Nom -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Prénom</label>
+                                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'placeholder': 'Prénom'}}) }}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Nom</label>
+                                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+                                    </div>
+                                    
+                                    <!-- Email et Téléphone -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Email</label>
+                                        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Email'}}) }}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Numéro de téléphone</label>
+                                        {{ form_widget(form.phone, {'attr': {'class': 'form-control', 'placeholder': 'Numéro de téléphone'}}) }}
+                                    </div>
+                                    
+                                    <!-- Adresse complète -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium text-dark">Adresse (numéro et rue)</label>
+                                        {{ form_widget(form.street, {'attr': {'class': 'form-control', 'placeholder': 'Adresse (rue numéro)'}}) }}
+                                    </div>
+
+                                    <!-- Code postal et Ville -->
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Code postal</label>
+                                        {{ form_widget(form.postalCode, {'attr': {'class': 'form-control', 'placeholder': 'Code postal'}}) }}
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-medium text-dark">Ville</label>
+                                        {{ form_widget(form.city, {'attr': {'class': 'form-control', 'placeholder': 'Ville'}}) }}
+                                    </div>
+                                    
+                                    <!-- Checkbox adresse de facturation (optionnel) -->
+                                    <div class="col-12 mt-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="save-info" checked>
+                                            <label class="form-check-label text-muted" for="save-info">
+                                                Sauvegarder ces informations pour mes prochaines commandes
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{ form_end(form) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Section Récapitulatif -->
+        <div class="col-12 col-lg-4 order-1 order-lg-2 mb-3 mb-lg-0">
+            <div class="card shadow-sm rounded-3 border-0">
+                <table class="table table-borderless mb-0">
+                    <thead class="cart-header">
+                        <tr>
+                            <th class="py-3 px-4 text-white fw-medium">Récapitulatif</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                <!-- Liste des produits -->
+                                {% if items is defined and items|length > 0 %}
+                                    {% for item in items %}
+                                    <div class="d-flex align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-medium text-bold small ">{{ item.product.title }}</div>
+                                            <div class="text-muted small">Quantité: {{ item.quantity }}</div>
+                                        </div>
+                                        <div class="small">{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }}€</div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-shopping-cart fa-2x mb-2 opacity-50"></i>
+                                        <p class="mb-0">Aucun produit dans le panier</p>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Sous-total et frais -->
+                                {% if total is defined and total > 0 %}
+                                <div class="border-top pt-3 mt-3">
+                                    <div class="d-flex justify-content-between text-muted mb-2 small">
+                                        <span>Sous-total</span>
+                                        <span>{{ total|number_format(2, '.', ',') }}€</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-muted mb-3">
+                                        <span class="small">Expédition</span>
+                                        <span><strong>{% if total > 49 %}Gratuit{% else %}5.99€{% endif %}</strong></span>
+                                    </div>
+                                </div>
+
+                                <!-- Code promo -->
+                                 <div class="border-top pt-3 mt-3">
+                                    <div class="mb-4">
+                                    <h6 class="fw-medium text-dark mb-2">Code promo</h6>
+                                    <div class="d-flex gap-2 small">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Saisissez votre code de réduction" id="promo-code">
+                                        <button class="submit-btn p-2 rounded " type="button" id="apply-promo">Appliquer</button>
+                                    </div>
+                                 </div>
+                                    
+                                    <!-- Total -->
+                                    <div class="border-top pt-3 mb-4">
+                                        <div class="d-flex justify-content-between fw-bold fs-5">
+                                            <span>TOTAL</span>
+                                            <span>{{ (total > 49 ? total : total + 5.99)|number_format(2, '.', ',') }}€</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Bouton continuer -->
+                                   <a href="#"> <button type="submit" class=" text-decoration-none btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4" form="checkout-form">
+                                        Procéder au paiement
+                                    </button></a>
+                                {% endif %}
+                                
+                                <!-- Moyens de paiement -->
+                                <div class="d-flex gap-2 align-items-center justify-content-center">
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/visa.png') }}" alt="visa" class="img-fluid" style="height: 24px;">
+                                    </div>
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/paypal.png') }}" alt="paypal" class="img-fluid" style="height: 24px;">
+                                    </div>
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/mastercard.png') }}" alt="mastercard" class="img-fluid" style="height: 24px;">
+                                    </div>
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/amex.png') }}" alt="american express" class="img-fluid" style="height: 24px;">
+                                    </div>
+                                    <div class="payment-methods">
+                                        <img src="{{ asset('images/jcb.png') }}" alt="jcb" class="img-fluid" style="height: 24px;">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

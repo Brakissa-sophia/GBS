@@ -101,6 +101,16 @@
                                     <span>Expédition</span>
                                     <span>{% if total > 49 %}Gratuit{% else %}€5.99{% endif %}</span>
                                 </div>
+
+                                <!-- Code promo -->
+                                <div class="border-top pt-3 mt-3">
+                                    <div class="mb-4">
+                                    <h6 class="fw-medium text-dark mb-2">Code promo</h6>
+                                    <div class="d-flex gap-2 small">
+                                        <input type="text" class="form-control form-control-sm" placeholder="Saisissez votre code de réduction" id="promo-code">
+                                        <button class="submit-btn p-2 rounded " type="button" id="apply-promo">Appliquer</button>
+                                    </div>
+                                 </div>
                                 
                                 <!-- Total -->
                                 <div class="border-top pt-3 mb-4">
@@ -112,9 +122,9 @@
 
 
                                
-                                <button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
-                                    Continue
-                                </button>
+                                <a href="{{ path('app_order') }}"><button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4 text-decoration-none">
+                                    Continuer vers l'expédition
+                                </button></a>
                                 
                                 <!-- Moyens de paiement -->
                                 <div class="d-flex gap-2 align-items-center">
@@ -181,7 +191,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 subtotal += parseFloat(cell.textContent.replace('€', ''));
             });
             
-            // Ajouter les frais d'expédition si le sous-total est inférieur à 49€
+            // Mettre à jour le message de livraison gratuite
+            const alertDiv = document.querySelector('.alert-info');
+            if (subtotal < 49) {
+                const remaining = (49 - subtotal).toFixed(2);
+                if (alertDiv) {
+                    alertDiv.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
+                    alertDiv.style.display = 'block';
+                } else {
+                    // Créer le message s'il n'existe pas
+                    const newAlert = document.createElement('div');
+                    newAlert.className = 'alert alert-info small mb-3';
+                    newAlert.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
+                    document.querySelector('.card tbody td').prepend(newAlert);
+                }
+                
+                // Mettre à jour l'affichage de l'expédition
+                document.querySelector('.d-flex.justify-content-between span:last-child').textContent = '€5.99';
+            } else {
+                // Masquer le message si on dépasse 49€
+                if (alertDiv) {
+                    alertDiv.style.display = 'none';
+                }
+                
+                // Mettre à jour l'expédition à "Gratuit"
+                document.querySelector('.d-flex.justify-content-between span:last-child').textContent = 'Gratuit';
+            }
+            
+            // Calculer et afficher le total final
             let cartTotal = subtotal;
             if (subtotal < 49) {
                 cartTotal += 5.99;

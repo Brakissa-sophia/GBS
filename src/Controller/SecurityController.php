@@ -42,11 +42,11 @@ class SecurityController extends AbstractController
 
     }
 
-    #[Route ('/commandes', 'app_order')]
+    #[Route ('/commandes', 'app_order_user')]
     public function order(): Response 
     {
 
-         return $this-> render('security/order.html.twig',[]);
+         return $this-> render('security/my-orders.html.twig',[]);
 
     }
 
