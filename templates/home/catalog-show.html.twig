@@ -141,7 +141,7 @@
                         <div class="d-flex justify-content-end mb-2">
                             <span class="text-success fw-bold">{{ item.product.price }}€</span>
                         </div>
-                        <a href="{{ path('app_cart_add', {'type': 'product', 'id': product.id}) }}" class="btn btn-outline-success w-100">Ajouter au panier</a>
+                        <a href="{{ path('app_cart_add', {'type': 'product', 'id': item.product.id}) }}" class="btn btn-outline-success w-100">Ajouter au panier</a>
                     </div>
                 </div>
             </div>
@@ -170,6 +170,5 @@ function changeQty(change) {
  let value = parseInt(display.textContent) + change;
  if (value >= 1) display.textContent = value;
 }
-
 </script>
 {% endblock %}

@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-#[Route('/appareil')]
+#[Route('/admin/appareil')]
 final class DeviceController extends AbstractController
 {
     #[Route('/', name: 'app_device_index')]
@@ -34,264 +34,49 @@ final class DeviceController extends AbstractController
         ]);
     }
 
-    #[Route('/catalogue', name: 'app_device_catalog')]
-    public function catalog(
-        DeviceRepository $deviceRepository, 
-        CategoryRepository $categoryRepository, 
-        BrandRepository $brandRepository, 
-        SkinTypeRepository $skinTypeRepository, 
-        Request $request, 
-        PaginatorInterface $paginator
-    ): Response {
-        
-        // 1. Pagination optimisée
-        $query = $deviceRepository->createQueryBuilder('d')
-            ->orderBy('d.id', 'DESC')
-            ->getQuery();
-
-        $devices = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            16
-        );
-
-        // 2. Images avec gestion d'erreurs améliorée
-        $devicesWithImages = [];
-        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/';
-        
-        foreach ($devices as $device) {
-            $pattern = $uploadDir . '*-' . $device->getId() . '-1-*.*';
-            $files = glob($pattern);
-            
-            $devicesWithImages[] = [
-                'device' => $device,
-                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
-            ];
-        }
-
-        // 3. Données pour les filtres
-        return $this->render('device/catalog.html.twig', [
-            'devicesWithImages' => $devicesWithImages,
-            'devices' => $devices, // Pour la pagination dans Twig
-            'categories' => $categoryRepository->findAll(),
-            'brands' => $brandRepository->findAll(),
-            'skinTypes' => $skinTypeRepository->findAll(),
-        ]);
-    }
-
-    // Filtre par catégorie
-    #[Route('/catalogue/category/{id}', name: 'app_device_catalog_category')]
-    public function catalogByCategory(
-        int $id, 
-        DeviceRepository $deviceRepository, 
-        CategoryRepository $categoryRepository, 
-        BrandRepository $brandRepository, 
-        SkinTypeRepository $skinTypeRepository
-    ): Response {
-        $category = $categoryRepository->find($id);
-        
-        if (!$category) {
-            throw $this->createNotFoundException('Catégorie non trouvée');
-        }
-        
-        $devices = $deviceRepository->findBy(['category' => $category], ['id' => 'DESC']);
-        
-        // Code pour les images
-        $devicesWithImages = [];
-        foreach ($devices as $device) {
-            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-1-*.*';
-            $files = glob($pattern);
-            
-            $devicesWithImages[] = [
-                'device' => $device,
-                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
-            ];
-        }
-        
-        return $this->render('device/catalog.html.twig', [
-            'devicesWithImages' => $devicesWithImages,
-            'categories' => $categoryRepository->findAll(),
-            'brands' => $brandRepository->findAll(),
-            'skinTypes' => $skinTypeRepository->findAll(),
-            'selectedCategory' => $category,
-        ]);
-    }
-
-    // Filtre par marque
-    #[Route('/catalogue/brand/{id}', name: 'app_device_catalog_brand')]
-    public function catalogByBrand(
-        int $id, 
-        DeviceRepository $deviceRepository, 
-        CategoryRepository $categoryRepository, 
-        BrandRepository $brandRepository, 
-        SkinTypeRepository $skinTypeRepository
-    ): Response {
-        $brand = $brandRepository->find($id);
-        
-        if (!$brand) {
-            throw $this->createNotFoundException('Marque non trouvée');
-        }
-        
-        $devices = $deviceRepository->findBy(['brand' => $brand], ['id' => 'DESC']);
-        
-        // Code pour les images
-        $devicesWithImages = [];
-        foreach ($devices as $device) {
-            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-1-*.*';
-            $files = glob($pattern);
-            
-            $devicesWithImages[] = [
-                'device' => $device,
-                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
-            ];
-        }
-        
-        return $this->render('device/catalog.html.twig', [
-            'devicesWithImages' => $devicesWithImages,
-            'categories' => $categoryRepository->findAll(),
-            'brands' => $brandRepository->findAll(),
-            'skinTypes' => $skinTypeRepository->findAll(),
-            'selectedBrand' => $brand,
-        ]);
-    }
-
-    // Filtre par type de peau
-    #[Route('/catalogue/skintype/{name}', name: 'app_device_catalog_skintype')]
-    public function catalogBySkinType(
-        string $name, 
-        DeviceRepository $deviceRepository, 
-        CategoryRepository $categoryRepository, 
-        BrandRepository $brandRepository, 
-        SkinTypeRepository $skinTypeRepository
-    ): Response {
-        $skinType = $skinTypeRepository->findOneBy(['title' => $name]);
-        
-        if (!$skinType) {
-            throw $this->createNotFoundException('Type de peau non trouvé');
-        }
-        
-        // Pour une relation ManyToMany, on utilise une requête différente
-        $devices = $deviceRepository->createQueryBuilder('d')
-            ->join('d.skin_type', 's')
-            ->where('s.id = :skinTypeId')
-            ->setParameter('skinTypeId', $skinType->getId())
-            ->orderBy('d.id', 'DESC')
-            ->getQuery()
-            ->getResult();
-        
-        // Code pour les images
-        $devicesWithImages = [];
-        foreach ($devices as $device) {
-            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-1-*.*';
-            $files = glob($pattern);
-            
-            $devicesWithImages[] = [
-                'device' => $device,
-                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
-            ];
-        }
-        
-        return $this->render('device/catalog.html.twig', [
-            'devicesWithImages' => $devicesWithImages,
-            'categories' => $categoryRepository->findAll(),
-            'brands' => $brandRepository->findAll(),
-            'skinTypes' => $skinTypeRepository->findAll(),
-            'selectedSkinType' => $skinType,
-        ]);
-    }
-
-    #[Route('/{id}/catalog/show', name: 'app_device_catalog_show')]
-    public function show(Device $device, DeviceRepository $deviceRepository): Response
-    {
-        // Récupérer les images du device principal
-        $deviceImages = [];
-        for ($i = 1; $i <= 4; $i++) {
-            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-' . $i . '-*.*';
-            $files = glob($pattern);
-            $deviceImages[$i] = !empty($files) ? '/uploads/devices/' . basename($files[0]) : null;
-        }
-        
-        $deviceWithImages = [
-            'device' => $device,
-            'images' => $deviceImages,
-            'mainImage' => $deviceImages[1],
-            'ingredients' => $device->getIngredients(),
-            'usageAdvice' => $device->getUsageAdvice()
-        ];
-        
-        // Récupérer les devices similaires de la même catégorie
-        $similarDevicesData = $deviceRepository->createQueryBuilder('d')
-            ->where('d.category = :category')
-            ->andWhere('d.id != :currentDeviceId')
-            ->setParameter('category', $device->getCategory())
-            ->setParameter('currentDeviceId', $device->getId())
-            ->setMaxResults(2)
-            ->orderBy('d.id', 'DESC')
-            ->getQuery()
-            ->getResult();
-        
-        // Ajouter les images aux devices similaires
-        $similarDevices = [];
-        foreach ($similarDevicesData as $similarDevice) {
-            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $similarDevice->getId() . '-1-*.*';
-            $files = glob($pattern);
-            
-            $similarDevices[] = [
-                'device' => $similarDevice,
-                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
-            ];
-        }
-        
-        return $this->render('device/catalog-show.html.twig', [
-            'device' => $device,
-            'deviceWithImages' => $deviceWithImages,
-            'similarDevices' => $similarDevices
-        ]);
-    }
-
     #[Route('/new', name: 'app_device_new')]
-public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
-{
-    $device = new Device();
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    {
+        $device = new Device();
 
-    $form = $this->createForm(DeviceForm::class, $device);
-    
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
+        $form = $this->createForm(DeviceForm::class, $device);
         
-        // ✅ Force des valeurs par défaut si NULL
-        if ($device->getIngredients() === null) {
-            $device->setIngredients('');
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            
+            // ✅ Force des valeurs par défaut si NULL
+            if ($device->getIngredients() === null) {
+                $device->setIngredients('');
+            }
+            if ($device->getUsageAdvice() === null) {
+                $device->setUsageAdvice('');
+            }
+            
+            // 1. Sauvegarder d'abord l'outil de beauté pour avoir les relations (brand, category)
+            $entityManager->persist($device);
+            $entityManager->flush();
+
+            // 2. Traiter les 4 images avec le système de nommage personnalisé
+            $this->handleImageUploads($form, $device, $slugger);
+
+            // 3. Historique de stock
+            $stockHistory = new AddDeviceHistory();
+            $stockHistory->setQte($device->getStock());
+            $stockHistory->setDevice($device);
+            $stockHistory->setCreatedAT(new \DateTimeImmutable());
+            $entityManager->persist($stockHistory);
+            $entityManager->flush();
+
+            $this->addFlash('success','L\'outil de beauté "' . $device->getTitle() . '" a bien été ajouté avec ses images');
+
+            return $this->redirectToRoute('app_device_index');
         }
-        if ($device->getUsageAdvice() === null) {
-            $device->setUsageAdvice('');
-        }
-        
-        // 1. Sauvegarder d'abord l'outil de beauté pour avoir les relations (brand, category)
-        $entityManager->persist($device);
-        $entityManager->flush();
 
-        // 2. Traiter les 4 images avec le système de nommage personnalisé
-        $this->handleImageUploads($form, $device, $slugger);
-
-        // 3. Historique de stock
-        $stockHistory = new AddDeviceHistory();
-        $stockHistory->setQte($device->getStock());
-        $stockHistory->setDevice($device);
-        $stockHistory->setCreatedAT(new \DateTimeImmutable());
-        $entityManager->persist($stockHistory);
-        $entityManager->flush();
-
-        $this->addFlash('success','L\'outil de beauté "' . $device->getTitle() . '" a bien été ajouté avec ses images');
-
-        return $this->redirectToRoute('app_device_index');
+        return $this->render('device/new.html.twig', [
+            'formDevice' => $form->createView()
+        ]);
     }
-
-    return $this->render('device/new.html.twig', [
-        'formDevice' => $form->createView()
-    ]);
-}
 
     /**
      * Méthode privée pour gérer les uploads d'images avec unicité garantie
@@ -457,63 +242,63 @@ public function new(Request $request, EntityManagerInterface $entityManager, Slu
     }
 
     #[Route('/{id}/delete', name: 'app_device_delete')]
-public function delete(Device $device, EntityManagerInterface $entityManager): Response
-{
-    $deviceTitle = $device->getTitle();
-    $deviceId = $device->getId();
-    
-    // 1. Supprimer d'abord TOUT l'historique lié à cet appareil
-    $historyEntries = $device->getAddDeviceHistories();
-    $deletedHistoryCount = 0;
-    foreach ($historyEntries as $history) {
-        $entityManager->remove($history);
-        $deletedHistoryCount++;
-    }
-    
-    // 2. Supprimer les images associées à l'outil de beauté AVANT de supprimer l'outil
-    $deletedImagesCount = $this->deleteDeviceImages($deviceId);
-    
-    // 3. Supprimer l'outil de beauté de la base de données
-    $entityManager->remove($device);
-    $entityManager->flush();
-    
-    // 4. Message de confirmation avec détails
-    $message = 'L\'outil de beauté "' . $deviceTitle . '" a bien été supprimé';
-    
-    if ($deletedHistoryCount > 0) {
-        $message .= ' avec ' . $deletedHistoryCount . ' entrée(s) d\'historique';
-    }
-    
-    if ($deletedImagesCount > 0) {
-        $message .= ' et ' . $deletedImagesCount . ' image(s)';
-    }
-    
-    $this->addFlash('success', $message);
-    
-    return $this->redirectToRoute('app_device_index');
-}
-
-/**
- * Méthode pour supprimer les images d'un outil de beauté
- */
-private function deleteDeviceImages(int $deviceId): int
-{
-    $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
-    
-    // Chercher tous les fichiers qui contiennent l'ID de l'outil de beauté
-    $pattern = $uploadDirectory . '/*-' . $deviceId . '-*.*';
-    $files = glob($pattern);
-    $deletedCount = 0;
-    
-    foreach ($files as $file) {
-        if (is_file($file)) {
-            unlink($file);
-            $deletedCount++;
+    public function delete(Device $device, EntityManagerInterface $entityManager): Response
+    {
+        $deviceTitle = $device->getTitle();
+        $deviceId = $device->getId();
+        
+        // 1. Supprimer d'abord TOUT l'historique lié à cet appareil
+        $historyEntries = $device->getAddDeviceHistories();
+        $deletedHistoryCount = 0;
+        foreach ($historyEntries as $history) {
+            $entityManager->remove($history);
+            $deletedHistoryCount++;
         }
+        
+        // 2. Supprimer les images associées à l'outil de beauté AVANT de supprimer l'outil
+        $deletedImagesCount = $this->deleteDeviceImages($deviceId);
+        
+        // 3. Supprimer l'outil de beauté de la base de données
+        $entityManager->remove($device);
+        $entityManager->flush();
+        
+        // 4. Message de confirmation avec détails
+        $message = 'L\'outil de beauté "' . $deviceTitle . '" a bien été supprimé';
+        
+        if ($deletedHistoryCount > 0) {
+            $message .= ' avec ' . $deletedHistoryCount . ' entrée(s) d\'historique';
+        }
+        
+        if ($deletedImagesCount > 0) {
+            $message .= ' et ' . $deletedImagesCount . ' image(s)';
+        }
+        
+        $this->addFlash('success', $message);
+        
+        return $this->redirectToRoute('app_device_index');
     }
-    
-    return $deletedCount;
-}
+
+    /**
+     * Méthode pour supprimer les images d'un outil de beauté
+     */
+    private function deleteDeviceImages(int $deviceId): int
+    {
+        $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
+        
+        // Chercher tous les fichiers qui contiennent l'ID de l'outil de beauté
+        $pattern = $uploadDirectory . '/*-' . $deviceId . '-*.*';
+        $files = glob($pattern);
+        $deletedCount = 0;
+        
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+                $deletedCount++;
+            }
+        }
+        
+        return $deletedCount;
+    }
 
     #[Route('/{id}/stock/add', name: 'app_device_stock_add')]
     public function addStock($id, EntityManagerInterface $entityManager, Request $request, DeviceRepository $deviceRepository): Response
