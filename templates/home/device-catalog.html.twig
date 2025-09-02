@@ -11,7 +11,7 @@
   <div class="row g-5">
     <!-- Sidebar filtres : 3 colonnes -->
     <aside class="col-lg-2 col-sm-4 bg-light p-3 rounded">
-      <!-- Catégories -->
+      <!-- Catégories - ROUTES UNIVERSELLES -->
       {% if categories is defined %}
       <div class="mb-4 pt-2">
         <h4 class="d-flex justify-content-between align-items-center mb-3"
@@ -28,7 +28,7 @@
           </div>
           {% for category in categories %}
             <div class="mb-2">
-              <a href="{{ path('app_device_catalog_category', {'id': category.id}) }}"
+              <a href="{{ path('app_universal_catalog_category', {'id': category.id}) }}"
                  class="text-decoration-none text-dark {% if selectedCategory is defined and selectedCategory.id == category.id %}text-success fw-bold{% endif %}">
                 {{ category.name }}
               </a>
@@ -38,7 +38,7 @@
       </div>
       {% endif %}
 
-      <!-- Marques -->
+      <!-- Marques - ROUTES UNIVERSELLES -->
       {% if brands is defined %}
       <div class="mb-4">
         <h4 class="d-flex justify-content-between align-items-center mb-3"
@@ -55,7 +55,7 @@
           </div>
           {% for brand in brands %}
             <div class="mb-2">
-              <a href="{{ path('app_device_catalog_brand', {'id': brand.id}) }}"
+              <a href="{{ path('app_universal_catalog_brand', {'id': brand.id}) }}"
                  class="text-decoration-none text-dark {% if selectedBrand is defined and selectedBrand.id == brand.id %}text-success fw-bold{% endif %}">
                 {{ brand.title }}
               </a>
@@ -65,7 +65,7 @@
       </div>
       {% endif %}
 
-      <!-- Types de peau -->
+      <!-- Types de peau - ROUTES UNIVERSELLES -->
       {% if skinTypes is defined %}
       <div class="mb-4">
         <h4 class="d-flex justify-content-between align-items-center mb-3"
@@ -82,7 +82,7 @@
           </div>
           {% for skinType in skinTypes %}
             <div class="mb-2">
-              <a href="{{ path('app_device_catalog_skintype', {'name': skinType.title}) }}"
+              <a href="{{ path('app_universal_catalog_skintype', {'name': skinType.title}) }}"
                  class="text-decoration-none text-dark {% if selectedSkinType is defined and selectedSkinType.title == skinType.title %}text-success fw-bold{% endif %}">
                 {{ skinType.title }}
               </a>

@@ -31,6 +31,154 @@ final class HomeController extends AbstractController
         return $this->render('home/brand.html.twig', []);
     }
 
+    // ========== ROUTES UNIVERSELLES ==========
+
+    #[Route('/catalogue-universel/category/{id}', name: 'app_universal_catalog_category')]
+    public function universalCatalogByCategory(
+        int $id, 
+        ProductRepository $productRepository, 
+        DeviceRepository $deviceRepository,
+        CategoryRepository $categoryRepository, 
+        BrandRepository $brandRepository, 
+        SkinTypeRepository $skinTypeRepository,
+        HttpFoundationRequest $request,
+        PaginatorInterface $paginator
+    ): Response {
+        $category = $categoryRepository->find($id);
+        
+        if (!$category) {
+            throw $this->createNotFoundException('Catégorie non trouvée');
+        }
+        
+        // Vérifier s'il y a des produits dans cette catégorie
+        $productsCount = $productRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.category = :category')
+            ->setParameter('category', $category)
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Vérifier s'il y a des appareils dans cette catégorie  
+        $devicesCount = $deviceRepository->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.category = :category')
+            ->setParameter('category', $category)
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Rediriger vers la route appropriée selon ce qui existe
+        if ($productsCount > 0 && $devicesCount == 0) {
+            // Seuls des produits existent
+            return $this->redirectToRoute('app_catalog_category', ['id' => $id]);
+        } elseif ($devicesCount > 0 && $productsCount == 0) {
+            // Seuls des appareils existent  
+            return $this->redirectToRoute('app_device_catalog_category', ['id' => $id]);
+        } elseif ($productsCount > 0 && $devicesCount > 0) {
+            // Les deux existent - rediriger vers produits par défaut
+            return $this->redirectToRoute('app_catalog_category', ['id' => $id]);
+        } else {
+            // Aucun élément - rediriger vers catalogue général
+            $this->addFlash('info', 'Aucun produit ou appareil trouvé dans cette catégorie.');
+            return $this->redirectToRoute('app_catalog');
+        }
+    }
+
+    #[Route('/catalogue-universel/brand/{id}', name: 'app_universal_catalog_brand')]
+    public function universalCatalogByBrand(
+        int $id, 
+        ProductRepository $productRepository, 
+        DeviceRepository $deviceRepository,
+        CategoryRepository $categoryRepository, 
+        BrandRepository $brandRepository, 
+        SkinTypeRepository $skinTypeRepository,
+        HttpFoundationRequest $request,
+        PaginatorInterface $paginator
+    ): Response {
+        $brand = $brandRepository->find($id);
+        
+        if (!$brand) {
+            throw $this->createNotFoundException('Marque non trouvée');
+        }
+        
+        // Vérifier s'il y a des produits pour cette marque
+        $productsCount = $productRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.brand = :brand')
+            ->setParameter('brand', $brand)
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Vérifier s'il y a des appareils pour cette marque
+        $devicesCount = $deviceRepository->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.brand = :brand')
+            ->setParameter('brand', $brand)
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Rediriger vers la route appropriée
+        if ($productsCount > 0 && $devicesCount == 0) {
+            return $this->redirectToRoute('app_catalog_brand', ['id' => $id]);
+        } elseif ($devicesCount > 0 && $productsCount == 0) {
+            return $this->redirectToRoute('app_device_catalog_brand', ['id' => $id]);
+        } elseif ($productsCount > 0 && $devicesCount > 0) {
+            // Les deux existent - rediriger vers produits par défaut
+            return $this->redirectToRoute('app_catalog_brand', ['id' => $id]);
+        } else {
+            $this->addFlash('info', 'Aucun produit ou appareil trouvé pour cette marque.');
+            return $this->redirectToRoute('app_catalog');
+        }
+    }
+
+    #[Route('/catalogue-universel/skintype/{name}', name: 'app_universal_catalog_skintype')]
+    public function universalCatalogBySkinType(
+        string $name, 
+        ProductRepository $productRepository, 
+        DeviceRepository $deviceRepository,
+        CategoryRepository $categoryRepository, 
+        BrandRepository $brandRepository, 
+        SkinTypeRepository $skinTypeRepository,
+        HttpFoundationRequest $request,
+        PaginatorInterface $paginator
+    ): Response {
+        $skinType = $skinTypeRepository->findOneBy(['title' => $name]);
+        
+        if (!$skinType) {
+            throw $this->createNotFoundException('Type de peau non trouvé');
+        }
+        
+        // Vérifier s'il y a des produits pour ce type de peau
+        $productsCount = $productRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->join('p.skin_type', 's')
+            ->where('s.id = :skinTypeId')
+            ->setParameter('skinTypeId', $skinType->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Vérifier s'il y a des appareils pour ce type de peau
+        $devicesCount = $deviceRepository->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->join('d.skin_type', 's')
+            ->where('s.id = :skinTypeId')
+            ->setParameter('skinTypeId', $skinType->getId())
+            ->getQuery()
+            ->getSingleScalarResult();
+            
+        // Rediriger vers la route appropriée
+        if ($productsCount > 0 && $devicesCount == 0) {
+            return $this->redirectToRoute('app_catalog_skintype', ['name' => $name]);
+        } elseif ($devicesCount > 0 && $productsCount == 0) {
+            return $this->redirectToRoute('app_device_catalog_skintype', ['name' => $name]);
+        } elseif ($productsCount > 0 && $devicesCount > 0) {
+            // Les deux existent - rediriger vers produits par défaut
+            return $this->redirectToRoute('app_catalog_skintype', ['name' => $name]);
+        } else {
+            $this->addFlash('info', 'Aucun produit ou appareil trouvé pour ce type de peau.');
+            return $this->redirectToRoute('app_catalog');
+        }
+    }
+
     // ========== PRODUITS ==========
 
     #[Route('/catalogue', name: 'app_catalog')]

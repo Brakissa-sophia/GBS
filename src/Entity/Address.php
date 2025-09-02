@@ -31,7 +31,7 @@ class Address
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'address')]
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'sourceAddress')]
     private Collection $orders;
 
     public function __construct()
@@ -104,17 +104,9 @@ class Address
     {
         if (!$this->orders->contains($order)) {
             $this->orders->add($order);
-            $order->setAddress($this);
+            $order->setSourceAddress($this);
         }
 
-        return $this;
-    }
-
-    public function removeOrder(Order $order): static
-    {
-        $this->orders->removeElement($order);
-        // La commande garde sa référence vers l'adresse car c'est obligatoire
-        
         return $this;
     }
 }

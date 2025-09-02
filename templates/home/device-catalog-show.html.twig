@@ -1,4 +1,4 @@
-{# templates/device/catalog-show.html.twig #}
+{# templates/home/device-catalog-show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ parent() }} | {{ device.title }} {% endblock %}
@@ -146,14 +146,32 @@
 function changeMainImage(src, element) {
   document.getElementById('mainImage').src = src;
   document.querySelectorAll('.d-none img, .d-md-flex img').forEach(img => {
-    img.classList.remove('border-success'); img.classList.add('border-secondary');
+    img.classList.remove('border-success'); 
+    img.classList.add('border-secondary');
   });
-  element.classList.remove('border-secondary'); element.classList.add('border-success');
+  element.classList.remove('border-secondary'); 
+  element.classList.add('border-success');
 }
+
 function changeQty(change) {
   const display = document.getElementById('qty-display');
   let value = parseInt(display.textContent) + change;
   if (value >= 1) display.textContent = value;
+}
+
+function toggleHeart(button) {
+  const icon = button.querySelector('i');
+  if (icon.classList.contains('far')) {
+    icon.classList.remove('far');
+    icon.classList.add('fas');
+    button.classList.remove('btn-outline-danger');
+    button.classList.add('btn-danger');
+  } else {
+    icon.classList.remove('fas');
+    icon.classList.add('far');
+    button.classList.remove('btn-danger');
+    button.classList.add('btn-outline-danger');
+  }
 }
 </script>
 {% endblock %}

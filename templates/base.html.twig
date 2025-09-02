@@ -39,6 +39,7 @@
 <script src="{{ asset('js/bootstrap.js') }}"></script>#}
 
 {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
     {# {% block importmap %}{{ importmap('app') }}{% endblock %} #}
 {% endblock %}
 </body>
