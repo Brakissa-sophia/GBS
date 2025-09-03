@@ -63,8 +63,8 @@
           </div>
 
           <div class="col-8">
-            <a href="{{ path('app_cart_add', {'type': 'device', 'id': device.id}) }}" class="w-100">
-              <button class="p-2 btn btn-success w-100">Ajouter au panier</button>
+            <a href="{{ path('app_cart_add', {'type': 'device', 'id': device.id}) }}" class="w-100" id="add-to-cart-link">
+              <button class="p-2 btn btn-success w-100" id="add-to-cart-btn">Ajouter au panier</button>
             </a>
           </div>
 
@@ -154,9 +154,25 @@ function changeMainImage(src, element) {
 }
 
 function changeQty(change) {
-  const display = document.getElementById('qty-display');
-  let value = parseInt(display.textContent) + change;
-  if (value >= 1) display.textContent = value;
+    const display = document.getElementById('qty-display');
+    let value = parseInt(display.textContent) + change;
+    
+    if (value >= 1) {
+        display.textContent = value;
+        
+        // Mettre à jour le lien "Ajouter au panier" avec la nouvelle quantité
+        const addToCartLink = document.getElementById('add-to-cart-link');
+        
+        if (addToCartLink) {
+            // Récupérer l'URL actuelle
+            let currentHref = addToCartLink.getAttribute('href');
+            
+            // Ajouter ou mettre à jour le paramètre quantity
+            const url = new URL(currentHref, window.location.origin);
+            url.searchParams.set('quantity', value);
+            addToCartLink.setAttribute('href', url.toString());
+        }
+    }
 }
 
 function toggleHeart(button) {

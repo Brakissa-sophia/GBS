@@ -22,7 +22,7 @@
                         </thead>
                         <tbody>
                             {% for item in items %}
-                            <tr class="border-bottom">
+                            <tr class="border-bottom" data-type="{{ item.type }}">
                                 <td class="py-3 py-md-4 px-3 px-md-4">
                                     <div class="d-flex flex-column flex-md-row align-items-center">
                                         <a href="{{ path('app_cart_remove', {'type': item.type, 'id': item.product.id})}}">
@@ -56,7 +56,7 @@
                                     </div>
                                 </td>
                                 <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle total-cell" data-product-id="{{ item.product.id }}" data-price="{{ item.product.price }}">
-                                    <span class="fw-bold">€{{ item.product.price * item.quantity }}</span>
+                                    <span class="fw-bold">€{{ (item.product.price * item.quantity)|number_format(2, '.', '') }}</span>
                                 </td>
                             </tr>
                             {% else %}
@@ -120,8 +120,6 @@
                                     </div>
                                 </div>
 
-
-                               
                                 <a href="{{ path('app_order') }}"><button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4 text-decoration-none">
                                     Continuer vers l'expédition
                                 </button></a>
@@ -163,73 +161,102 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.quantity-btn').forEach(button => {
         button.addEventListener('click', function() {
             const action = this.getAttribute('data-action');
-            const container = this.closest('div');
-            const quantityDisplay = container.querySelector('.quantity-display');
-            const productId = quantityDisplay.getAttribute('data-product-id');
-            let currentValue = parseInt(quantityDisplay.textContent);
-            
-            // Modifier la quantité
-            if (action === 'increase') {
-                currentValue++;
-            } else if (action === 'decrease' && currentValue > 1) {
-                currentValue--;
-            }
-            
-            // Mettre à jour l'affichage de la quantité
-            quantityDisplay.textContent = currentValue;
-            
-            // Mettre à jour le total de la ligne
             const row = this.closest('tr');
-            const priceCell = row.querySelector('td:nth-child(2) span');
-            const price = parseFloat(priceCell.textContent.replace('€', ''));
-            const totalCell = row.querySelector('.total-cell span');
-            totalCell.textContent = `€${(price * currentValue).toFixed(2)}`;
+            const quantityDisplay = row.querySelector('.quantity-display');
+            const productId = quantityDisplay.getAttribute('data-product-id');
+            const type = row.getAttribute('data-type');
             
-            // Calculer le sous-total avant frais de port
-            let subtotal = 0;
-            document.querySelectorAll('.total-cell span').forEach(cell => {
-                subtotal += parseFloat(cell.textContent.replace('€', ''));
-            });
+            let currentValue = parseInt(quantityDisplay.textContent);
+            let newValue = currentValue;
             
-            // Mettre à jour le message de livraison gratuite
-            const alertDiv = document.querySelector('.alert-info');
-            if (subtotal < 49) {
-                const remaining = (49 - subtotal).toFixed(2);
-                if (alertDiv) {
-                    alertDiv.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
-                    alertDiv.style.display = 'block';
-                } else {
-                    // Créer le message s'il n'existe pas
-                    const newAlert = document.createElement('div');
-                    newAlert.className = 'alert alert-info small mb-3';
-                    newAlert.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
-                    document.querySelector('.card tbody td').prepend(newAlert);
-                }
-                
-                // Mettre à jour l'affichage de l'expédition
-                document.querySelector('.d-flex.justify-content-between span:last-child').textContent = '€5.99';
-            } else {
-                // Masquer le message si on dépasse 49€
-                if (alertDiv) {
-                    alertDiv.style.display = 'none';
-                }
-                
-                // Mettre à jour l'expédition à "Gratuit"
-                document.querySelector('.d-flex.justify-content-between span:last-child').textContent = 'Gratuit';
+            if (action === 'increase') {
+                newValue = currentValue + 1;
+            } else if (action === 'decrease' && currentValue > 1) {
+                newValue = currentValue - 1;
             }
             
-            // Calculer et afficher le total final
-            let cartTotal = subtotal;
-            if (subtotal < 49) {
-                cartTotal += 5.99;
+            if (newValue !== currentValue) {
+                // Désactiver les boutons pendant la requête
+                const buttons = row.querySelectorAll('.quantity-btn');
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                });
+                
+                // Requête AJAX
+                fetch(`/cart/update/${type}/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ quantity: newValue })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mise à jour réussie
+                        quantityDisplay.textContent = newValue;
+                        
+                        // Recalculer le total de la ligne
+                        const priceElement = row.querySelector('td:nth-child(2) span') || 
+                                           row.querySelector('.d-md-none .fw-medium');
+                        const price = parseFloat(priceElement.textContent.replace('€', ''));
+                        const totalCell = row.querySelector('.total-cell span');
+                        totalCell.textContent = `€${(price * newValue).toFixed(2)}`;
+                        
+                        // Recalculer le total général
+                        updateCartTotal();
+                    } else {
+                        alert('Erreur: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur AJAX:', error);
+                    alert('Erreur de connexion. Veuillez réessayer.');
+                })
+                .finally(() => {
+                    // Réactiver les boutons
+                    buttons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                });
             }
-            
-            // Mettre à jour l'affichage du total
-            document.getElementById('cart-total').textContent = `€${cartTotal.toFixed(2)}`;
         });
     });
+    
+    function updateCartTotal() {
+        let subtotal = 0;
+        
+        document.querySelectorAll('.total-cell span').forEach(cell => {
+            subtotal += parseFloat(cell.textContent.replace('€', ''));
+        });
+        
+        // Gestion du message livraison gratuite
+        const alertDiv = document.querySelector('.alert-info');
+        const shippingSpan = document.querySelector('.d-flex.justify-content-between span:last-child');
+        
+        if (subtotal < 49) {
+            const remaining = (49 - subtotal).toFixed(2);
+            if (alertDiv) {
+                alertDiv.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
+                alertDiv.style.display = 'block';
+            }
+            if (shippingSpan) shippingSpan.textContent = '€5.99';
+        } else {
+            if (alertDiv) alertDiv.style.display = 'none';
+            if (shippingSpan) shippingSpan.textContent = 'Gratuit';
+        }
+        
+        // Total final
+        let finalTotal = subtotal + (subtotal < 49 ? 5.99 : 0);
+        const totalElement = document.getElementById('cart-total');
+        if (totalElement) {
+            totalElement.textContent = `€${finalTotal.toFixed(2)}`;
+        }
+    }
 });
 </script>
-
 
 {% endblock %}

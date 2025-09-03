@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -75,20 +77,49 @@ final class CartController extends AbstractController
    }
 
    #[Route('/add/{type}/{id}', name: 'app_cart_add', methods: ['GET'], requirements: ['type' => 'product|device'])]
-   public function addToCart(string $type, int $id, SessionInterface $session): Response
+   public function addToCart(string $type, int $id, Request $request, SessionInterface $session): Response
    {
        $cart = $session->get('cart', []);
        $itemKey = $type . '_' . $id; // Clé unique : "product_1" ou "device_5"
        
+       // Récupérer la quantité depuis l'URL (défaut = 1)
+       $quantity = max(1, (int) $request->query->get('quantity', 1));
+       
        if (!empty($cart[$itemKey])) {
-           $cart[$itemKey]++;
+           $cart[$itemKey] += $quantity;
        } else {
-           $cart[$itemKey] = 1;
+           $cart[$itemKey] = $quantity;
        }
 
        $session->set('cart', $cart);
 
        return $this->redirectToRoute('app_cart');
+   }
+
+   #[Route('/update/{type}/{id}', name: 'app_cart_update', methods: ['POST'], requirements: ['type' => 'product|device'])]
+   public function updateQuantity(string $type, int $id, Request $request, SessionInterface $session): JsonResponse
+   {
+       $data = json_decode($request->getContent(), true);
+       $quantity = max(1, (int) $data['quantity']);
+       
+       $cart = $session->get('cart', []);
+       $itemKey = $type . '_' . $id;
+       
+       if (isset($cart[$itemKey])) {
+           $cart[$itemKey] = $quantity;
+           $session->set('cart', $cart);
+           
+           return new JsonResponse([
+               'success' => true,
+               'message' => 'Quantité mise à jour',
+               'quantity' => $quantity
+           ]);
+       }
+       
+       return new JsonResponse([
+           'success' => false,
+           'message' => 'Produit non trouvé dans le panier'
+       ], 400);
    }
 
    #[Route('/remove/{type}/{id}', name: 'app_cart_remove', methods: ['GET'], requirements: ['type' => 'product|device'])]
@@ -101,12 +132,10 @@ final class CartController extends AbstractController
            unset($cart[$itemKey]);
        }
 
-         $session->set('cart', $cart);
+       $session->set('cart', $cart);
 
        return $this->redirectToRoute('app_cart');
    }
-
-
 
    #[Route('/clear', name: 'app_cart_clear', methods: ['GET'])]
    public function clearCart(SessionInterface $session): Response
@@ -114,6 +143,4 @@ final class CartController extends AbstractController
        $session->remove('cart');
        return $this->redirectToRoute('app_cart');
    }
-
 }
-

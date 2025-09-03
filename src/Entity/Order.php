@@ -50,9 +50,6 @@ class Order
     #[ORM\ManyToOne(targetEntity: Address::class)]
     private ?Address $sourceAddress = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createAt = null;
-
     public function __construct()
     {
         $this->orderDate = new \DateTimeImmutable();
@@ -200,18 +197,6 @@ class Order
         $this->postalCode = $address->getPostalCode();
         $this->sourceAddress = $address;
         
-        return $this;
-    }
-
-    public function getCreateAt(): ?\DateTimeImmutable
-    {
-        return $this->createAt;
-    }
-
-    public function setCreateAt(\DateTimeImmutable $createAt): static
-    {
-        $this->createAt = $createAt;
-
         return $this;
     }
 }
