@@ -1,0 +1,353 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Paiement{% endblock %}
+{% block description %}{{ parent() }} | Paiement{% endblock %}
+{% block keywords %}{{ parent() }} | Paiement{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# SDK PayPal (SANDBOX) - laisse le client-id business sandbox #}
+    <script src="https://www.paypal.com/sdk/js?client-id=Acm_Aml9C0QRBLvqvMR5Q9WxBUXkY2PjVEnbZSjAzPKs8Bay4Vq8BriKLIva4UCBRi3NIyAOeWK3e1WQ&currency=EUR"></script>
+{% endblock %}
+
+{% block body %}
+
+{# IMPORTANT : forcer un montant au format "49.99" (point décimal) #}
+{% set amount = (finalTotal ?? total)|number_format(2, '.', '') %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="row g-3">
+        <!-- Section Méthodes de paiement -->
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
+            <div class="card shadow-sm rounded-3 border-0">
+                <table class="table table-borderless mb-0">
+                    <thead>
+                        <tr>
+                            <th class="py-2 py-md-3 px-3 px-md-4 text-white fw-medium">Méthodes de paiement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                <form method="POST" id="payment-form">
+                                    <!-- Paiement par carte -->
+                                    <div class="payment-method mb-4">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="card-payment" value="card" checked>
+                                            <label class="form-check-label fw-medium" for="card-payment">
+                                                <i class="fas fa-credit-card me-2"></i>
+                                                Paiement par carte bancaire
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Formulaire carte bancaire -->
+                                        <div id="card-form" class="payment-form-content ms-4">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="form-label fw-medium text-dark">Numéro de carte</label>
+                                                    <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label fw-medium text-dark">Date d'expiration</label>
+                                                    <input type="text" name="expiry_date" class="form-control" placeholder="MM/AA" maxlength="5">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label fw-medium text-dark">CVV</label>
+                                                    <input type="text" name="cvv" class="form-control" placeholder="123" maxlength="4">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-medium text-dark">Nom sur la carte</label>
+                                                    <input type="text" name="card_name" class="form-control" placeholder="Nom complet">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Logos cartes acceptées -->
+                                            <div class="d-flex gap-2 align-items-center mt-3">
+                                                <small class="text-muted me-2">Cartes acceptées:</small>
+                                                <img src="{{ asset('images/visa.png') }}" alt="Visa" style="height: 20px;">
+                                                <img src="{{ asset('images/mastercard.png') }}" alt="Mastercard" style="height: 20px;">
+                                                <img class="gap-0" src="{{ asset('images/amex.png') }}" alt="American Express" style="height: 20px;">
+                                                <img  src="{{ asset('images/jcb.png') }}" alt="JCB" style="height: 40px;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Paiement PayPal -->
+                                    <div class="payment-method mb-4">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="payment_method" id="paypal-payment" value="paypal">
+                                            <label class="form-check-label fw-medium" for="paypal-payment">
+                                                <i class="fab fa-paypal me-2"></i>
+                                                Paiement via PayPal
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Conteneur PayPal avec bouton stylé -->
+                                        <div id="paypal-form" class="payment-form-content ms-4" style="display: none;">
+                                            <p class="text-muted small mb-3">
+                                                Cliquez sur le bouton PayPal ci-dessous pour finaliser votre paiement en toute sécurité.
+                                            </p>
+                                            <!-- Conteneur pour les boutons PayPal -->
+                                            <div id="paypal-button-container" class="mb-3"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Conditions générales -->
+                                    <div class="form-check mt-4 mb-4">
+                                        <input class="form-check-input" type="checkbox" id="terms" required>
+                                        <label class="form-check-label text-muted" for="terms">
+                                            J'accepte les <a href="#" class="text-decoration-none">conditions générales</a> et la <a href="#" class="text-decoration-none">politique de confidentialité</a>
+                                        </label>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Section Informations de livraison -->
+        <div class="col-12 col-lg-4 order-1 order-lg-2 mb-3 mb-lg-0">
+            <div class="card shadow-sm rounded-3 border-0">
+                <table class="table table-borderless mb-0">
+                    <thead class="cart-header">
+                        <tr>
+                            <th class="py-3 px-4 text-white fw-medium">Informations de livraison</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-4">
+                                {% if orderData is defined and orderData is not empty %}
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark fs-5 mb-2">{{ (orderData.firstName ?? '')|capitalize }} {{ (orderData.lastName ?? '')|capitalize }}</div>
+                                            <div class="fw-medium text-dark mb-1">{{ orderData.street ?? '' }}</div>
+                                            <div class="fw-medium text-dark mb-2">{{ orderData.postalCode ?? '' }} {{ (orderData.city ?? '')|capitalize }}</div>
+                                            <div class="fw-medium text-dark">
+                                                <i class="fas fa-phone me-1"></i> {{ orderData.phone ?? '' }}
+                                            </div>
+                                        </div>
+                                        <a href="{{ path('app_order') }}" class="btn btn-sm btn-outline-secondary ms-3">
+                                            <i class="fas fa-edit me-1"></i> Modifier
+                                        </a>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="mb-4">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Aucune information de livraison trouvée.
+                                        <a href="{{ path('app_order') }}" class="alert-link">Veuillez remplir le formulaire</a>.
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Récapitulatif des totaux -->
+                                <div class="mb-4">
+                                    <div class="bg-light rounded-3 p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-medium">Sous-total</span>
+                                            <span class="fw-medium">{{ total|number_format(2, ',', ' ') }} €</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-medium">Livraison</span>
+                                            <span class="fw-medium">{{ (shippingCost ?? 0)|number_format(2, ',', ' ') }} €</span>
+                                        </div>
+                                        <hr class="my-2">
+                                        <div class="d-flex justify-content-between align-items-center fw-bold fs-4">
+                                            <span>Total</span>
+                                            <span class="text-primary">{{ (finalTotal ?? total)|number_format(2, ',', ' ') }} €</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bouton paiement pour carte bancaire -->
+                                <button type="submit" form="payment-form" id="card-payment-btn" class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
+                                    <i class="fas fa-lock me-2"></i>
+                                    Finaliser le paiement
+                                </button>
+                                
+                                <!-- Sécurité -->
+                                <div class="text-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Paiement 100% sécurisé SSL
+                                    </small>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript pour la gestion des méthodes de paiement -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cardRadio = document.getElementById('card-payment');
+    const paypalRadio = document.getElementById('paypal-payment');
+    const cardForm = document.getElementById('card-form');
+    const paypalForm = document.getElementById('paypal-form');
+    const cardPaymentBtn = document.getElementById('card-payment-btn');
+    
+    function togglePaymentForms() {
+        if (cardRadio.checked) {
+            cardForm.style.display = 'block';
+            paypalForm.style.display = 'none';
+            cardPaymentBtn.style.display = 'block';
+        } else if (paypalRadio.checked) {
+            cardForm.style.display = 'none';
+            paypalForm.style.display = 'block';
+            cardPaymentBtn.style.display = 'none';
+        }
+    }
+    // Assure l'état correct au chargement
+    togglePaymentForms();
+
+    cardRadio.addEventListener('change', togglePaymentForms);
+    paypalRadio.addEventListener('change', togglePaymentForms);
+    
+    // Formatage automatique du numéro de carte
+    const cardNumberInput = document.querySelector('input[name="card_number"]');
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            if (formattedValue.length > 19) {
+                formattedValue = formattedValue.substring(0, 19);
+            }
+            e.target.value = formattedValue;
+        });
+    }
+    
+    // Formatage de la date d'expiration
+    const expiryInput = document.querySelector('input[name="expiry_date"]');
+    if (expiryInput) {
+        expiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+    }
+    
+    // Initialisation PayPal après chargement du SDK
+    if (typeof paypal !== 'undefined') {
+        paypal.Buttons({
+            // Bloquer l'ouverture si CGU non cochées
+            onClick: function (data, actions) {
+                const termsCheckbox = document.getElementById('terms');
+                if (!termsCheckbox.checked) {
+                    alert('Veuillez accepter les conditions générales');
+                    return actions.reject();
+                }
+                return actions.resolve();
+            },
+
+            // Style du bouton PayPal
+            style: {
+                layout: 'horizontal',
+                color: 'blue',
+                shape: 'rect',
+                label: 'paypal',
+                height: 50,
+                tagline: false
+            },
+            
+            // Configuration de la commande
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '{{ amount }}', // << montant string avec point
+                            currency_code: 'EUR'
+                        },
+                        description: 'Commande e-commerce'
+                    }]
+                });
+            },
+            
+            // Traitement après approbation
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    console.log('Paiement PayPal réussi:', details);
+                    
+                    // Récupération correcte du payer_id (SDK v2)
+                    const payerId = details?.payer?.payer_id || '';
+
+                    // Envoyer les détails au serveur
+                    const formData = new FormData();
+                    formData.append('payment_method', 'paypal');
+                    formData.append('paypal_order_id', data.orderID);
+                    formData.append('paypal_payer_id', payerId); // optionnel côté serveur
+                    
+                    // Afficher un loader
+                    document.getElementById('paypal-button-container').innerHTML =
+                      '<div class="text-center p-3"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br><small class="text-muted mt-2">Traitement en cours...</small></div>';
+                    
+                    fetch('{{ path("app_process_payment") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            window.location.href = result.redirect_url;
+                        } else {
+                            alert('Erreur lors du traitement du paiement: ' + (result.error || 'Erreur inconnue'));
+                            // Recharger les boutons PayPal
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors du traitement du paiement');
+                        location.reload();
+                    });
+                });
+            },
+            
+            // Gestion des erreurs
+            onError: function(err) {
+                console.error('Erreur PayPal:', err);
+                alert('Une erreur est survenue lors du paiement PayPal. Veuillez réessayer.');
+            },
+            
+            // Annulation
+            onCancel: function(data) {
+                console.log('Paiement PayPal annulé:', data);
+            }
+            
+        }).render('#paypal-button-container');
+    } else {
+        console.error('PayPal SDK non chargé');
+    }
+
+    // Gestion du formulaire de paiement par carte
+    const paymentForm = document.getElementById('payment-form');
+    paymentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Vérifier les conditions générales
+        const termsCheckbox = document.getElementById('terms');
+        if (!termsCheckbox.checked) {
+            alert('Veuillez accepter les conditions générales');
+            return;
+        }
+        
+        if (cardRadio.checked) {
+            // Traitement paiement par carte
+            alert('Paiement par carte non encore implémenté');
+        }
+    });
+});
+</script>
+
+{% endblock %}

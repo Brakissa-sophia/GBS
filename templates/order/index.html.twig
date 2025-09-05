@@ -19,7 +19,7 @@
                     <tbody>
                         <tr>
                             <td class="p-4">
-                                {{ form_start(form, {'attr': {'class': 'checkout-form'}}) }}
+                                {{ form_start(form, {'attr': {'class': 'checkout-form', 'id': 'checkout-form'}}) }}
                                 
                                 <div class="row g-3">
                                     <!-- Prénom et Nom -->
@@ -139,9 +139,9 @@
                                     </div>
                                     
                                     <!-- Bouton continuer -->
-                                   <a href="#"> <button type="submit" class=" text-decoration-none btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4" form="checkout-form">
+                                   <button type="submit" form="checkout-form" class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
                                         Procéder au paiement
-                                    </button></a>
+                                    </button>
                                 {% endif %}
                                 
                                 <!-- Moyens de paiement -->

@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Commande confirmée{% endblock %}
+
+{% block body %}
+<div class="container py-2">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body text-center p-5">
+
+          <div class="mb-4">
+            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+          </div>
+
+          <h2 class="fw-bold text-dark mb-2">Merci {{ order.firstName|default('')|capitalize }} !</h2>
+          <p class="text-muted mb-0">Votre commande est valiée.</p>
+          <p class="text-muted mb-4">
+            Une confirmation vous a été envoyée à <strong>{{ order.email }}</strong>.
+          </p>
+
+          <div class="bg-light rounded-3 p-4 mb-4 text-start">
+            <div class="d-flex justify-content-between">
+              <span class="fw-medium">Commande n°</span>
+              <span class="fw-bold">
+                {{ order.orderNumber is defined and order.orderNumber ? order.orderNumber : '%06d'|format(order.id) }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <span class="fw-medium">Total payé</span>
+              <span class="fw-bold">
+                {{ (order.total ?? order.totalPrice)|number_format(2, ',', ' ') }} €
+              </span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <span class="fw-medium">Date</span>
+              <span>{{ order.createdAt|date('d/m/Y à H:i') }}</span>
+            </div>
+          </div>
+
+          
+
+          {# Accordéon détail (facultatif) #}
+          <div class="text-start mb-4">
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#order-details">
+              Voir le détail de la commande
+            </button>
+            <div class="collapse mt-3" id="order-details">
+              <div class="card card-body">
+                <ul class="list-unstyled mb-3">
+                  {% for line in order.orderProducts %}
+                    <li class="d-flex justify-content-between">
+                      <span>{{ line.itemName }} &times; {{ line.qte|number_format(0, ',', ' ') }}</span>
+                      <span>{{ line.totalPrice|number_format(2, ',', ' ') }} €</span>
+                    </li>
+                  {% else %}
+                    <li class="text-muted">Aucun article trouvé.</li>
+                  {% endfor %}
+                </ul>
+
+                <div class="small text-muted">
+                  <div><strong>Livraison :</strong> {{ order.street }}, {{ order.postalCode }} {{ order.city|capitalize }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <a href="{{ path('app_home') }}" class="btn btn-dark btn-lg">
+               Retour à l'accueil
+            </a>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Détail commande {{ order.orderNumber }} {% endblock %}
+{% block description %}{{ parent() }} | Détail commande {{ order.orderNumber }} {% endblock %}
+{% block keywords %}{{ parent() }} | Détail commande {% endblock %}
+
+{% block body %}
+<h2>Détail de la commande</h2>
+
+<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-dark">
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item list-group-item-dark w-100">
+      Commande #{{ order.orderNumber }} — {{ order.orderDate|date('d/m/Y H:i') }}
+    </li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Statut</li>
+    <li class="list-group-item w-75">{{ order.status|capitalize }}</li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Total</li>
+    <li class="list-group-item w-75">{{ order.total|number_format(2, ',', ' ') }} €</li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal mt-3">
+    <li class="list-group-item list-group-item-dark w-100">Adresse de livraison</li>
+  </ul>
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Nom</li>
+    <li class="list-group-item w-75">{{ order.firstName|capitalize }} {{ order.lastName|capitalize }}</li>
+  </ul>
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Adresse</li>
+    <li class="list-group-item w-75">
+      {{ order.street }}<br>
+      {{ order.postalCode }} {{ order.city|capitalize }}
+    </li>
+  </ul>
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Téléphone</li>
+    <li class="list-group-item w-75">{{ order.phone }}</li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal mt-3">
+    <li class="list-group-item list-group-item-dark w-100">Articles</li>
+  </ul>
+
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-50 fw-semibold">Article</li>
+    <li class="list-group-item w-15 fw-semibold text-center" style="width: 15%;">Qté</li>
+    <li class="list-group-item w-15 fw-semibold text-end" style="width: 15%;">Prix</li>
+    <li class="list-group-item w-20 fw-semibold text-end" style="width: 20%;">Total</li>
+  </ul>
+
+  {% for line in order.orderProducts %}
+    {% set name = line.product ? line.product.title : (line.device ? line.device.title : 'Article') %}
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item w-50">{{ name }}</li>
+      <li class="list-group-item w-15 text-center" style="width: 15%;">{{ line.qte|number_format(0, ',', ' ') }}</li>
+      <li class="list-group-item w-15 text-end" style="width: 15%;">{{ line.price|number_format(2, ',', ' ') }} €</li>
+      <li class="list-group-item w-20 text-end" style="width: 20%;">{{ line.totalPrice|number_format(2, ',', ' ') }} €</li>
+    </ul>
+  {% endfor %}
+
+  <div class="d-flex gap-2 mt-3">
+    <a class="btn btn-secondary w-50" href="{{ path('app_profile_index') }}">Retour à mon compte</a>
+    <a class="btn btn-dark w-50" href="{{ path('app_home') }}">Continuer mes achats</a>
+  </div>
+</div>
+{% endblock %}

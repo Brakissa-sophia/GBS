@@ -53,10 +53,17 @@ class Device
     #[ORM\OneToMany(targetEntity: AddDeviceHistory::class, mappedBy: 'device')]
     private Collection $addDeviceHistories;
 
+    /**
+     * @var Collection<int, OrderProducts>
+     */
+    #[ORM\OneToMany(targetEntity: OrderProducts::class, mappedBy: 'device')]
+    private Collection $orderProducts;
+
     public function __construct()
     {
         $this->skin_type = new ArrayCollection();
         $this->addDeviceHistories = new ArrayCollection();
+        $this->orderProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -207,6 +214,36 @@ class Device
             // set the owning side to null (unless already changed)
             if ($addDeviceHistory->getDevice() === $this) {
                 $addDeviceHistory->setDevice(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderProducts>
+     */
+    public function getOrderProducts(): Collection
+    {
+        return $this->orderProducts;
+    }
+
+    public function addOrderProduct(OrderProducts $orderProduct): static
+    {
+        if (!$this->orderProducts->contains($orderProduct)) {
+            $this->orderProducts->add($orderProduct);
+            $orderProduct->setDevice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderProduct(OrderProducts $orderProduct): static
+    {
+        if ($this->orderProducts->removeElement($orderProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($orderProduct->getDevice() === $this) {
+                $orderProduct->setDevice(null);
             }
         }
 
