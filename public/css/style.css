@@ -698,3 +698,28 @@ footer p {
 .payment-methods:hover {
     opacity: 1;
 }
+
+/* ---------- Order details ---------- */
+
+/* Colonnes chiffrées avec largeur minimale */
+.table-order .col-qty   { width: 80px; }
+.table-order .col-price { width: 100px; }
+.table-order .col-total { width: 80px; }
+
+/* Vignettes produit/device */
+.thumb-96 { width: 96px; }
+
+/* Si tu utilises .ratio-1x1, on fixe aussi la hauteur */
+.thumb-96 { height: 96px; }
+
+/* Impression : cacher éléments UI bruyants */
+@media print {
+  .btn,
+  .card-header,
+  .modal {
+    display: none;
+  }
+  .card {
+    border: none;
+  }
+}

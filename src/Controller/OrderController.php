@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Form\OrderForm;
 use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
+use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/order')]
 class OrderController extends AbstractController
@@ -259,12 +261,84 @@ class OrderController extends AbstractController
     #[Route('/confirmation/{id}', name: 'app_order_confirmation')]
     public function confirmation(Order $order): Response
     {
-        if ($this->getUser() && $order->getUser() !== $this->getUser()) {
+        if ($this->getUser() && !$this->isGranted('ROLE_ADMIN') && $order->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
+
 
         return $this->render('order/confirmation.html.twig', [
             'order' => $order
         ]);
+    }
+
+    #[Route('/admin/orders', name: 'app_admin_orders')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getAllOrders(OrderRepository $orderRepository): Response
+    {   
+        $order = $orderRepository->findAll();
+
+        return $this->render('order/orders.html.twig', [
+            'orders' => $order
+        ]);
+    }
+
+    #[Route('/admin/orders/{id}', name: 'app_admin_order_details')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function orderDetails(Order $order): Response
+    {
+        if ($this->getUser() && $order->getUser() !== $this->getUser()) {
+            // Vérification uniquement pour les utilisateurs non-admin
+            if (!$this->isGranted('ROLE_ADMIN')) {
+                throw $this->createAccessDeniedException();
+            }
+        }
+
+        // ➜ Préparer une seule image (miniature) par ligne
+        $productsData = [];
+        $devicesData  = [];
+        $subtotalProducts = 0.0;
+        $subtotalDevices  = 0.0;
+
+        foreach ($order->getOrderProducts() as $op) {
+            if ($product = $op->getProduct()) {
+                $productsData[] = [
+                    'title'       => $product->getTitle(),
+                    'description' => $product->getDescription(),
+                    'quantity'    => $op->getQte(),
+                    'price'       => $op->getPrice(),
+                    'total'       => $op->getTotalPrice(),
+                    'image'       => $this->findMainImage('products', $product->getId()),
+                ];
+                $subtotalProducts += (float) $op->getTotalPrice();
+            } elseif ($device = $op->getDevice()) {
+                $devicesData[] = [
+                    'title'       => $device->getTitle(),
+                    'description' => $device->getDescription(),
+                    'quantity'    => $op->getQte(),
+                    'price'       => $op->getPrice(),
+                    'total'       => $op->getTotalPrice(),
+                    'image'       => $this->findMainImage('devices', $device->getId()),
+                ];
+                $subtotalDevices += (float) $op->getTotalPrice();
+            }
+        }
+
+        return $this->render('order/order_details.html.twig', [
+            'order'            => $order,
+            'productsData'     => $productsData,
+            'devicesData'      => $devicesData,
+            'subtotalProducts' => $subtotalProducts,
+            'subtotalDevices'  => $subtotalDevices,
+        ]);
+    }
+
+    /**
+     * Retourne l'URL de l'image principale selon la convention *-ID-1-*.* ou null.
+     */
+    private function findMainImage(string $folder, int $id): ?string
+    {
+        $pattern = $_SERVER['DOCUMENT_ROOT'] . "/uploads/{$folder}/*-{$id}-1-*.*";
+        $files = glob($pattern);
+        return !empty($files) ? "/uploads/{$folder}/" . basename($files[0]) : null;
     }
 }

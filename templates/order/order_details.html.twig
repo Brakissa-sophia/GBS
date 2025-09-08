@@ -1,0 +1,325 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Détail commande #{{ order.id }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{{ path('app_admin_orders') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour aux commandes
+        </a>
+        <h3 class="text-secondary">Détail de la commande (N°{{ order.id }})</h3>
+        
+    </div>
+
+    <div class="row">
+        {# Informations client #}
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-user"></i> Informations client</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Nom complet :</strong></div>
+                        <div class="col-sm-8">{{ order.firstName }} {{ order.lastName }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4 "><strong>Email :</strong></div>
+                        <div class="col-sm-8">
+                            <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Téléphone :</strong></div>
+                        <div class="col-sm-8">
+                            {% set sep = '-' %}
+                            {% set tel = order.phone|replace({' ': '', '.': '', '-': ''}) %}
+                            <a href="tel:{{ tel }}" class="text-decoration-none text-dark">
+                                {{ tel|split('')|batch(2, '')|map(g => g|join(''))|join(sep) }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Adresse :</strong></div>
+                        <div class="col-sm-8">
+                            {{ order.street }}<br>
+                            {{ order.postalCode }} {{ order.city }}
+                        </div>
+                    </div>
+                    {% if order.user %}
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>Compte :</strong></div>
+                            <div class="col-sm-8">
+                                <span class="badge bg-success">Utilisateur connecté</span>
+                                <small class="d-block text-muted">ID: {{ order.user.id }}</small>
+                            </div>
+                        </div>
+                    {% else %}
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-4"><strong>Compte :</strong></div>
+                            <div class="col-sm-8">
+                                <span class="badge bg-warning text-dark">Commande invité</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Informations commande #}
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-shopping-cart"></i> Informations commande</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Numéro :</strong></div>
+                        <div class="col-sm-8">
+                            <code>{{ order.orderNumber ?? ('#' ~ ('%06d'|format(order.id))) }}</code>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Date :</strong></div>
+                        <div class="col-sm-8">{{ order.orderDate|date('d/m/Y à H:i:s') }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Statut :</strong></div>
+                        <div class="col-sm-8">
+                            {% set s = order.status %}
+                            <strong>
+                                <span class="text-success 
+                                    {% if s == 'paid' %}
+                                    {% elseif s == 'pending' %} bg-warning text-dark
+                                    {% elseif s == 'cancelled' %} bg-danger
+                                    {% elseif s == 'refunded' %} bg-secondary
+                                    {% else %} bg-light text-dark {% endif %}
+                                ">{{ s|upper }}</span>
+                            </strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Paiement :</strong></div>
+                        <div class="col-sm-8">
+                            {% if order.paymentMethod %}
+                                <span class="text-secondary">{{ order.paymentMethod|upper }}</span>
+                                {% if order.paymentId %}
+                                    <br><small class="text-muted">ID: {{ order.paymentId }}</small>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Non défini</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Total :</strong></div>
+                        <div class="col-sm-8">
+                            <span class="h4 text-success">{{ order.totalPrice|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Détail des produits commandés #}
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0 text-dark"><i class="fas fa-list"></i> Détail des articles commandés</h5>
+        </div>
+        <div class="card-body p-0">
+
+            {# PRODUITS #}
+            {% if productsData is not empty %}
+                <div class="p-3 ">
+                    <h6 class="mb-3"> Produits commandés</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle table-order">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-danger w-auto">Produit</th>
+                                    <th class="text-center text-nowrap col-qty">Quantité</th>
+                                    <th class="text-center text-nowrap col-price">Prix.Unit</th>
+                                    <th class="text-center text-nowrap col-total">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in productsData %}
+                                    <tr>
+                                        <td class="w-auto">
+                                            <div class="d-flex align-items-center w-100">
+                                                {# vignette #}
+                                                <div class="ratio ratio-1x1 thumb-96 me-3 rounded overflow-hidden bg-light flex-shrink-0">
+                                                    <img src="{{ item.image ? asset(item.image) : asset('images/no-image.jpg') }}"
+                                                         alt="{{ item.title }}" class="w-100 h-100 object-fit-cover">
+                                                </div>
+                                                {# texte #}
+                                                <div class="flex-grow-1 text-wrap text-break">
+                                                    <strong>{{ item.title }}</strong>
+                                                    {% if item.description %}
+                                                        <br><small class="text-muted">{{ item.description }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center text-nowrap">{{ item.quantity }}</td>
+                                        <td class="text-end text-nowrap">{{ item.price|number_format(2, ',', ' ') }} €</td>
+                                        <td class="text-end text-nowrap"><strong>{{ item.total|number_format(2, ',', ' ') }} €</strong></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# DEVICES #}
+            {% if devicesData is not empty %}
+                <div class="p-3">
+                    <h6 class="mb-3">Devices commandés</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle table-order">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-danger w-auto">Device</th>
+                                    <th class="text-center text-nowrap col-qty">Quantité</th>
+                                    <th class="text-end text-nowrap col-price">Prix unitaire</th>
+                                    <th class="text-end text-nowrap col-total">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in devicesData %}
+                                    <tr>
+                                        <td class="w-auto">
+                                            <div class="d-flex align-items-center w-100">
+                                                <div class="ratio ratio-1x1 thumb-96 me-3 rounded overflow-hidden bg-light flex-shrink-0">
+                                                    <img src="{{ item.image ? asset(item.image) : asset('images/no-image.jpg') }}"
+                                                         alt="{{ item.title }}" class="w-100 h-100 object-fit-cover">
+                                                </div>
+                                                <div class="flex-grow-1 text-wrap text-break">
+                                                    <strong>{{ item.title }}</strong>
+                                                    {% if item.description %}
+                                                        <br><small class="text-muted">{{ item.description }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center text-nowrap">{{ item.quantity }}</td>
+                                        <td class="text-end text-nowrap">{{ item.price|number_format(2, ',', ' ') }} €</td>
+                                        <td class="text-end text-nowrap"><strong>{{ item.total|number_format(2, ',', ' ') }} €</strong></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Total général #}
+            <div class="p-3 bg-light">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="text-danger">Récapitulatif de la commande</h6>
+                        {% if subtotalProducts > 0 %}
+                            <div>Sous-total produits : {{ subtotalProducts|number_format(2, ',', ' ') }} €</div>
+                        {% endif %}
+                        {% if subtotalDevices > 0 %}
+                            <div>Sous-total devices : {{ subtotalDevices|number_format(2, ',', ' ') }} €</div>
+                        {% endif %}
+                        <div>Sous-total articles : {{ (subtotalProducts + subtotalDevices)|number_format(2, ',', ' ') }} €</div>
+                        {% set shipping = (subtotalProducts + subtotalDevices) > 49 ? 0 : 5.99 %}
+                        <div>Frais de port : {{ shipping|number_format(2, ',', ' ') }} €
+                            {% if shipping == 0 %}<small class="text-success">(Gratuit)</small>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h4 class="text-dark"><strong>Total : {{ order.totalPrice|number_format(2, ',', ' ') }} €</strong></h4>
+                        <small class="text-muted">Payé par {{ order.paymentMethod|default('Non défini')|upper }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Actions admin #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-tools"></i> Actions administrateur</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#statusModal">
+                                <i class="fas fa-edit"></i> Modifier le statut
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="window.print()">
+                                <i class="fas fa-print"></i> Imprimer
+                            </button>
+                            <a href="{{ path('app_order_confirmation', {id: order.id}) }}" class="btn btn-outline-info">
+                                <i class="fas fa-receipt"></i> Voir confirmation client
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ order.id }})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Modal pour modifier le statut #}
+        <div class="modal fade" id="statusModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier le statut - Commande #{{ order.id }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    {# <form action="{{ path('app_admin_order_status', {id: order.id}) }}" method="POST">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Nouveau statut</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>En attente</option>
+                                    <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>Payée</option>
+                                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Annulée</option>
+                                    <option value="refunded" {% if order.status == 'refunded' %}selected{% endif %}>Remboursée</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                        </div>
+                    </form> #}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function confirmDelete(orderId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/orders/${orderId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

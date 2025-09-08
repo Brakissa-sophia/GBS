@@ -3,6 +3,19 @@
 {% block title %}{{ parent() }} | Commande confirmée{% endblock %}
 
 {% block body %}
+
+
+<div class="text-center mt-3">
+  {% if is_granted('ROLE_ADMIN') %}
+    <a
+      href="{{ path('app_admin_order_details', { id: order.id }) }}"
+      class="btn btn-secondary"
+    >
+       <i class="fas fa-arrow-left"></i> Retour détail de la commande
+    </a>
+  {% endif %}
+</div>
+
 <div class="container py-2">
   <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
