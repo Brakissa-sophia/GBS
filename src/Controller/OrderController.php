@@ -10,6 +10,8 @@ use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\Paginator;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -211,6 +213,8 @@ class OrderController extends AbstractController
             $order->setPaymentMethod('paypal');
             $order->setPaymentId($paypalOrderId);
             $order->setStatus('paid');
+            // Nouvelle commande payée = automatiquement en cours de livraison
+            $order->setIsCompleted(false);
 
             $this->entityManager->persist($order);
             $this->entityManager->flush();
@@ -265,7 +269,6 @@ class OrderController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-
         return $this->render('order/confirmation.html.twig', [
             'order' => $order
         ]);
@@ -273,9 +276,15 @@ class OrderController extends AbstractController
 
     #[Route('/admin/orders', name: 'app_admin_orders')]
     #[IsGranted('ROLE_ADMIN')]
-    public function getAllOrders(OrderRepository $orderRepository): Response
+    public function getAllOrders(OrderRepository $orderRepository, Request $request, PaginatorInterface $paginator): Response
     {   
-        $order = $orderRepository->findAll();
+        $data = $orderRepository->findBy([], ['orderDate' => 'DESC']);
+
+        $order= $paginator->paginate(
+            $data,
+            $request->query->getInt('page', 1),
+            5
+        );
 
         return $this->render('order/orders.html.twig', [
             'orders' => $order
@@ -341,4 +350,70 @@ class OrderController extends AbstractController
         $files = glob($pattern);
         return !empty($files) ? "/uploads/{$folder}/" . basename($files[0]) : null;
     }
+
+    #[Route('/admin/orders/{id}/status', name: 'app_admin_order_status', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function updateOrderStatus(
+        Order $order, 
+        Request $request
+    ): Response {
+        $newStatus = $request->get('status');
+        
+        // Valider le statut (seulement paid et cancelled maintenant)
+        $allowedStatuses = ['paid', 'cancelled'];
+        if (!in_array($newStatus, $allowedStatuses)) {
+            $this->addFlash('error', 'Statut invalide.');
+            return $this->redirectToRoute('app_admin_orders');
+        }
+
+        $order->setStatus($newStatus);
+        
+        // Si le statut passe à 'paid', marquer automatiquement comme en cours (pas encore livré)
+        if ($newStatus === 'paid') {
+            $order->setIsCompleted(false);
+        }
+        
+        $this->entityManager->flush();
+
+        $statusLabel = $newStatus === 'paid' ? 'payée' : 'annulée';
+        $this->addFlash('success', "Le statut de la commande a été mis à jour : {$statusLabel}.");
+
+        return $this->redirectToRoute('app_admin_orders');
+    }
+
+    #[Route('/admin/orders/{id}/delivered/update', name: 'app_admin_order_delivered_update', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function markAsDelivered(Order $order, EntityManagerInterface $em): Response
+    {
+        // Vérifier d'abord
+        if ($order->getStatus() !== 'paid') {
+            $this->addFlash('error', 'Seules les commandes payées peuvent être marquées comme livrées.');
+            return $this->redirectToRoute('app_admin_orders');
+        }
+
+        $order->setIsCompleted(true);
+
+        // Si tu as ajouté la propriété deliveredAt dans l'entité Order :
+        // if (method_exists($order, 'setDeliveredAt')) {
+        //     $order->setDeliveredAt(new \DateTimeImmutable());
+        // }
+
+        $em->flush();
+
+        $this->addFlash('success', 'La commande a été marquée comme livrée.');
+        return $this->redirectToRoute('app_admin_orders');
+    }
+
+
+
+    #[Route('/admin/orders/{id}/delete', name: 'app_admin_order_delete', methods: ['POST'])]
+#[IsGranted('ROLE_ADMIN')]
+public function deleteOrder(Order $order): Response
+{
+    $this->entityManager->remove($order);
+    $this->entityManager->flush();
+
+    $this->addFlash('success', 'La commande a été supprimée.');
+    return $this->redirectToRoute('app_admin_orders');
+}
 }

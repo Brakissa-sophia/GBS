@@ -71,6 +71,9 @@ class Order
     #[ORM\Column(length: 50, options: ['default' => 'pending'])]
     private string $status = 'pending';
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isCompleted = null;
+
     public function __construct()
     {
         $this->orderDate    = new \DateTimeImmutable();
@@ -189,4 +192,16 @@ class Order
     public function isPending(): bool { return $this->status === 'pending'; }
     public function isCancelled(): bool { return $this->status === 'cancelled'; }
     public function isRefunded(): bool { return $this->status === 'refunded'; }
+
+    public function isCompleted(): ?bool
+    {
+        return $this->isCompleted;
+    }
+
+    public function setIsCompleted(?bool $isCompleted): static
+    {
+        $this->isCompleted = $isCompleted;
+
+        return $this;
+    }
 }
