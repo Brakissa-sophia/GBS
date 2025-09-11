@@ -1,0 +1,211 @@
+{% extends 'email/base.html.twig' %}
+
+{% block body %}
+
+<p>Votre commande <strong>#{{ order.orderNumber }}</strong> a été confirmée avec succès !</p>
+<p>Nous vous remercions pour votre confiance.</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #698866;">
+    <h3 style="color: #698866; margin-top: 0;">
+        Détails de votre commande
+    </h3>
+    
+    <p><strong>Date de commande :</strong> {{ order.orderDate|date('d/m/Y à H:i') }}</p>
+    <p><strong>Méthode de paiement :</strong> 
+        {% if order.paymentMethod == 'paypal' %}
+            PayPal
+        {% elseif order.paymentMethod == 'card' %}
+            Carte bancaire
+        {% else %}
+            {{ order.paymentMethod|capitalize }}
+        {% endif %}
+    </p>
+</div>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px;">
+    <h3 style="color: #698866; margin-top: 0;">
+        Adresse de livraison
+    </h3>
+    <p style="margin: 5px 0;"><strong>{{ order.firstName }} {{ order.lastName }}</strong></p>
+    <p style="margin: 5px 0;">{{ order.street }}</p>
+    <p style="margin: 5px 0;">{{ order.postalCode }} {{ order.city }}</p>
+    <p style="margin: 5px 0;">{{ order.email }}</p>
+    <p style="margin: 5px 0;">{{ order.phone }}</p>
+</div>
+
+<div style="margin: 20px 0;">
+    <h3 style="color: #698866;">
+        Récapitulatif de votre commande
+    </h3>
+    
+    {% if orderItems|length > 0 %}
+        <!-- Version Desktop/Tablette -->
+        <div class="desktop-version">
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0; background-color: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <thead>
+                    <tr style="background-color: #698866; color: white;">
+                        <th style="padding: 15px 10px; text-align: left; font-weight: bold;">Image</th>
+                        <th style="padding: 15px 10px; text-align: left; font-weight: bold;">Produit</th>
+                        <th style="padding: 15px 10px; text-align: center; font-weight: bold;">Quantité</th>
+                        <th style="padding: 15px 10px; text-align: right; font-weight: bold;">Prix unitaire</th>
+                        <th style="padding: 15px 10px; text-align: right; font-weight: bold;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in orderItems %}
+                    <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td style="padding: 15px 10px; text-align: center; vertical-align: middle;">
+                            {% if item.image %}
+                            <img src="http://127.0.0.1:8000{{ item.image }}" 
+                                 alt="{{ item.name }}" 
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                            {% else %}
+                            <div style="width: 60px; height: 60px; background-color: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #698866; font-size: 24px; margin: 0 auto;">
+                                {% if item.type == 'product' %}●{% else %}◐{% endif %}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 15px 10px; vertical-align: middle;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 5px;">{{ item.name }}</div>
+                            {% if item.description %}
+                            <div style="color: #666; font-size: 13px; line-height: 1.4;">
+                                {{ item.description|length > 60 ? item.description|slice(0, 60) ~ '...' : item.description }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 15px 10px; text-align: center; vertical-align: middle; font-weight: bold; color: #698866;">
+                            {{ item.quantity }}
+                        </td>
+                        <td style="padding: 15px 10px; text-align: right; vertical-align: middle; font-weight: bold; color: #333;">
+                            {{ item.price|number_format(2, ',', ' ') }}€
+                        </td>
+                        <td style="padding: 15px 10px; text-align: right; vertical-align: middle; font-weight: bold; color: #698866; font-size: 16px;">
+                            {{ item.total|number_format(2, ',', ' ') }}€
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Version Mobile -->
+        <div class="mobile-version" style="display: none;">
+            {% for item in orderItems %}
+            <div style="background-color: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin: 12px 0; overflow: hidden;">
+                
+                <!-- En-tête avec image et nom -->
+                <div style="display: flex; padding: 15px; border-bottom: 1px solid #f0f0f0;">
+                    {% if item.image %}
+                    <img src="http://127.0.0.1:8000{{ item.image }}" 
+                         alt="{{ item.name }}" 
+                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 12px; flex-shrink: 0;">
+                    {% else %}
+                    <div style="width: 60px; height: 60px; background-color: #f8f8f8; border-radius: 6px; margin-right: 12px; display: flex; align-items: center; justify-content: center; color: #698866; font-size: 20px; flex-shrink: 0;">
+                        {% if item.type == 'product' %}●{% else %}◐{% endif %}
+                    </div>
+                    {% endif %}
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: bold; color: #333; font-size: 16px; margin-bottom: 4px; word-wrap: break-word;">{{ item.name }}</div>
+                        {% if item.description %}
+                        <div style="color: #666; font-size: 13px; line-height: 1.3; word-wrap: break-word;">
+                            {{ item.description|length > 50 ? item.description|slice(0, 50) ~ '...' : item.description }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Détails de prix -->
+                <div style="padding: 12px 15px; background-color: #f9f9f9;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="color: #555; font-size: 14px;">Quantité :</span>
+                        <span style="color: #698866; font-weight: bold; font-size: 14px;">{{ item.quantity }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="color: #555; font-size: 14px;">Prix unitaire :</span>
+                        <span style="color: #333; font-weight: bold; font-size: 14px;">{{ item.price|number_format(2, ',', ' ') }}€</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #e0e0e0;">
+                        <span style="color: #333; font-weight: bold; font-size: 15px;">Total :</span>
+                        <span style="color: #698866; font-weight: bold; font-size: 16px;">{{ item.total|number_format(2, ',', ' ') }}€</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- CSS responsive -->
+        <style type="text/css">
+            @media only screen and (max-width: 600px) {
+                .desktop-version { display: none !important; }
+                .mobile-version { display: block !important; }
+            }
+            @media only screen and (min-width: 601px) {
+                .desktop-version { display: block !important; }
+                .mobile-version { display: none !important; }
+            }
+        </style>
+        
+    {% else %}
+        <div style="padding: 20px; text-align: center; color: #666; background-color: #f8f9fa; border-radius: 8px;">
+            <p>Aucun article trouvé dans cette commande.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #698866; color: white; border-radius: 8px;">
+    <h3 style="margin-top: 0; color: white;">
+        Récapitulatif des coûts
+    </h3>
+    
+    <div style="display: flex; justify-content: space-between; margin: 8px 0;">
+        <span>Sous-total produits :</span>
+        <span>{{ subtotal|number_format(2, ',', ' ') }}€</span>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; margin: 8px 0;">
+        <span>Frais de livraison :</span>
+        <span>
+            {% if shipping > 0 %}
+                {{ shipping|number_format(2, ',', ' ') }}€
+            {% else %}
+                <span style="color: #90EE90;">Gratuit</span>
+            {% endif %}
+        </span>
+    </div>
+    
+    <hr style="border: none; border-top: 2px solid rgba(255,255,255,0.3); margin: 15px 0;">
+    
+    <div style="display: flex; justify-content: space-between; margin: 8px 0; font-size: 18px; font-weight: bold;">
+        <span>TOTAL :</span>
+        <span>{{ total|number_format(2, ',', ' ') }}€</span>
+    </div>
+</div>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+    <h3 style="color: #2E7D32; margin-top: 0;">
+        Statut de votre commande
+    </h3>
+    <p style="margin: 5px 0; color: #2E7D32;"><strong>Paiement confirmé</strong></p>
+    <p style="margin: 5px 0;">Votre commande est en cours de préparation.</p>
+    <p style="margin: 5px 0;">Vous recevrez un email de confirmation dès l'expédition de votre colis.</p>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="http://127.0.0.1:8000{{ path('app_order_confirmation', {id: order.id}) }}" 
+       style="display: inline-block; 
+              padding: 15px 30px; 
+              background-color: transparent;
+              border: 2px solid #698866;
+              color: #698866;
+              font-size: 18px; 
+              text-decoration: none; 
+              border-radius: 5px; 
+              font-weight: bold;
+              transition: all 0.3s ease;">
+        Voir ma commande en ligne
+    </a>
+</div>
+
+<p>Si vous avez des questions concernant votre commande, n'hésitez pas à nous contacter.</p>
+
+{% endblock %}
