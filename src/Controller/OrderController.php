@@ -88,6 +88,7 @@ class OrderController extends AbstractController
             if ($user->getPhone())     { $order->setPhone($user->getPhone()); }
 
             $addresses = $user->getAddresses();
+            
             if (!$addresses->isEmpty()) {
                 $firstAddress = $addresses->first();
                 if ($firstAddress !== false) {
@@ -100,19 +101,6 @@ class OrderController extends AbstractController
 
         $form = $this->createForm(OrderForm::class, $order);
         $form->handleRequest($request);
-
-        // Debug : vérifier l'état du formulaire
-        $isSubmitted = $form->isSubmitted();
-        file_put_contents('debug.txt', 'Form submitted: ' . ($isSubmitted ? 'OUI' : 'NON') . PHP_EOL, FILE_APPEND);
-        
-        if ($isSubmitted) {
-            $isValid = $form->isValid();
-            file_put_contents('debug.txt', 'Form valid: ' . ($isValid ? 'OUI' : 'NON') . PHP_EOL, FILE_APPEND);
-            
-            if (!$isValid) {
-                file_put_contents('debug.txt', 'ERREURS FORMULAIRE: ' . print_r($form->getErrors(true), true) . PHP_EOL, FILE_APPEND);
-            }
-        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Order $orderData */
@@ -135,12 +123,13 @@ class OrderController extends AbstractController
                 return $this->redirectToRoute('app_order');
             }
 
-            // Code de débogage ajouté ici
-            $saveInfo = $request->request->get('save-info', false);
-            error_log('Checkbox save-info reçue: ' . ($saveInfo ? 'OUI' : 'NON'));
-            $session->set('save_user_info', $saveInfo);
-
+            // Récupération de la checkbox
+            $saveInfo = $request->request->get('save-info');
+            $saveInfoBool = $saveInfo === '1' || $saveInfo === 'on' || $saveInfo === true;
+            
+            $session->set('save_user_info', $saveInfoBool);
             $session->set('order_data', $payload);
+            
             return $this->redirectToRoute('app_checkout');
         }
 
@@ -257,6 +246,11 @@ class OrderController extends AbstractController
             }
             $this->entityManager->flush();
 
+            // Sauvegarder les informations utilisateur pour PayPal
+            if ($this->getUser() && $session->get('save_user_info', false)) {
+                $this->saveUserInformation($this->getUser(), $orderData);
+            }
+
             // Envoi de l'email de confirmation
             $this->sendOrderConfirmationEmail($order, $recalcSubtotal, $shipping);
 
@@ -355,9 +349,6 @@ class OrderController extends AbstractController
                 $this->entityManager->persist($op);
             }
             $this->entityManager->flush();
-
-            // Envoi de l'email de confirmation
-           // $this->sendOrderConfirmationEmail($order, $recalcSubtotal, $shipping);
 
             // Sauvegarder les informations utilisateur si connecté et si checkbox était cochée
             if ($this->getUser() && $session->get('save_user_info', false)) {
@@ -576,14 +567,19 @@ class OrderController extends AbstractController
     private function saveUserInformation(User $user, array $orderData): void
     {
         try {
-            // Mettre à jour le téléphone si pas encore renseigné ou différent
-            if (empty($user->getPhone()) || $user->getPhone() !== $orderData['phone']) {
-                $user->setPhone($orderData['phone']);
+            // Mettre à jour le téléphone s'il est vide ou différent
+            $currentPhone = $user->getPhone();
+            $newPhone = $orderData['phone'];
+            
+            if (empty($currentPhone) || $currentPhone !== $newPhone) {
+                $user->setPhone($newPhone);
             }
 
-            // Vérifier si l'adresse existe déjà
+            // Vérifier les adresses existantes
+            $addresses = $user->getAddresses();
             $addressExists = false;
-            foreach ($user->getAddresses() as $address) {
+            
+            foreach ($addresses as $address) {
                 if ($address->getStreet() === $orderData['street'] && 
                     $address->getCity() === $orderData['city'] && 
                     $address->getPostalCode() === $orderData['postalCode']) {
@@ -604,11 +600,13 @@ class OrderController extends AbstractController
                 $user->addAddress($newAddress);
             }
 
+            // Sauvegarder
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
         } catch (\Exception $e) {
             error_log('Erreur sauvegarde informations utilisateur: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
         }
     }
 }

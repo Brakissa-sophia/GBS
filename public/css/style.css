@@ -723,3 +723,27 @@ footer p {
     border: none;
   }
 }
+
+.list-group-item.list-group-item-dark{
+    background-color: var(--color-sauge);
+    color: white;
+}
+
+.boutonColor{
+    background-color: var(--color-beigef);
+    border-radius: 5px;
+    padding: 4px 12px 4px 12px;
+    text-decoration: none;
+    color: black;
+    font-size: 16px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.boutonColor:hover{
+    background-color: var(--color-beige);
+    
+
+}

@@ -7,63 +7,113 @@
 {% block body %}
 <h2>Mon compte</h2>
 
-<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-dark">
-
-  {# Coordonnées personnelles #}
+<div class="bg-white col-md-10 mt-3 mx-auto p-4 rounded border border-2 border-success">
+   {# Coordonnées personnelles #}
   <ul class="list-group list-group-horizontal">
     <li class="list-group-item list-group-item-dark w-100">Coordonnées personnelles</li>
   </ul>
 
-  <ul class="list-group list-group-horizontal">
-    <li class="list-group-item w-25">Email</li>
-    <li class="list-group-item w-75">{{ app.user.email }}</li>
-  </ul>
-  <ul class="list-group list-group-horizontal">
-    <li class="list-group-item w-25">Nom</li>
-    <li class="list-group-item w-75">{{ app.user.firstName }}</li>
-  </ul>
-  <ul class="list-group list-group-horizontal">
-    <li class="list-group-item w-25">Prénom</li>
-    <li class="list-group-item w-75">{{ app.user.lastName }}</li>
+  <div class="p-3 mt-3">
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item w-25">Email</li>
+      <li class="list-group-item w-75">{{ app.user.email }}</li>
+    </ul>
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item w-25">Nom</li>
+      <li class="list-group-item w-75">{{ app.user.firstName }}</li>
+    </ul>
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item w-25">Prénom</li>
+      <li class="list-group-item w-75">{{ app.user.lastName }}</li>
+    </ul>
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item w-25">Téléphone</li>
+      <li class="list-group-item w-75">{{ app.user.phone ?? 'Non renseigné' }}</li>
+    </ul>
+
+    <div class="mt-4 d-flex flex-column flex-md-row justify-content-center gap-3">
+      <a class="boutonColor" href="{{ path('app_profile_edit') }}">Modifier mon compte</a>
+      <a class="boutonColor" href="{{ path('app_profile_password_edit') }}">Modifier mon mot de passe</a>
+      <a class="btn btn-danger" href="{{ path('app_profile_delete') }}">Supprimer mon compte</a>
+    </div>
+  </div>
+</div>
+
+{# Adresses #}
+<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
+   <ul class="list-group list-group-horizontal">
+    <li class="list-group-item list-group-item-dark w-100">Mes adresses</li>
   </ul>
 
-  <a class="btn btn-warning w-100 mb-2 mt-3" href="{{ path('app_profile_edit') }}">Modifier mon compte</a>
-  <a class="btn btn-warning w-100 my-2" href="{{ path('app_profile_password_edit') }}">Modifier mon mot de passe</a>
-  <a class="btn btn-danger w-100 my-2" href="{{ path('app_profile_delete') }}">Supprimer mon compte</a>
+  {% if app.user.addresses is empty %}
+    <div class="alert alert-info mt-3">
+      Vous n'avez encore enregistré aucune adresse.
+    </div>
+  {% else %}
+    {% for address in app.user.addresses %}
+      <div class="p-3 mt-3">
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item w-25">Rue</li>
+          <li class="list-group-item w-75">{{ address.street }}</li>
+        </ul>
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item w-25">Code postal</li>
+          <li class="list-group-item w-75">{{ address.postalCode }}</li>
+        </ul>
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item w-25">Ville</li>
+          <li class="list-group-item w-75">{{ address.city }}</li>
+        </ul>
+        <div class="text-center mt-4">
+          <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+            <a href="{{ path('app_profile_address_edit', { id: address.id }) }}" class="boutonColor">
+              Modifier adresse
+            </a>
+            <a href="{{ path('app_profile_delete', { id: address.id }) }}" 
+               class="btn btn-danger"
+               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')">
+              Supprimer
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
 </div>
 
 {# Historique de commandes #}
-<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-dark mt-4">
-
-  <ul class="list-group list-group-horizontal">
+<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
+   <ul class="list-group list-group-horizontal">
     <li class="list-group-item list-group-item-dark w-100">Mes commandes</li>
   </ul>
 
   {% if orders is empty %}
     <div class="alert alert-info mt-3">
-      Vous n’avez encore passé aucune commande.
+      Vous n'avez encore passé aucune commande.
     </div>
   {% else %}
-    <ul class="list-group list-group-horizontal mt-3">
-      <li class="list-group-item w-25 fw-semibold">N° de commande</li>
-      <li class="list-group-item w-25 fw-semibold">Date</li>
-      <li class="list-group-item w-25 fw-semibold">Total</li>
-      <li class="list-group-item w-25 fw-semibold text-center">Actions</li>
-    </ul>
-
-    {% for order in orders %}
+    <div class="p-3 mt-3">
       <ul class="list-group list-group-horizontal">
-        <li class="list-group-item w-25">#{{ order.orderNumber }}</li>
-        <li class="list-group-item w-25">{{ order.orderDate|date('d/m/Y H:i') }}</li>
-        <li class="list-group-item w-25">{{ order.total|number_format(2, ',', ' ') }} €</li>
-        <li class="list-group-item w-25 text-center">
-          <a class="btn btn-sm btn-outline-primary"
-             href="{{ path('app_profile_order_show', { id: order.id }) }}">
-            Voir le détail
-          </a>
-        </li>
+        <li class="list-group-item w-25 fw-semibold">N° de commande</li>
+        <li class="list-group-item w-25 fw-semibold">Date</li>
+        <li class="list-group-item w-25 fw-semibold">Total</li>
+        <li class="list-group-item w-25 fw-semibold text-center">Actions</li>
       </ul>
-    {% endfor %}
+
+      {% for order in orders %}
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item w-25">#{{ order.orderNumber }}</li>
+          <li class="list-group-item w-25">{{ order.orderDate|date('d/m/Y H:i') }}</li>
+          <li class="list-group-item w-25">{{ order.total|number_format(2, ',', ' ') }} €</li>
+          <li class="list-group-item w-25 text-center">
+            <a class="btn btn-sm btn-outline-success"
+               href="{{ path('app_profile_order_show', { id: order.id }) }}">
+              Voir le détail
+            </a>
+          </li>
+        </ul>
+      {% endfor %}
+    </div>
   {% endif %}
 </div>
 {% endblock %}

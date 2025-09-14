@@ -40,6 +40,25 @@ final class ProfileController extends AbstractController
         return $this->render('profile/edit_password.html.twig');
     }
 
+
+    #[Route('/adresse/modifier', name: 'app_profile_address_edit', methods: ['GET', 'POST'])]
+    public function editAddress(): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        return $this->render('profile/edit_adress.html.twig');
+    }
+
+
+    #[Route('/adresse/ajouter', name: 'app_profile_address_add', methods: ['GET', 'POST'])]
+    public function addAddress(): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        return $this->render('profile/add_adress.html.twig');
+    }
+
+
+
+
     #[Route('/supprimer', name: 'app_profile_delete', methods: ['GET', 'POST'])]
     public function deleteAccount(): Response
     {
