@@ -9,6 +9,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\DeviceRepository;
 use App\Repository\ProductRepository;
 use App\Repository\SkinTypeRepository;
+use Dom\Entity;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
@@ -657,15 +658,180 @@ final class HomeController extends AbstractController
 
     // ========== PAGES STATIQUES ==========
 
-    #[Route('/contact', name: 'app_contact')]
-    public function contact(): Response 
-    {
-        return $this->render('home/contact.html.twig', []);
-    }
+
 
     #[Route('/favoris', name: 'app_favorite')]
     public function favorite(): Response 
     {
         return $this->render('home/favorite.html.twig', []);
     }
+
+
+    // ========== MOTEUR DE RECHERCHE ==========
+
+    #[Route('/recherche', name: 'app_search')]
+    public function search(
+        HttpFoundationRequest $request,
+        ProductRepository $productRepository,
+        DeviceRepository $deviceRepository,
+        CategoryRepository $categoryRepository,
+        BrandRepository $brandRepository,
+        SkinTypeRepository $skinTypeRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $searchTerm = trim($request->query->get('q', ''));
+        
+        if (empty($searchTerm)) {
+            $this->addFlash('warning', 'Veuillez saisir un terme de recherche.');
+            return $this->redirectToRoute('app_catalog');
+        }
+
+        // Recherche dans les produits
+        $products = $productRepository->searchProducts($searchTerm);
+        $productsCount = $productRepository->countSearchResults($searchTerm);
+
+        // Recherche dans les appareils
+        $devices = $deviceRepository->searchDevices($searchTerm);
+        $devicesCount = $deviceRepository->countSearchResults($searchTerm);
+
+        // Préparer les données avec images pour les produits
+        $productsWithImages = [];
+        foreach ($products as $product) {
+            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/products/*-' . $product->getId() . '-1-*.*';
+            $files = glob($pattern);
+            
+            $productsWithImages[] = [
+                'product' => $product,
+                'image' => !empty($files) ? '/uploads/products/' . basename($files[0]) : '/images/no-image.jpg'
+            ];
+        }
+
+        // Préparer les données avec images pour les appareils
+        $devicesWithImages = [];
+        foreach ($devices as $device) {
+            $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-1-*.*';
+            $files = glob($pattern);
+            
+            $devicesWithImages[] = [
+                'device' => $device,
+                'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
+            ];
+        }
+
+        $totalResults = $productsCount + $devicesCount;
+
+        return $this->render('home/search-results.html.twig', [
+            'searchTerm' => $searchTerm,
+            'productsWithImages' => $productsWithImages,
+            'devicesWithImages' => $devicesWithImages,
+            'productsCount' => $productsCount,
+            'devicesCount' => $devicesCount,
+            'totalResults' => $totalResults,
+            'categories' => $categoryRepository->findAll(),
+            'brands' => $brandRepository->findAll(),
+            'skinTypes' => $skinTypeRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/recherche-avancee', name: 'app_advanced_search')]
+    public function advancedSearch(
+        HttpFoundationRequest $request,
+        ProductRepository $productRepository,
+        DeviceRepository $deviceRepository,
+        CategoryRepository $categoryRepository,
+        BrandRepository $brandRepository,
+        SkinTypeRepository $skinTypeRepository
+    ): Response {
+        $criteria = [
+            'search' => trim($request->query->get('q', '')),
+            'brand_id' => $request->query->get('brand_id'),
+            'category_id' => $request->query->get('category_id'),
+            'min_price' => $request->query->get('min_price'),
+            'max_price' => $request->query->get('max_price'),
+            'type' => $request->query->get('type', 'all') // 'products', 'devices', 'all'
+        ];
+
+        $productsWithImages = [];
+        $devicesWithImages = [];
+
+        if ($criteria['type'] === 'all' || $criteria['type'] === 'products') {
+            $products = $productRepository->advancedSearch($criteria);
+            foreach ($products as $product) {
+                $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/products/*-' . $product->getId() . '-1-*.*';
+                $files = glob($pattern);
+                
+                $productsWithImages[] = [
+                    'product' => $product,
+                    'image' => !empty($files) ? '/uploads/products/' . basename($files[0]) : '/images/no-image.jpg'
+                ];
+            }
+        }
+
+        if ($criteria['type'] === 'all' || $criteria['type'] === 'devices') {
+            $devices = $deviceRepository->advancedSearch($criteria);
+            foreach ($devices as $device) {
+                $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/devices/*-' . $device->getId() . '-1-*.*';
+                $files = glob($pattern);
+                
+                $devicesWithImages[] = [
+                    'device' => $device,
+                    'image' => !empty($files) ? '/uploads/devices/' . basename($files[0]) : '/images/no-image.jpg'
+                ];
+            }
+        }
+
+        return $this->render('home/advanced-search-results.html.twig', [
+            'criteria' => $criteria,
+            'productsWithImages' => $productsWithImages,
+            'devicesWithImages' => $devicesWithImages,
+            'productsCount' => count($productsWithImages),
+            'devicesCount' => count($devicesWithImages),
+            'totalResults' => count($productsWithImages) + count($devicesWithImages),
+            'categories' => $categoryRepository->findAll(),
+            'brands' => $brandRepository->findAll(),
+            'skinTypes' => $skinTypeRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/suggestions', name: 'app_search_suggestions')]
+public function searchSuggestions(
+    HttpFoundationRequest $request,
+    ProductRepository $productRepository,
+    DeviceRepository $deviceRepository
+): Response {
+    $query = trim($request->query->get('q', ''));
+    
+    if (strlen($query) < 2) {
+        return $this->json([]);
+    }
+
+    // Recherche de suggestions dans les produits
+    $productSuggestions = $productRepository
+        ->createQueryBuilder('p')
+        ->select('p.title')
+        ->where('p.title LIKE :query')
+        ->setParameter('query', '%' . $query . '%')
+        ->setMaxResults(5)
+        ->getQuery()
+        ->getScalarResult();
+
+    // Recherche de suggestions dans les appareils
+    $deviceSuggestions = $deviceRepository
+        ->createQueryBuilder('d')
+        ->select('d.title')
+        ->where('d.title LIKE :query')
+        ->setParameter('query', '%' . $query . '%')
+        ->setMaxResults(5)
+        ->getQuery()
+        ->getScalarResult();
+
+    $suggestions = array_merge(
+        array_column($productSuggestions, 'title'),
+        array_column($deviceSuggestions, 'title')
+    );
+
+    return $this->json(array_unique($suggestions));
 }
+
+}
+

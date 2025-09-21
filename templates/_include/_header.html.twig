@@ -12,10 +12,17 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 
-                <!-- Icône recherche pour desktop -->
-                <button class="btn p-0 border-0 d-none d-lg-block">
-                    <img class="img-fluid" src="{{ asset('images/recherche.png') }}" alt="Rechercher">
-                </button>
+                <!-- Barre de recherche pour desktop -->
+                <div class="d-none d-lg-flex align-items-center">
+                <form action="{{ path('app_search') }}" method="GET" class="d-flex">
+                    <div class="input-group search-bar">
+                        <input type="text" class="form-control" placeholder="Rechercher..." aria-label="Rechercher" name="q" value="{{ app.request.query.get('q') }}">
+                        <button class="btn" type="submit">
+                            <img class="img-fluid search-icon" src="{{ asset('images/recherche.png') }}" alt="Rechercher">
+                        </button>
+                    </div>
+                </div>
+                </form>
             </div>
             
             <!-- Centre : Logo -->
@@ -102,7 +109,7 @@
                         <a class="nav-link" href="{{ path('app_device') }}">Outils de beauté</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_contact') }}">Contact</a>
+                        <a class="nav-link" href="{{ path('app_contact_dto') }}">Contact</a>
                     </li>
                 </ul>
             </div>
@@ -118,10 +125,12 @@
         
         <div class="mb-4">
             <h6 class="text-muted mb-2 fw-bold">Rechercher</h6>
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Rechercher...">
-                <button class="btn btn-success" type="submit">Rechercher</button>
-            </div>
+            <form action="{{ path('app_search') }}" method="GET">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher..." value="{{ app.request.query.get('q') }}">
+                    <button class="btn btn-success" type="submit">Rechercher</button>
+                </div>
+            </form>
         </div>
         
         

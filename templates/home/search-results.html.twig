@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Résultats de recherche : "{{ searchTerm }}"{% endblock %}
+{% block description %}{{ parent() }} | Résultats de recherche pour "{{ searchTerm }}"{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- En-tête des résultats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4>Résultats de recherche pour : "{{ searchTerm }}"</h4>
+            <p class="text-muted">
+                {{ totalResults }} résultat(s) trouvé(s) 
+                {% if productsCount > 0 and devicesCount > 0 %}
+                    ({{ productsCount }} produit(s) et {{ devicesCount }} appareil(s))
+                {% elseif productsCount > 0 %}
+                    ({{ productsCount }} produit(s))
+                {% elseif devicesCount > 0 %}
+                    ({{ devicesCount }} appareil(s))
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if totalResults == 0 %}
+        <!-- Aucun résultat -->
+        <div class="row">
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info">
+                    <h4>Aucun résultat trouvé</h4>
+                    <p>Désolé, aucun produit ou appareil ne correspond à votre recherche "{{ searchTerm }}".</p>
+                    <div class="mt-3">
+                        <p>Suggestions :</p>
+                        <ul class="list-unstyled">
+                            <li>• Vérifiez l'orthographe de votre recherche</li>
+                            <li>• Essayez des mots-clés plus généraux</li>
+                            <li>• Recherchez par marque ou catégorie</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ path('app_catalog') }}" class="btn btn-primary me-2">Voir tous les produits</a>
+                        <a href="{{ path('app_device') }}" class="btn btn-success">Voir tous les appareils</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Résultats trouvés -->
+        <div class="row">
+            <!-- Section Produits -->
+            {% if productsCount > 0 %}
+                <div class="col-12 mb-4">
+                   
+                        <a href="{{ path('app_catalog') }}?q={{ searchTerm }}" class="btn btn-sm search-suggestion-btn ms-2">
+                            Voir tous les produits
+                        </a>
+                    
+                    <div class="row g-4 mt-2">
+                        {% for item in productsWithImages %}
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card h-100 shadow">
+                                    {% if item.image %}
+                                        <a class="text-decoration-none text-dark" href="{{ path('app_catalog_product_show', {'id': item.product.id}) }}">
+                                            <img src="{{ asset(item.image) }}" class="card-img-top" alt="{{ item.product.title }}">
+                                        </a>
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <span class="text-muted">Pas d'image</span>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="card-body d-flex flex-column">
+                                        <a class="text-decoration-none text-dark" href="{{ path('app_catalog_product_show', {'id': item.product.id}) }}">
+                                            <h5 class="card-title">{{ item.product.title }}</h5>
+                                        </a>
+                                        
+                                        <!-- Informations du produit -->
+                                        <div class="mb-2">
+                                            {% if item.product.brand %}
+                                                <small class="text-muted">{{ item.product.brand.title }}</small><br>
+                                            {% endif %}
+                                            {% if item.product.category %}
+                                                <small class="text-muted">{{ item.product.category.name }}</small>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-auto">
+                                            <div class="d-flex justify-content-end mb-2">
+                                                <span class="text-success fw-bold">{{ item.product.price }}€</span>
+                                            </div>
+                                            <a href="{{ path('app_cart_add', {'type': 'product', 'id': item.product.id}) }}" class="btn btn-outline-success w-100">
+                                                Ajouter au panier
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Section Appareils -->
+            {% if devicesCount > 0 %}
+                <div class="col-12 mb-4">
+                    <h3 class="border-bottom pb-2">
+                        Outils de beauté ({{ devicesCount }})
+                        <a href="{{ path('app_device') }}?q={{ searchTerm }}" class="btn btn-sm btn-outline-success ms-2">
+                            Voir tous les appareils
+                        </a>
+                    </h3>
+                    <div class="row g-4 mt-2">
+                        {% for item in devicesWithImages %}
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card h-100 shadow">
+                                    {% if item.image %}
+                                        <a class="text-decoration-none text-dark" href="{{ path('app_device_catalog_show_home', {'id': item.device.id}) }}">
+                                            <img src="{{ asset(item.image) }}" class="card-img-top" alt="{{ item.device.title }}">
+                                        </a>
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <span class="text-muted">Pas d'image</span>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="card-body d-flex flex-column">
+                                        <a class="text-decoration-none text-dark" href="{{ path('app_device_catalog_show_home', {'id': item.device.id}) }}">
+                                            <h5 class="card-title">{{ item.device.title }}</h5>
+                                        </a>
+                                        
+                                        <!-- Informations de l'appareil -->
+                                        <div class="mb-2">
+                                            {% if item.device.brand %}
+                                                <small class="text-muted">{{ item.device.brand.title }}</small><br>
+                                            {% endif %}
+                                            {% if item.device.category %}
+                                                <small class="text-muted">{{ item.device.category.name }}</small>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="mt-auto">
+                                            <div class="d-flex justify-content-end mb-2">
+                                                <span class="text-success fw-bold">{{ item.device.price }}€</span>
+                                            </div>
+                                            <a href="{{ path('app_cart_add', {'type': 'device', 'id': item.device.id}) }}" class="btn btn-outline-success w-100">
+                                                Ajouter au panier
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Suggestions de recherches similaires -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card search-suggestions">
+                    <div class="card-body">
+                        <h5 class="search-suggestions-title">Affiner votre recherche :</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for category in categories %}
+                                <a href="{{ path('app_search') }}?q={{ category.name }}" class="btn btn-sm search-suggestion-btn">
+                                    {{ category.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

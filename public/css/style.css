@@ -62,6 +62,53 @@ h1 {
 }
 
 /* ===== HEADER ET NAVIGATION ===== */
+
+.search-bar {
+    max-width: 270px;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.search-bar .btn {
+    border-color:var(--color-sauge);
+}
+
+.search-bar .btn:hover {
+    background-color: var(--color-sauge);
+    box-shadow: 0 0 0 0.2rem rgba(105, 136, 105, 0.25);
+}
+/************************************************/
+/* Section suggestions de recherche */
+.search-suggestions {
+    background-color: #f9f6f4 ;
+    border: 5px solid #ebd4bd;
+}
+
+.search-suggestions-title {
+    color: var(--color-sauge);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.search-suggestion-btn {
+    background-color: white;
+    border: 1px solid var(--color-sauge);
+    color: var(--color-sauge);
+    transition: all 0.3s ease;
+}
+
+.search-suggestion-btn:hover {
+    background-color: var(--color-sauge);
+    border-color: var(--color-sauge);
+    color: white;
+}
+
+
+/************************************************/
+
 header {
     background-color: var(--color-beige);
     box-shadow: var(--box-shadow);
@@ -744,6 +791,45 @@ footer p {
 
 .boutonColor:hover{
     background-color: var(--color-beige);
-    
+}
 
+/**************************************************/
+/* === STYLES DE CONTACT === */
+
+/* Mobile first - Page contact */
+.contact-page {
+    background: var(--color-beige);
+}
+
+/* Desktop - Image de fond */
+@media (min-width: 992px) {
+    .contact-page {
+        background: 
+            linear-gradient(rgba(203, 200, 196, 0.5), rgba(244, 234, 221, 0.5)),
+            url('../images/imgform.png') center/cover fixed;
+    }
+}
+
+/* Carte du formulaire */
+.carte-contact {
+    background-color: var(--color-beigef);
+}
+
+/* Champs du formulaire */
+.form-control:focus {
+    border-color: var(--color-sauge);
+}
+
+/* Bouton */
+.submit-btn {
+    height: 3rem;
+    background-color: var(--color-sauge);
+    color: white;
+    border: none;
+}
+
+.submit-btn:hover {
+    background-color: var(--color-sauge);
+    opacity: 0.8;
+    color: white;
 }
