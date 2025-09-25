@@ -1,15 +1,102 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | CGU {% endblock %}
- {% block description %}{{ parent() }} | CGU  {% endblock %}
- {% block keywords %}{{ parent() }} | CGU  {% endblock %}
-
+{% block title %}{{ parent() }} | Conditions Générales d'Utilisation{% endblock %}
+{% block description %}{{ parent() }} | CGU Glow Beauty Skin{% endblock %}
+{% block keywords %}{{ parent() }} | CGU, conditions d'utilisation, Glow Beauty Skin{% endblock %}
 
 {% block body %}
- <h1>Condition général d'utilisation</h1>
+<section class="container py-5">
+  <h1 class="mb-4">Conditions Générales d'Utilisation (CGU)</h1>
+  <p class="text-muted">Dernière mise à jour : janvier 2025</p>
 
+  <h2 class="h5 mt-4">1. Éditeur</h2>
+  <p>
+    Le site <strong>Glow Beauty Skin</strong> est édité par la société Glow Beauty Skin,
+    SAS au capital de 12 000 €, immatriculée au RCS de Paris sous le numéro 512 345 678,
+    dont le siège social est situé au 27 Rue de la Lumière, 75010 Paris, France.
+    Pour toute question : <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a>.
+  </p>
 
- 
+  <h2 class="h5 mt-4">2. Objet</h2>
+  <p>
+    Les présentes Conditions Générales d'Utilisation ont pour objet de définir les modalités d'accès et d'utilisation
+    du site www.glowbeautyskin.fr (ci-après « le Site ») ainsi que les responsabilités des utilisateurs et de l'éditeur.
+  </p>
 
+  <h2 class="h5 mt-4">3. Accès au site</h2>
+  <p>
+    L'accès au Site est libre et gratuit, sauf rubriques nécessitant une inscription ou un abonnement. L'éditeur met en œuvre
+    des moyens raisonnables pour assurer l'accès au Site, mais ne garantit pas une disponibilité permanente et ininterrompue.
+  </p>
 
-{% endblock %} 
+  <h2 class="h5 mt-4">4. Compte utilisateur</h2>
+  <p>
+    Pour certaines fonctionnalités (achat, espace client, favoris), la création d'un compte est nécessaire. L'utilisateur
+    est responsable de la confidentialité de ses identifiants. Il s'engage à fournir des informations exactes et à jour.
+    En cas d'accès frauduleux, l'utilisateur doit prévenir immédiatement Glow Beauty Skin.
+  </p>
+
+  <h2 class="h5 mt-4">5. Utilisation autorisée</h2>
+  <p>
+    L'utilisateur s'engage à utiliser le Site conformément aux lois et règlements en vigueur et à ne pas diffuser de contenus
+    illicites, diffamatoires, haineux, obscènes ou violant des droits de tiers. L'éditeur se réserve le droit de retirer
+    tout contenu contraire à ces dispositions et/ou de suspendre le compte de l'utilisateur.
+  </p>
+
+  <h2 class="h5 mt-4">6. Contenu utilisateur</h2>
+  <p>
+    Lorsque l'utilisateur publie du contenu (avis, commentaires, photos), il garantit être titulaire des droits nécessaires et
+    accorde à Glow Beauty Skin une licence non exclusive, gratuite et transférable pour utiliser ce contenu sur le Site et ses
+    supports liés, dans le respect de la législation applicable.
+  </p>
+
+  <h2 class="h5 mt-4">7. Propriété intellectuelle</h2>
+  <p>
+    Tous les éléments du Site (textes, images, logos, graphismes, vidéos, etc.) sont protégés par le droit d'auteur et la
+    propriété intellectuelle. Toute reproduction totale ou partielle est interdite sans autorisation écrite préalable.
+  </p>
+
+  <h2 class="h5 mt-4">8. Sécurité</h2>
+  <p>
+    L'éditeur met en place des mesures techniques de sécurité raisonnables pour protéger le Site et les données des utilisateurs.
+    Néanmoins, l'éditeur ne peut garantir l'absence totale de risques (intrusion, virus, indisponibilité) et décline toute
+    responsabilité en cas d'incident indépendant de sa volonté.
+  </p>
+
+  <h2 class="h5 mt-4">9. Liens externes</h2>
+  <p>
+    Le Site peut contenir des liens vers des sites tiers. Glow Beauty Skin ne contrôle pas ces sites et décline toute responsabilité
+    quant à leur contenu, leurs pratiques de confidentialité ou leur disponibilité.
+  </p>
+
+  <h2 class="h5 mt-4">10. Modification des CGU</h2>
+  <p>
+    Glow Beauty Skin se réserve le droit de modifier à tout moment les présentes CGU. Les utilisateurs seront informés des changements
+    via le Site ; la consultation continue du Site vaut acceptation des CGU modifiées.
+  </p>
+
+  <h2 class="h5 mt-4">11. Résiliation</h2>
+  <p>
+    En cas de manquement par un utilisateur à ses obligations, Glow Beauty Skin se réserve le droit de suspendre ou supprimer son
+    accès au Site, sans préjudice des actions civiles ou pénales éventuelles.
+  </p>
+
+  <h2 class="h5 mt-4">12. Données personnelles</h2>
+  <p>
+    Les données personnelles collectées sont traitées conformément à la politique de confidentialité du Site. L'utilisateur dispose
+    d'un droit d'accès, de rectification, d'effacement et d'opposition qu'il peut exercer en contactant : 
+    <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a>.
+  </p>
+
+  <h2 class="h5 mt-4">13. Loi applicable et juridiction</h2>
+  <p>
+    Les présentes CGU sont régies par le droit français. En cas de litige, les parties rechercheront une solution amiable avant toute
+    action judiciaire. À défaut, les tribunaux compétents seront ceux du ressort du siège social de Glow Beauty Skin.
+  </p>
+
+  <div class="alert alert-warning mt-5 small">
+    ⚠️ Ces Conditions Générales d'Utilisation sont présentées de façon réaliste mais contiennent des informations entièrement
+    <strong>fictives</strong> pour les besoins de la démonstration et n'ont aucune valeur juridique.
+  </div>
+</section>
+{% endblock %}

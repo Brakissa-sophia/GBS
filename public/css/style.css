@@ -441,6 +441,17 @@ div.card-img-top.bg-light.d-flex.align-items-center.justify-content-center{
     height: 300px;
 }
 
+/* Styles pour la page favoris */
+.favoris-info {
+    background-color: var(--color-beigef);
+    border-color: var(--color-beigef);
+    
+}
+
+.favoris-conteneur{
+    background-color: var(--color-beigef);
+}
+
 /* ===== FOOTER ===== */
 .footer {
     background-color: var(--color-beige);

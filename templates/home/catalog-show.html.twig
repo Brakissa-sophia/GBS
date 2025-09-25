@@ -76,9 +76,12 @@
                  
                  <!-- Favori - 3 colonnes -->
                  <div class="col-3 d-flex justify-content-center">
-                     <button class="btn btn-outline-danger" onclick="toggleHeart(this)">
-                         <i class="far fa-heart"></i>
-                     </button>
+                     {% if app.user %}
+                         <a href="{{ path('app_favorite_toggle', {itemType: 'product', itemId: product.id}) }}" 
+                            class="btn btn-outline-danger">
+                             <i class="far fa-heart"></i>
+                         </a>
+                     {% endif %}
                  </div>
              </div>
 
@@ -185,21 +188,6 @@ function changeQty(change) {
             addToCartLink.setAttribute('href', url.toString());
         }
     }
-}
-
-function toggleHeart(button) {
-  const icon = button.querySelector('i');
-  if (icon.classList.contains('far')) {
-    icon.classList.remove('far');
-    icon.classList.add('fas');
-    button.classList.remove('btn-outline-danger');
-    button.classList.add('btn-danger');
-  } else {
-    icon.classList.remove('fas');
-    icon.classList.add('far');
-    button.classList.remove('btn-danger');
-    button.classList.add('btn-outline-danger');
-  }
 }
 </script>
 {% endblock %}

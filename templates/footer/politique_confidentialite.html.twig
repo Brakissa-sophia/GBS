@@ -1,18 +1,92 @@
+
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Mentions légales {% endblock %}
- {% block description %}{{ parent() }} | Mentions légales {% endblock %}
- {% block keywords %}{{ parent() }} | Mentions légales {% endblock %}
+{% block title %}{{ parent() }} | Politique de confidentialité{% endblock %}
+{% block description %}{{ parent() }} | Politique de confidentialité Glow Beauty Skin{% endblock %}
+{% block keywords %}{{ parent() }} | politique de confidentialité, données personnelles, Glow Beauty Skin{% endblock %}
 
+{% block body %}
+<section class="container py-5">
+  <h1 class="mb-4">Politique de confidentialité</h1>
+  <p class="text-muted">Dernière mise à jour : janvier 2025</p>
 
+  <h2 class="h5 mt-4">1. Introduction</h2>
+  <p>
+    La société <strong>Glow Beauty Skin</strong> attache une grande importance à la protection 
+    de vos données personnelles. La présente politique a pour objet de vous informer sur 
+    la manière dont vos données sont collectées, utilisées et protégées lors de votre navigation sur notre site.
+  </p>
 
+  <h2 class="h5 mt-4">2. Données collectées</h2>
+  <p>
+    Nous collectons uniquement les informations nécessaires au traitement de vos commandes 
+    et à l’amélioration de votre expérience client : 
+    <ul>
+      <li>Informations personnelles (nom, prénom, adresse, téléphone, e-mail)</li>
+      <li>Informations de paiement (gérées de manière sécurisée par nos prestataires)</li>
+      <li>Données de navigation (cookies, adresse IP, historique de navigation)</li>
+    </ul>
+  </p>
 
-{% block body %} 
+  <h2 class="h5 mt-4">3. Utilisation des données</h2>
+  <p>
+    Vos données sont utilisées pour :
+    <ul>
+      <li>Gérer vos commandes et livraisons</li>
+      <li>Assurer le service client et le suivi</li>
+      <li>Vous informer sur nos nouveautés et offres (si vous y avez consenti)</li>
+      <li>Améliorer nos services et notre site</li>
+    </ul>
+  </p>
 
-<h1>Politique de confidentialité</h1>
+  <h2 class="h5 mt-4">4. Partage des données</h2>
+  <p>
+    Nous ne vendons ni ne louons vos données à des tiers.  
+    Elles peuvent être partagées uniquement avec :
+    <ul>
+      <li>Nos prestataires logistiques (livraison)</li>
+      <li>Nos prestataires de paiement sécurisés</li>
+      <li>Nos partenaires techniques (hébergement, sécurité du site)</li>
+    </ul>
+  </p>
 
+  <h2 class="h5 mt-4">5. Conservation des données</h2>
+  <p>
+    Vos données sont conservées pour la durée nécessaire à la gestion de la relation commerciale 
+    et conformément aux obligations légales en vigueur (facturation, comptabilité, etc.).
+  </p>
 
+  <h2 class="h5 mt-4">6. Vos droits</h2>
+  <p>
+    Conformément au RGPD, vous disposez d’un droit d’accès, de rectification, d’opposition, 
+    de suppression et de portabilité de vos données personnelles.  
+    Vous pouvez exercer ces droits en nous contactant à l’adresse suivante :  
+    <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a>.
+  </p>
 
+  <h2 class="h5 mt-4">7. Cookies</h2>
+  <p>
+    Le site utilise des cookies afin d’améliorer l’expérience utilisateur, mesurer l’audience 
+    et proposer des contenus personnalisés.  
+    Vous pouvez configurer votre navigateur pour gérer ou refuser les cookies.
+  </p>
 
+  <h2 class="h5 mt-4">8. Sécurité</h2>
+  <p>
+    Nous mettons en place toutes les mesures techniques et organisationnelles nécessaires 
+    pour protéger vos données contre la perte, l’altération ou l’accès non autorisé.
+  </p>
 
+  <h2 class="h5 mt-4">9. Contact</h2>
+  <p>
+    Pour toute question relative à cette politique de confidentialité, 
+    vous pouvez nous écrire à :  
+    <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a>.
+  </p>
+
+  <div class="alert alert-warning mt-5 small">
+    ⚠️ Cette politique de confidentialité est présentée de façon réaliste mais contient des informations 
+    entièrement <strong>fictives</strong> pour les besoins de la démonstration et n'a aucune valeur juridique.
+  </div>
+</section>
 {% endblock %}

@@ -100,7 +100,18 @@
                 {% else %}
                     {% for item in productsWithImages %}
                         <div class="col-lg-3 col-md-4 col-sm-6">
-                            <div class="card h-100 shadow">
+                            <div class="card h-100 shadow position-relative">
+                                
+                                <!-- Bouton favoris (si connecté) -->
+                                {% if app.user %}
+                                    <a href="{{ path('app_favorite_toggle', {itemType: 'product', itemId: item.product.id}) }}"
+                                       class="btn btn-outline-danger position-absolute top-0 end-0 m-2 rounded-circle border-0"
+                                       style="width: 40px; height: 40px; z-index: 2;"
+                                       title="Ajouter aux favoris">
+                                        <i class="far fa-heart"></i>
+                                    </a>
+                                {% endif %}
+
                                 {% if item.image %}
                                     <a class="text-decoration-none text-dark" href="{{ path('app_catalog_product_show', {'id': item.product.id}) }}">
                                         <img src="{{ asset(item.image) }}" class="card-img-top" alt="{{ item.product.title }}">

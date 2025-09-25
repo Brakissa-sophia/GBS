@@ -1,0 +1,65 @@
+{# templates/static/paiement.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Moyens de paiement{% endblock %}
+{% block description %}{{ parent() }} | Moyens de paiement acceptés - Glow Beauty Skin{% endblock %}
+{% block keywords %}{{ parent() }} | paiement, Visa, Mastercard, PayPal, Glow Beauty Skin{% endblock %}
+
+{% block body %}
+<section class="container py-5">
+  <h1 class="mb-4">Moyens de paiement acceptés</h1>
+
+  <p>
+    Afin de vous offrir une expérience d’achat simple et sécurisée, 
+    <strong>Glow Beauty Skin</strong> met à votre disposition plusieurs modes de paiement en ligne.
+    Tous les paiements sont traités via une connexion sécurisée (protocole SSL) et vos données bancaires 
+    ne sont jamais communiquées à des tiers.
+  </p>
+
+  {# Logos des moyens de paiement #}
+  <div class="d-flex flex-wrap align-items-center gap-3 my-4">
+      <div class="payment-methods">
+          <img src="{{ asset('images/visa.png') }}" alt="Visa" class="img-fluid" style="height:40px;">
+      </div>
+      <div class="payment-methods">
+          <img src="{{ asset('images/paypal.png') }}" alt="PayPal" class="img-fluid" style="height:40px;">
+      </div>
+      <div class="payment-methods">
+          <img src="{{ asset('images/mastercard.png') }}" alt="Mastercard" class="img-fluid" style="height:40px;">
+      </div>
+      <div class="payment-methods">
+          <img src="{{ asset('images/amex.png') }}" alt="American Express" class="img-fluid" style="height:40px;">
+      </div>
+      <div class="payment-methods">
+          <img src="{{ asset('images/jcb.png') }}" alt="JCB" class="img-fluid" style="height:40px;">
+      </div>
+  </div>
+
+  <h2 class="h5 mt-4">Carte bancaire (Visa, Mastercard, American Express, JCB)</h2>
+  <p>
+    Vous pouvez régler vos achats avec les principales cartes bancaires internationales. 
+    Le paiement par carte est immédiat et validé dès confirmation de votre banque. 
+    Ce mode de paiement est simple, rapide et entièrement sécurisé.
+  </p>
+
+  <h2 class="h5 mt-4">PayPal</h2>
+  <p>
+    Vous avez la possibilité de régler vos commandes via votre compte PayPal. 
+    Ce service permet d’effectuer vos paiements sans communiquer vos coordonnées bancaires 
+    à Glow Beauty Skin. Vous pouvez aussi utiliser PayPal même sans compte, 
+    en choisissant l’option de paiement par carte via PayPal.
+  </p>
+
+  <h2 class="h5 mt-4">Sécurité des paiements</h2>
+  <p>
+    Toutes les transactions sont cryptées et protégées. 
+    Nous utilisons des prestataires de paiement certifiés afin de garantir la confidentialité 
+    et l’intégrité de vos données bancaires.
+  </p>
+
+  <div class="alert alert-warning mt-5 small">
+    ⚠️ Les informations ci-dessus sont fournies à titre <strong>fictif</strong> 
+    pour exemple et présentation du site Glow Beauty Skin.
+  </div>
+</section>
+{% endblock %}

@@ -1,18 +1,79 @@
+{# templates/static/mentions-legales.html.twig #}
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Mentions légales {% endblock %}
- {% block description %}{{ parent() }} | Mentions légales {% endblock %}
- {% block keywords %}{{ parent() }} | Mentions légales {% endblock %}
+{% block title %}{{ parent() }} | Mentions légales{% endblock %}
+{% block description %}{{ parent() }} | Mentions légales Glow Beauty Skin{% endblock %}
+{% block keywords %}{{ parent() }} | mentions légales, Glow Beauty Skin{% endblock %}
 
+{% block body %}
+<section class="container py-5">
+  <h1 class="mb-4">Mentions légales</h1>
 
+  <h2 class="h5 mt-4">Éditeur du site</h2>
+  <p>
+    <strong>Glow Beauty Skin</strong><br>
+    Société au capital de 12 000 €<br>
+    Siège social : 27 Rue de la Lumière, 75010 Paris, France<br>
+    Téléphone : 01 84 75 32 10<br>
+    E-mail : <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a><br>
+    Numéro SIRET : <em>512 345 678 00021</em><br>
+    Responsable de la publication : MEITE Brakissa-Sophia
+  </p>
 
+  <h2 class="h5 mt-4">Hébergement</h2>
+  <p>
+    Hébergeur : NovaHost Solutions (fictif)<br>
+    Adresse : 9 Boulevard des Serveurs, 69003 Lyon, France<br>
+    Téléphone hébergeur : 04 72 11 22 33
+  </p>
 
-{% block body %} 
+  <h2 class="h5 mt-4">Propriété intellectuelle</h2>
+  <p>
+    L’ensemble du contenu présent sur le site (textes, images, graphismes, logo, vidéos, icônes, sons, logiciels, etc.)
+    est la propriété exclusive de Glow Beauty Skin ou de ses partenaires, sauf mentions contraires explicitement indiquées.
+    Toute reproduction, représentation, modification, publication, adaptation, totale ou partielle, du contenu du site,
+    par quelque procédé que ce soit, est interdite sans autorisation écrite préalable.
+  </p>
 
-<h1>Mentions légales</h1>
+  <h2 class="h5 mt-4">Responsabilité</h2>
+  <p>
+    Glow Beauty Skin met en œuvre tous les moyens raisonnables pour assurer l'exactitude des informations disponibles sur le site.
+    Toutefois, les informations peuvent être amenées à évoluer et des erreurs ou omissions peuvent subsister. Glow Beauty Skin
+    ne saurait être tenue responsable des dommages directs ou indirects résultant de l'accès ou de l'utilisation des contenus du site.
+    Les produits présentés sont destinés à un usage cosmétique ; ils ne remplacent pas un avis médical.
+  </p>
 
+  <h2 class="h5 mt-4">Protection des données personnelles (RGPD)</h2>
+  <p>
+    Les données collectées sur le site (nom, prénom, adresse, e-mail, téléphone, informations de livraison) sont nécessaires
+    au traitement des commandes et à la gestion de la relation client. Ces données sont traitées conformément au Règlement Général
+    sur la Protection des Données (RGPD) et à la loi Informatique et Libertés.
+    Conformément à la réglementation, vous disposez d’un droit d’accès, de rectification, de suppression et d’opposition.
+    Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@glowbeautyskin.fr">contact@glowbeautyskin.fr</a>.
+  </p>
 
+  <h2 class="h5 mt-4">Cookies</h2>
+  <p>
+    Pour améliorer l’expérience utilisateur et mesurer l’audience, le site peut déposer des cookies. Vous pouvez configurer
+    votre navigateur pour refuser les cookies ou être informé de leur dépôt. Le refus des cookies peut toutefois altérer
+    certaines fonctionnalités du site.
+  </p>
 
+  <h2 class="h5 mt-4">Liens externes</h2>
+  <p>
+    Le site peut contenir des liens vers des sites tiers. Glow Beauty Skin n’exerce aucun contrôle sur ces sites et décline
+    toute responsabilité quant à leur contenu ou leurs pratiques.
+  </p>
 
+  <h2 class="h5 mt-4">Droit applicable</h2>
+  <p>
+    Les présentes mentions légales sont régies par le droit français. En cas de litige, une tentative de règlement amiable sera
+    privilégiée. À défaut d’accord, les tribunaux compétents seront ceux du ressort du siège social de Glow Beauty Skin.
+  </p>
 
+  <div class="alert alert-warning mt-5 small">
+    ⚠️ Note : les informations ci-dessous sont fournies à titre d’exemple. Ce document contient des données **inventées** pour la
+    présentation du site Glow Beauty Skin et ne constitue pas un document juridique officiel.
+  </div>
+</section>
 {% endblock %}

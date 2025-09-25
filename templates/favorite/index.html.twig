@@ -6,8 +6,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h2 class="pb-2 gbs_text-color">
-                Mes Favoris
+            <h2 class="text-center mb-4">
+                <i class="fas fa-heart text-danger me-2"></i>Mes Favoris
             </h2>
 
             <!-- Si non connecté -->
@@ -21,7 +21,7 @@
             <!-- Si pas de favoris -->
             {% elseif favorisCount == 0 %}
                 <div class="text-center py-5">
-                    <div class="favoris-conteneur rounded p-5">
+                    <div class="bg-light rounded p-5">
                         <i class="far fa-heart fa-4x text-muted mb-3"></i>
                         <h3 class="text-muted mb-3">Aucun favori</h3>
                         <p class="text-muted mb-4">Découvrez nos produits !</p>
@@ -32,20 +32,25 @@
 
             <!-- Liste des favoris -->
             {% else %}
-                <div class="alert mb-4 favoris-info">
+                <div class="alert alert-info mb-4">
                     Vous avez <strong>{{ favorisCount }}</strong> favori(s)
                 </div>
 
                 <div class="row g-4">
                     {% for favori in favoris %}
                         <div class="col-lg-3 col-md-4 col-sm-6">
-                            <div class="card h-100 shadow position-relative">
+                            <div class="card h-100 shadow">
                                 
-                                <!-- Image avec hauteur adaptée -->
+                                <!-- Badge type -->
+                                <span class="badge {{ favori.type == 'product' ? 'bg-primary' : 'bg-info' }} position-absolute m-2">
+                                    {{ favori.type == 'product' ? 'Produit' : 'Appareil' }}
+                                </span>
+                                
+                                <!-- Image -->
                                 <img src="{{ asset(favori.image) }}" 
                                      class="card-img-top" 
                                      alt="{{ favori.title }}"
-                                     style="cursor: pointer;"
+                                     style="height: 250px; object-fit: cover; cursor: pointer;"
                                      onclick="window.location.href='{% if favori.type == 'product' %}{{ path('app_catalog_product_show', {id: favori.id}) }}{% else %}{{ path('app_device_catalog_show_home', {id: favori.id}) }}{% endif %}'">
                                 
                                 <div class="card-body d-flex flex-column">
@@ -53,13 +58,10 @@
                                     <div class="text-success fw-bold fs-4 mb-3">{{ favori.price }}€</div>
                                     
                                     <div class="mt-auto d-grid gap-2">
-                                        <!-- Bouton qui supprime des favoris ET ajoute au panier -->
-                                        <form method="post" action="{{ path('app_favorite_move_to_cart', {itemType: favori.type, itemId: favori.id}) }}">
-                                            <button type="submit" class="btn btn-outline-success w-100">
-                                                <i class="fas fa-shopping-cart me-1"></i>Ajouter au panier
-                                            </button>
-                                        </form>
-                                        
+                                        <a href="{{ path('app_cart_add', {type: favori.type, id: favori.id}) }}" 
+                                           class="btn btn-success">
+                                            <i class="fas fa-shopping-cart me-1"></i>Ajouter au panier
+                                        </a>
                                         <a href="{{ path('app_favorite_toggle', {itemType: favori.type, itemId: favori.id}) }}" 
                                            class="btn btn-outline-danger btn-sm">
                                             <i class="fas fa-times me-1"></i>Retirer

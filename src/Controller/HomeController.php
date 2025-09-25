@@ -659,14 +659,6 @@ final class HomeController extends AbstractController
     // ========== PAGES STATIQUES ==========
 
 
-
-    #[Route('/favoris', name: 'app_favorite')]
-    public function favorite(): Response 
-    {
-        return $this->render('home/favorite.html.twig', []);
-    }
-
-
     // ========== MOTEUR DE RECHERCHE ==========
 
     #[Route('/recherche', name: 'app_search')]

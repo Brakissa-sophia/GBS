@@ -11,15 +11,15 @@
 <div class="container-fluid my-4" style="background-color: #f6ecdd;">
   <div class="row g-3 align-items-stretch">
 
-    {# miniatures #}
-    <div class="d-none d-md-flex col-md-2 col-lg-1 order-1">
+    {# COLONNE 1 : miniatures #}
+    <div class="d-none d-md-flex col-md-2 col-lg-1 order-1 order-md-1 order-lg-1">
       <div class="rounded w-100">
-        <div class="d-flex flex-row flex-md-column gap-2">
+        <div class="d-flex flex-row flex-md-column flex-lg-column gap-2">
           {% for i in 1..4 %}
             {% if deviceWithImages.images[i] %}
               <img src="{{ asset(deviceWithImages.images[i]) }}"
                    class="border rounded w-100"
-                   style="height:140px;object-fit:cover;cursor:pointer;"
+                   style="height:140px; object-fit:cover; cursor:pointer;"
                    onclick="changeMainImage('{{ asset(deviceWithImages.images[i]) }}', this)"
                    alt="Image {{ i }}">
             {% else %}
@@ -32,8 +32,8 @@
       </div>
     </div>
 
-    {# image principale #}
-    <div class="col-12 col-md-10 col-lg-5 d-flex order-2">
+    {# COLONNE 2 : image principale #}
+    <div class="col-12 col-md-10 col-lg-5 d-flex order-2 order-md-2 order-lg-2">
       <div class="bg-white rounded w-100 overflow-hidden">
         {% if deviceWithImages.mainImage %}
           <img id="mainImage" src="{{ asset(deviceWithImages.mainImage) }}"
@@ -46,53 +46,58 @@
       </div>
     </div>
 
-    {# infos #}
-    <div class="col-12 col-md-12 col-lg-6 d-flex order-3 rounded">
+    {# COLONNE 3 : infos #}
+    <div class="col-12 col-md-12 col-lg-6 d-flex order-3 order-md-3 order-lg-3 rounded">
       <div class="bg-white p-4 rounded w-100">
         <h4 class="text-start text-dark">{{ device.title }}</h4>
         <h3 class="text-success text-end text-lg-start">{{ device.price }}€</h3>
         <p class="text-muted text-start">{{ device.description }}</p>
 
+        {# 3 / 6 / 3 : Quantité / Panier / Favori #}
         <div class="row align-items-center mb-3 g-0">
-          <div class="col-2">
+          <div class="col-3">
             <div class="d-flex align-items-center justify-content-center">
-              <button class="btn btn-sm btn-outline-secondary" style="width:30px;height:30px;" onclick="changeQty(-1)">−</button>
+              <button class="btn btn-sm btn-outline-secondary border rounded-1 d-flex align-items-center justify-content-center" style="width:30px;height:30px;" onclick="changeQty(-1)">−</button>
               <span class="mx-2 fw-medium" id="qty-display">1</span>
-              <button class="btn btn-sm btn-outline-secondary" style="width:30px;height:30px;" onclick="changeQty(1)">+</button>
+              <button class="btn btn-sm btn-outline-secondary border rounded-1 d-flex align-items-center justify-content-center" style="width:30px;height:30px;" onclick="changeQty(1)">+</button>
             </div>
           </div>
 
-          <div class="col-8">
+          <div class="col-6">
             <a href="{{ path('app_cart_add', {'type': 'device', 'id': device.id}) }}" class="w-100" id="add-to-cart-link">
               <button class="p-2 btn btn-success w-100" id="add-to-cart-btn">Ajouter au panier</button>
             </a>
           </div>
 
-          <div class="col-2 d-flex justify-content-center">
-            <button class="btn btn-outline-danger" onclick="toggleHeart(this)">
-              <i class="far fa-heart"></i>
-            </button>
+          <div class="col-3 d-flex justify-content-center">
+            {% if app.user %}
+              <a href="{{ path('app_favorite_toggle', { itemType: 'device', itemId: device.id }) }}"
+                 class="btn btn-outline-danger">
+                <i class="far fa-heart"></i>
+              </a>
+            {% endif %}
           </div>
         </div>
 
+        {# Onglets #}
         <div class="pt-4">
           <ul class="nav nav-tabs" id="deviceTab" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="usage-tab" data-bs-toggle="tab" data-bs-target="#usage-tab-pane" type="button" role="tab">Composants</button>
+              <button class="nav-link active" id="usage-tab" data-bs-toggle="tab" data-bs-target="#usage-tab-pane" type="button" role="tab" aria-controls="usage-tab-pane" aria-selected="true">Composants</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="components-tab" data-bs-toggle="tab" data-bs-target="#components-tab-pane" type="button" role="tab">Mode d'emploi</button>
+              <button class="nav-link" id="components-tab" data-bs-toggle="tab" data-bs-target="#components-tab-pane" type="button" role="tab" aria-controls="components-tab-pane" aria-selected="false">Mode d'emploi</button>
             </li>
           </ul>
           <div class="tab-content" id="deviceTabContent">
-            <div class="tab-pane fade show active small pt-3" id="usage-tab-pane" role="tabpanel">
+            <div class="tab-pane fade show active small pt-3" id="usage-tab-pane" role="tabpanel" aria-labelledby="usage-tab" tabindex="0">
               {% if deviceWithImages.ingredients is defined and deviceWithImages.ingredients %}
                 {{ deviceWithImages.ingredients|nl2br }}
               {% else %}
                 <span class="fst-italic text-muted">Informations non renseignées</span>
               {% endif %}
             </div>
-            <div class="tab-pane fade small pt-3" id="components-tab-pane" role="tabpanel">
+            <div class="tab-pane fade small pt-3" id="components-tab-pane" role="tabpanel" aria-labelledby="components-tab" tabindex="0">
               {% if deviceWithImages.usageAdvice is defined and deviceWithImages.usageAdvice %}
                 {{ deviceWithImages.usageAdvice|nl2br }}
               {% else %}
@@ -101,6 +106,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -115,7 +121,7 @@
             <a class="text-decoration-none text-dark"
                href="{{ path('app_device_catalog_show_home', {'id': item.device.id}) }}">
               <img src="{{ asset(item.image) }}" class="card-img-top" alt="{{ item.device.title }}"
-                   style="height:300px;object-fit:cover;">
+                   style="height:300px; object-fit:cover;">
             </a>
           {% else %}
             <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height:300px;">
@@ -145,48 +151,32 @@
 <script>
 function changeMainImage(src, element) {
   document.getElementById('mainImage').src = src;
+
   document.querySelectorAll('.d-none img, .d-md-flex img').forEach(img => {
-    img.classList.remove('border-success'); 
+    img.classList.remove('border-success');
     img.classList.add('border-secondary');
   });
-  element.classList.remove('border-secondary'); 
+
+  element.classList.remove('border-secondary');
   element.classList.add('border-success');
 }
 
 function changeQty(change) {
-    const display = document.getElementById('qty-display');
-    let value = parseInt(display.textContent) + change;
-    
-    if (value >= 1) {
-        display.textContent = value;
-        
-        // Mettre à jour le lien "Ajouter au panier" avec la nouvelle quantité
-        const addToCartLink = document.getElementById('add-to-cart-link');
-        
-        if (addToCartLink) {
-            // Récupérer l'URL actuelle
-            let currentHref = addToCartLink.getAttribute('href');
-            
-            // Ajouter ou mettre à jour le paramètre quantity
-            const url = new URL(currentHref, window.location.origin);
-            url.searchParams.set('quantity', value);
-            addToCartLink.setAttribute('href', url.toString());
-        }
-    }
-}
+  const display = document.getElementById('qty-display');
+  let value = parseInt(display.textContent) + change;
 
-function toggleHeart(button) {
-  const icon = button.querySelector('i');
-  if (icon.classList.contains('far')) {
-    icon.classList.remove('far');
-    icon.classList.add('fas');
-    button.classList.remove('btn-outline-danger');
-    button.classList.add('btn-danger');
-  } else {
-    icon.classList.remove('fas');
-    icon.classList.add('far');
-    button.classList.remove('btn-danger');
-    button.classList.add('btn-outline-danger');
+  if (value >= 1) {
+    display.textContent = value;
+
+    // Mettre à jour le lien "Ajouter au panier" avec la nouvelle quantité
+    const addToCartLink = document.getElementById('add-to-cart-link');
+
+    if (addToCartLink) {
+      let currentHref = addToCartLink.getAttribute('href');
+      const url = new URL(currentHref, window.location.origin);
+      url.searchParams.set('quantity', value);
+      addToCartLink.setAttribute('href', url.toString());
+    }
   }
 }
 </script>

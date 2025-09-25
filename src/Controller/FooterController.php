@@ -42,6 +42,15 @@ final class FooterController extends AbstractController
         ]);
     }
 
+
+    #[Route('/mode_de_paiement', name: 'app_mode_de_paiement')]
+    public function modePaiement(): Response
+    {
+        return $this->render('footer/mode_paiement.html.twig', [
+           
+        ]);
+    }
+
     #[Route('/politique-de-condidentialite', name: 'app_politique_confidentialite')]
     public function politiqueConfidentialite(): Response
     {
