@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Ajouter un code promo{% endblock %}
+{% block description %}{{ parent() }} | Ajouter un code promo{% endblock %}
+{% block keywords %}{{ parent() }} | Ajouter un code promo{% endblock %}
+
+{% block body %}
+<h2>Ajouter un code promo</h2>
+
+<a class="btn btn-secondary" href="{{ path('admin_promo_codes_index') }}">Retour à la liste</a>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success">
+                <h5 class="mb-0 text-dark">Nouveau code promo</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.code, 'Code promo *') }}
+                            {{ form_widget(form.code) }}
+                            {{ form_errors(form.code) }}
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.discountType, 'Type *') }}
+                            {{ form_widget(form.discountType) }}
+                            {{ form_errors(form.discountType) }}
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.discountValue, 'Valeur *') }}
+                            {{ form_widget(form.discountValue) }}
+                            {{ form_errors(form.discountValue) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ form_label(form.endDate, 'Date d\'expiration') }}
+                            {{ form_widget(form.endDate) }}
+                            {{ form_errors(form.endDate) }}
+                            <small class="text-muted">Optionnel</small>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form_label(form.category, 'Catégorie') }}
+                            {{ form_widget(form.category) }}
+                            {{ form_errors(form.category) }}
+                            <small class="text-muted">Optionnel</small>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            {{ form_label(form.brand, 'Marque') }}
+                            {{ form_widget(form.brand) }}
+                            {{ form_errors(form.brand) }}
+                            <small class="text-muted">Optionnel</small>
+                        </div>
+                    </div>
+
+                    <small class="text-danger fst-italic">* Si ni catégorie ni marque ne sont sélectionnées, le code s'appliquera sur tout le site.</small>
+
+                    <div class="mb-3 mt-3">
+                        <div class="form-check form-switch">
+                            {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                            {{ form_label(form.isActive, 'Code actif', {'label_attr': {'class': 'form-check-label'}}) }}
+                            {{ form_errors(form.isActive) }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark">Créer le code</button>
+                    <a href="{{ path('admin_promo_codes_index') }}" class="btn btn-secondary">Annuler</a>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

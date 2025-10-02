@@ -58,7 +58,7 @@
                                         {{ form_widget(form.city, {'attr': {'class': 'form-control', 'placeholder': 'Ville'}}) }}
                                     </div>
                                     
-                                    <!-- Checkbox adresse de facturation (DÉPLACÉE DANS LE FORMULAIRE) -->
+                                    <!-- Checkbox sauvegarder info -->
                                     <div class="col-12 mt-4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="save-info" id="save-info" value="1" checked>
@@ -94,7 +94,7 @@
                                     {% for item in items %}
                                     <div class="d-flex align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
                                         <div class="flex-grow-1">
-                                            <div class="fw-medium text-bold small ">{{ item.product.title }}</div>
+                                            <div class="fw-medium text-bold small">{{ item.product.title }}</div>
                                             <div class="text-muted small">Quantité: {{ item.quantity }}</div>
                                         </div>
                                         <div class="small">{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }}€</div>
@@ -108,44 +108,58 @@
                                 {% endif %}
                                 
                                 <!-- Sous-total et frais -->
-                                {% if total is defined and total > 0 %}
+                                {% if subtotal is defined and subtotal > 0 %}
                                 <div class="border-top pt-3 mt-3">
                                     <div class="d-flex justify-content-between text-muted mb-2 small">
                                         <span>Sous-total</span>
-                                        <span>{{ total|number_format(2, '.', ',') }}€</span>
+                                        <span>{{ subtotal|number_format(2, '.', ',') }}€</span>
                                     </div>
-                                    <div class="d-flex justify-content-between text-muted mb-3">
-                                        <span class="small">Expédition</span>
-                                        <span><strong>{% if total > 49 %}Gratuit{% else %}5.99€{% endif %}</strong></span>
+
+                                    <!-- Code promo appliqué -->
+                                    {% if appliedPromo %}
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center p-2 bg-success bg-opacity-10 rounded">
+                                                <div>
+                                                    <small class="text-success fw-medium">Code promo :</small>
+                                                    <strong class="d-block small">{{ appliedPromo }}</strong>
+                                                </div>
+                                                <a href="{{ path('app_cart_remove_promo') }}" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" title="Retirer">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- Réduction -->
+                                        {% if discount > 0 %}
+                                        <div class="d-flex justify-content-between text-success mb-2 small">
+                                            <span>Réduction</span>
+                                            <span>-{{ discount|number_format(2, '.', ',') }}€</span>
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <div class="d-flex justify-content-between text-muted mb-3 small">
+                                        <span>Expédition</span>
+                                        <span><strong>{% if subtotalAfterDiscount >= 49 %}Gratuit{% else %}5.99€{% endif %}</strong></span>
                                     </div>
                                 </div>
-
-                                <!-- Code promo -->
-                                 <div class="border-top pt-3 mt-3">
-                                    <div class="mb-4">
-                                    <h6 class="fw-medium text-dark mb-2">Code promo</h6>
-                                    <div class="d-flex gap-2 small">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Saisissez votre code de réduction" id="promo-code">
-                                        <button class="submit-btn p-2 rounded " type="button" id="apply-promo">Appliquer</button>
-                                    </div>
-                                 </div>
                                     
-                                    <!-- Total -->
-                                    <div class="border-top pt-3 mb-4">
-                                        <div class="d-flex justify-content-between fw-bold fs-5">
-                                            <span>TOTAL</span>
-                                            <span>{{ (total > 49 ? total : total + 5.99)|number_format(2, '.', ',') }}€</span>
-                                        </div>
+                                <!-- Total -->
+                                <div class="border-top pt-3 mb-4">
+                                    <div class="d-flex justify-content-between fw-bold fs-5">
+                                        <span>TOTAL</span>
+                                        <span>{{ finalTotal|number_format(2, '.', ',') }}€</span>
                                     </div>
+                                </div>
                                     
-                                    <!-- Bouton continuer -->
-                                   <button type="submit" form="checkout-form" class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
-                                        Procéder au paiement
-                                    </button>
+                                <!-- Bouton continuer -->
+                                <button type="submit" form="checkout-form" class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
+                                    Procéder au paiement
+                                </button>
                                 {% endif %}
                                 
                                 <!-- Moyens de paiement -->
-                                <div class="d-flex gap-2 align-items-center justify-content-center">
+                                <div class="d-flex gap-2 align-items-center justify-content-center flex-wrap">
                                     <div class="payment-methods">
                                         <img src="{{ asset('images/visa.png') }}" alt="visa" class="img-fluid" style="height: 24px;">
                                     </div>

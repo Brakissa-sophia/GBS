@@ -9,7 +9,6 @@
             <i class="fas fa-arrow-left"></i> Retour aux commandes
         </a>
         <h3 class="text-secondary">Détail de la commande (N°{{ order.id }})</h3>
-        
     </div>
 
     <div class="row">
@@ -26,7 +25,7 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-sm-4 "><strong>Email :</strong></div>
+                        <div class="col-sm-4"><strong>Email :</strong></div>
                         <div class="col-sm-8">
                             <a href="mailto:{{ order.email }}">{{ order.email }}</a>
                         </div>
@@ -42,7 +41,6 @@
                             </a>
                         </div>
                     </div>
-
                     <hr>
                     <div class="row">
                         <div class="col-sm-4"><strong>Adresse :</strong></div>
@@ -97,11 +95,7 @@
                         <div class="col-sm-8">
                             {% set s = order.status %}
                             <strong>
-                                <span class="
-                                    {% if s == 'paid' %} text-success
-                                    {% elseif s == 'cancelled' %} text-danger
-                                    {% else %} text-dark {% endif %}
-                                ">
+                                <span class="{% if s == 'paid' %}text-success{% elseif s == 'cancelled' %}text-danger{% else %}text-dark{% endif %}">
                                     {% if s == 'paid' %}PAYÉE
                                     {% elseif s == 'cancelled' %}ANNULÉE
                                     {% else %}{{ s|upper }}{% endif %}
@@ -125,6 +119,19 @@
                         </div>
                     </div>
                     <hr>
+                    
+                    {# CODE PROMO AJOUTÉ #}
+                    {% if order.promoCode %}
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Code promo :</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-success">{{ order.promoCode.code }}</span>
+                            <small class="d-block text-muted mt-1">Réduction : -{{ order.discountAmount|number_format(2, ',', ' ') }} €</small>
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+                    
                     <div class="row">
                         <div class="col-sm-4"><strong>Paiement :</strong></div>
                         <div class="col-sm-8">
@@ -136,10 +143,9 @@
                             {% else %}
                                 <span class="text-muted">Non défini</span>
                             {% endif %}
-                                <span class="d-block">Total : {{ order.totalPrice|number_format(2, ',', ' ') }} €</span>
+                            <span class="d-block">Total : {{ order.totalPrice|number_format(2, ',', ' ') }} €</span>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -154,8 +160,8 @@
 
             {# PRODUITS #}
             {% if productsData is not empty %}
-                <div class="p-3 ">
-                    <h6 class="mb-3"> Produits commandés</h6>
+                <div class="p-3">
+                    <h6 class="mb-3">Produits commandés</h6>
                     <div class="table-responsive">
                         <table class="table table-sm align-middle table-order">
                             <thead class="table-light">
@@ -171,12 +177,10 @@
                                     <tr>
                                         <td class="w-auto">
                                             <div class="d-flex align-items-center w-100">
-                                                {# vignette #}
                                                 <div class="ratio ratio-1x1 thumb-96 me-3 rounded overflow-hidden bg-light flex-shrink-0">
                                                     <img src="{{ item.image ? asset(item.image) : asset('images/no-image.jpg') }}"
                                                          alt="{{ item.title }}" class="w-100 h-100 object-fit-cover">
                                                 </div>
-                                                {# texte #}
                                                 <div class="flex-grow-1 text-wrap text-break">
                                                     <strong>{{ item.title }}</strong>
                                                     {% if item.description %}
@@ -250,7 +254,15 @@
                             <div>Sous-total devices : {{ subtotalDevices|number_format(2, ',', ' ') }} €</div>
                         {% endif %}
                         <div>Sous-total articles : {{ (subtotalProducts + subtotalDevices)|number_format(2, ',', ' ') }} €</div>
-                        {% set shipping = (subtotalProducts + subtotalDevices) > 49 ? 0 : 5.99 %}
+                        
+                        {# RÉDUCTION AJOUTÉE #}
+                        {% if order.discountAmount and order.discountAmount > 0 %}
+                            <div class="text-success">Réduction ({{ order.promoCode.code }}) : -{{ order.discountAmount|number_format(2, ',', ' ') }} €</div>
+                        {% endif %}
+                        
+                        {% set subtotal = subtotalProducts + subtotalDevices %}
+                        {% set subtotalAfterDiscount = subtotal - (order.discountAmount ?? 0) %}
+                        {% set shipping = subtotalAfterDiscount > 49 ? 0 : 5.99 %}
                         <div>Frais de port : {{ shipping|number_format(2, ',', ' ') }} €
                             {% if shipping == 0 %}<small class="text-success">(Gratuit)</small>{% endif %}
                         </div>
@@ -275,7 +287,7 @@
                     <div class="card-body">
                         <div class="btn-group" role="group">
                             {% if order.status == 'paid' and not order.isCompleted %}
-                                <form action="/order/admin/orders/{{ order.id }}/delivered" method="POST" style="display: inline;">
+                                <form action="{{ path('app_admin_order_delivered_update', {id: order.id}) }}" method="POST" style="display: inline;">
                                     <button type="submit" 
                                             class="btn btn-outline-success"
                                             onclick="return confirm('Marquer cette commande comme livrée ?')">
@@ -291,7 +303,7 @@
                                 <i class="fas fa-receipt"></i> Voir confirmation client
                             </a>
                             
-                            <form action="/order/admin/orders/{{ order.id }}/delete" method="POST" style="display: inline;">
+                            <form action="{{ path('app_admin_order_delete', {id: order.id}) }}" method="POST" style="display: inline;">
                                 <button type="submit" 
                                         class="btn btn-outline-danger"
                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.')">
@@ -303,7 +315,6 @@
                 </div>
             </div>
         </div>
-
     {% endif %}
 </div>
 {% endblock %}

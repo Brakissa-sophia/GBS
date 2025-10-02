@@ -162,6 +162,13 @@
         <span>{{ subtotal|number_format(2, ',', ' ') }}€</span>
     </div>
     
+    {% if discount is defined and discount > 0 and order.promoCode %}
+    <div style="display: flex; justify-content: space-between; margin: 8px 0; color: #90EE90;">
+        <span>Code promo {{ order.promoCode.code }} :</span>
+        <span>-{{ discount|number_format(2, ',', ' ') }}€</span>
+    </div>
+    {% endif %}
+    
     <div style="display: flex; justify-content: space-between; margin: 8px 0;">
         <span>Frais de livraison :</span>
         <span>
@@ -180,6 +187,14 @@
         <span>{{ total|number_format(2, ',', ' ') }}€</span>
     </div>
 </div>
+
+{% if discount is defined and discount > 0 and order.promoCode %}
+<div style="margin: 20px 0; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+    <p style="margin: 0; color: #2E7D32;">
+        <strong> Code promo appliqué !</strong> Vous avez économisé {{ discount|number_format(2, ',', ' ') }}€ avec le code <strong>{{ order.promoCode.code }}</strong>
+    </p>
+</div>
+{% endif %}
 
 <div style="margin: 20px 0; padding: 20px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
     <h3 style="color: #2E7D32; margin-top: 0;">

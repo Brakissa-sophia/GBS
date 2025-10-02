@@ -1,0 +1,75 @@
+{# templates/admin/newsletter/list.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Gestion de la Newsletter{% endblock %}
+{% block description %}{{ parent() }} | Gestion de la Newsletter{% endblock %}
+{% block keywords %}{{ parent() }} | Gestion de la Newsletter{% endblock %}
+
+{% block body %}
+<h2 class="pt-5">Gestion de la Newsletter ({{ total }})</h2>
+
+<a class="btn btn-success" href="{{ path('app_admin') }}">Back Office</a>
+<a class="btn btn-dark" href="{{ path('app_admin_newsletter_export') }}">📥 Exporter CSV</a>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+<table class="table table-striped table-hover table-bordered text-center mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Date d'inscription</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        {% if subscribers|length > 0 %}
+            {% for subscriber in subscribers %}
+                <tr>
+                    <td>{{ subscriber.id }}</td>
+                    <td>{{ subscriber.email }}</td>
+                    <td>{{ subscriber.subscribeAt|date('d/m/Y à H:i') }}</td>
+                    <td>
+                        {% if subscriber.isActive %}
+                            <span class="badge bg-success">Actif</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactif</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Supprimer #}
+                        <a 
+                            href="{{ path('app_admin_newsletter_delete', {'id': subscriber.id }) }}" 
+                            class="text-decoration-none"
+                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet abonné ?')"
+                        >
+                            <img src="{{ asset('images/supp.png') }}" alt="supprimer" class="sizeSvg30">
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                    <span class="fst-italic text-muted">Aucun abonné pour le moment</span>
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -24,28 +24,37 @@
             </div>
 
             <!-- Newsletter -->
-            <div class="col-12 col-lg-6">
-                <h4 class="footer-title mb-3 text-start">NEWSLETTER</h4>
-                <p class="mb-3">Inscrivez-vous pour recevoir nos nouveautés, promotions et conseils skincare :</p>
-                <div class="mb-3">
-                    <input type="email" 
-                           placeholder="Votre adresse e-mail" 
-                           class="form-control mb-3 newsletter-input">
-                    <button class="btn btn-newsletter w-100">S'inscrire</button>
-                </div>
-                <p class="privacy-text small">
-                    En vous inscrivant, vous acceptez de recevoir nos emails et d'avoir lu notre 
-                    <a href="#" class="text-decoration-none privacy-link">Politique de confidentialité</a>.
-                </p>
+            
+<div class="col-12 col-lg-6">
+    <h4 class="footer-title mb-3 text-start">NEWSLETTER</h4>
+    <p class="mb-3">Inscrivez-vous pour recevoir nos nouveautés, promotions et conseils skincare :</p>
+    
+    {# Formulaire newsletter #}
+    <form action="{{ path('app_newsletter_subscribe') }}" method="POST">
+        <div class="mb-3">
+            <input type="email" 
+                   name="newsletter_email"
+                   placeholder="Votre adresse e-mail" 
+                   class="form-control mb-3 newsletter-input"
+                   required>
+            <button type="submit" class="btn btn-newsletter w-100">S'inscrire</button>
+        </div>
+    </form>
+    
+    <p class="privacy-text small">
+        En vous inscrivant, vous acceptez de recevoir nos emails et d'avoir lu notre 
+        <a href="{{ path('app_politique_confidentialite') }}" class="text-decoration-none privacy-link">Politique de confidentialité</a>.
+    </p>
 
-                <!-- Moyens de paiement -->
-                <div class="d-flex gap-3 justify-content-center justify-content-md-start mt-4 flex-wrap">
-                    <img src="{{ asset('images/paypal.png') }}" alt="Paypal" class="payment-icon">
-                    <img src="{{ asset('images/visa.png') }}" alt="Visa" class="payment-icon">
-                    <img src="{{ asset('images/mastercard.png') }}" alt="Mastercard" class="payment-icon">
-                    <img src="{{ asset('images/jcb.png') }}" alt="Carte Bleue" class="payment-icon">
-                    <img src="{{ asset('images/amex.png') }}" alt="Amex" class="payment-icon">
-                </div>
+    <!-- Moyens de paiement -->
+    <div class="d-flex gap-3 justify-content-center justify-content-md-start mt-4 flex-wrap">
+        <img src="{{ asset('images/paypal.png') }}" alt="Paypal" class="payment-icon">
+        <img src="{{ asset('images/visa.png') }}" alt="Visa" class="payment-icon">
+        <img src="{{ asset('images/mastercard.png') }}" alt="Mastercard" class="payment-icon">
+        <img src="{{ asset('images/jcb.png') }}" alt="Carte Bleue" class="payment-icon">
+        <img src="{{ asset('images/amex.png') }}" alt="Amex" class="payment-icon">
+    </div>
+</div>
             </div>
         </div>
     </div>

@@ -1,189 +1,182 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administration - Commandes{% endblock %}
+{% block title %}{{ parent() }} | Gestion des commandes{% endblock %}
 
 {% block body %}
-<div class="container-fluid mt-4">
-    <h2 class="pt-5">Gestion des commandes ({{ orders|length }}) </h2>
+<h2>Gestion des commandes ({{ orders|length }})</h2>
 
-    <a class="btn btn-success" href="{{ path('app_admin') }}"><i class="fas fa-arrow-left"></i> Back Office</a>
+<a class="btn btn-success" href="{{ path('app_admin') }}">Back Office</a>
 
-    {% if orders is empty %}
-        <div class="alert alert-info mt-3">
-            <i class="fas fa-info-circle"></i> Aucune commande trouvée.
-        </div>
-    {% else %}
-        <table class="table table-striped table-hover table-bordered text-center mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Numéro</th>
-                    <th>Client</th>
-                    <th>Date</th>
-                    <th>Total</th>
-                    <th>Statut</th>
-                    <th>État</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for order in orders %}
-                <tr>
-                    <td>{{ order.id }}</td>
-                    <td>
-                        <code>{{ order.orderNumber ?? ('#' ~ ('%06d'|format(order.id))) }}</code>
-                    </td>
-                    <td>
-                        {% if order.user %}
-                            <div>
-                                <strong>{{ order.user.firstName }} {{ order.user.lastName }}</strong>
-                                <div class="small text-muted">{{ order.user.email }}</div>
-                            </div>
+{% if orders is empty %}
+    <div class="alert alert-info mt-3">
+        <i class="fas fa-info-circle"></i> Aucune commande trouvée.
+    </div>
+{% else %}
+    <table class="table table-striped table-hover table-bordered text-center mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Numéro</th>
+                <th>Client</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>État</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>
+                    <code>{{ order.orderNumber ?? ('#' ~ ('%06d'|format(order.id))) }}</code>
+                </td>
+                <td>
+                    {% if order.user %}
+                        <div>
+                            <strong>{{ order.user.firstName }} {{ order.user.lastName }}</strong>
+                            <div class="small text-muted">{{ order.user.email }}</div>
+                        </div>
+                    {% else %}
+                        <div>
+                            <strong>{{ order.firstName }} {{ order.lastName }}</strong>
+                            <div class="small text-muted">{{ order.email }}</div>
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div>{{ order.orderDate|date('d/m/Y') }}</div>
+                    <div class="small text-muted">{{ order.orderDate|date('H:i') }}</div>
+                </td>
+                <td class="fw-bold">
+                    {{ order.totalPrice|number_format(2, ',', ' ') }} €
+                    {% if order.promoCode %}
+                        <br><small class="badge bg-success">{{ order.promoCode.code }}</small>
+                    {% endif %}
+                </td>
+                <td>
+                    {% set s = order.status %}
+                    <span class="{% if s == 'paid' %}text-success{% elseif s == 'cancelled' %}text-danger{% else %}text-dark{% endif %}">
+                        {% if s == 'paid' %}PAYÉE
+                        {% elseif s == 'cancelled' %}ANNULÉE
+                        {% else %}{{ s|upper }}{% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if order.status == 'paid' %}
+                        {% if order.isCompleted %}
+                            <span class="text-success">LIVRÉE</span>
                         {% else %}
-                            <div>
-                                <strong>{{ order.firstName }} {{ order.lastName }}</strong>
-                                <div class="small text-muted">{{ order.email }}</div>
-                            </div>
+                            <span class="text-info">EN COURS</span>
                         {% endif %}
-                    </td>
-                    <td>
-                        <div>{{ order.orderDate|date('d/m/Y') }}</div>
-                        <div class="small text-muted">{{ order.orderDate|date('H:i') }}</div>
-                    </td>
-                    <td class="fw-bold">
-                        {{ order.totalPrice|number_format(2, ',', ' ') }} €
-                    </td>
-                    <td>
-                        {% set s = order.status %}
-                        <span class="
-                            {% if s == 'paid' %} text-success
-                            {% elseif s == 'cancelled' %} text-danger
-                            {% else %} text-dark {% endif %}
-                        ">
-                            {% if s == 'paid' %}PAYÉE
-                            {% elseif s == 'cancelled' %}ANNULÉE
-                            {% else %}{{ s|upper }}{% endif %}
-                        </span>
-                    </td>
-                    <td>
-                        {% if order.status == 'paid' %}
-                            {% if order.isCompleted %}
-                                <span class="text-success">LIVRÉE</span>
-                            {% else %}
-                                <span class="text-info">EN COURS</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('app_admin_order_details', {id: order.id}) }}"
-                            class="btn btn-outline-primary btn-sm me-1"
-                            title="Voir détails">
-                            <i class="fas fa-eye"></i>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {# Voir détails #}
+                    <a href="{{ path('app_admin_order_details', {id: order.id}) }}" class="text-decoration-none">
+                        <img src="{{ asset('images/fiche.png') }}" alt="voir" class="sizeSvg30">
+                    </a>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        {# Modifier statut #}
+                        <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#statusModal{{ order.id }}">
+                            <img src="{{ asset('images/edit.png') }}" alt="modifier" class="sizeSvg30">
                         </a>
                         
-                        {% if is_granted('ROLE_ADMIN') %}
-                            <button type="button"
-                                    class="btn btn-outline-secondary btn-sm me-1"
-                                    title="Modifier statut"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#statusModal{{ order.id }}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            
-                            {% if order.status == 'paid' and not order.isCompleted %}
-                               <form action="{{ path('app_admin_order_delivered_update', { id: order.id }) }}" method="POST" style="display: inline;">
-                                    <button type="submit" 
-                                            class="btn btn-outline-success btn-sm me-2"
-                                            title="Marquer comme livrée"
-                                            onclick="return confirm('Marquer cette commande comme livrée ?')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                            {% endif %}
-                            
-                            <form action="/order/admin/orders/{{ order.id }}/delete" method="POST" style="display: inline;">
-                                <button type="submit" 
-                                        class="btn btn-outline-danger btn-sm"
-                                        title="Supprimer"
-                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                        {# Marquer comme livrée #}
+                        {% if order.status == 'paid' and not order.isCompleted %}
+                            <a href="{{ path('app_admin_order_delivered_update', { id: order.id }) }}" 
+                               class="text-decoration-none"
+                               onclick="event.preventDefault(); if(confirm('Marquer cette commande comme livrée ?')) { this.closest('form') ? this.closest('form').submit() : document.getElementById('delivered-form-{{ order.id }}').submit(); }">
+                                <img src="{{ asset('images/ajouter.png') }}" alt="livrer" class="sizeSvg30">
+                            </a>
+                            <form id="delivered-form-{{ order.id }}" action="{{ path('app_admin_order_delivered_update', { id: order.id }) }}" method="POST" style="display:none;"></form>
                         {% endif %}
-                    </td>   
-                </tr>
+                        
+                        {# Supprimer #}
+                        <a href="{{ path('app_admin_order_delete', {id: order.id}) }}" 
+                           class="text-decoration-none"
+                           onclick="event.preventDefault(); if(confirm('Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.')) { document.getElementById('delete-form-{{ order.id }}').submit(); }">
+                            <img src="{{ asset('images/supp.png') }}" alt="supprimer" class="sizeSvg30">
+                        </a>
+                        <form id="delete-form-{{ order.id }}" action="{{ path('app_admin_order_delete', {id: order.id}) }}" method="POST" style="display:none;"></form>
+                    {% endif %}
+                </td>
+            </tr>
 
-                {% if is_granted('ROLE_ADMIN') %}
-                <div class="modal fade" id="statusModal{{ order.id }}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Modifier le statut - Commande #{{ order.id }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <form action="/order/admin/orders/{{ order.id }}/status" method="POST">
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="status{{ order.id }}" class="form-label">Nouveau statut</label>
-                                        <select class="form-select" id="status{{ order.id }}" name="status" required>
-                                            <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>Payée</option>
-                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Annulée</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                    <button type="submit" class="btn btn-primary">Mettre à jour</button>
-                                </div>
-                            </form>
+            {# Modal modification statut #}
+            {% if is_granted('ROLE_ADMIN') %}
+            <div class="modal fade" id="statusModal{{ order.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Modifier le statut - Commande #{{ order.id }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
+                        <form action="{{ path('app_admin_order_status', {id: order.id}) }}" method="POST">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="status{{ order.id }}" class="form-label">Nouveau statut</label>
+                                    <select class="form-select" id="status{{ order.id }}" name="status" required>
+                                        <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>Payée</option>
+                                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Annulée</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
 
-        {# Statistiques rapides #}
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="card bg-primary ">
-                    <div class="card-body">
-                        <h5 class="text-dark strong">Total commandes</h5>
-                        <h3 class="text-dark strong">{{ orders|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success ">
-                    <div class="card-body">
-                        <h5 class="text-dark strong">Commandes payées</h5>
-                        <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid')|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info">
-                    <div class="card-body">
-                        <h5 class="text-dark strong">Commandes livrées</h5>
-                        <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid' and o.isCompleted is same as(true))|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning ">
-                    <div class="card-body">
-                        <h5 class="text-dark strong">Chiffre d'affaires</h5>
-                        <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid')|map(o => o.totalPrice)|reduce((a, b) => a + b, 0)|number_format(0, ',', ' ') }} €</h3>
-                    </div>
+    {# Statistiques rapides #}
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary">
+                <div class="card-body">
+                    <h5 class="text-dark strong">Total commandes</h5>
+                    <h3 class="text-dark strong">{{ orders|length }}</h3>
                 </div>
             </div>
         </div>
-    {% endif %}
+        <div class="col-md-3">
+            <div class="card bg-success">
+                <div class="card-body">
+                    <h5 class="text-dark strong">Commandes payées</h5>
+                    <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid')|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info">
+                <div class="card-body">
+                    <h5 class="text-dark strong">Commandes livrées</h5>
+                    <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid' and o.isCompleted is same as(true))|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning">
+                <div class="card-body">
+                    <h5 class="text-dark strong">Chiffre d'affaires</h5>
+                    <h3 class="text-dark strong">{{ orders|filter(o => o.status == 'paid')|map(o => o.totalPrice)|reduce((a, b) => a + b, 0)|number_format(0, ',', ' ') }} €</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="d-flex justify-content-center mt-4">
         {{ knp_pagination_render(orders, '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig') }}
     </div>
-</div>
+{% endif %}
 {% endblock %}

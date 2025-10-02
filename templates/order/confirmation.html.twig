@@ -4,13 +4,9 @@
 
 {% block body %}
 
-
 <div class="text-center mt-3">
   {% if is_granted('ROLE_ADMIN') %}
-    <a
-      href="{{ path('app_admin_order_details', { id: order.id }) }}"
-      class="btn btn-secondary"
-    >
+    <a href="{{ path('app_admin_order_details', { id: order.id }) }}" class="btn btn-secondary">
        <i class="fas fa-arrow-left"></i> Retour détail de la commande
     </a>
   {% endif %}
@@ -27,33 +23,39 @@
           </div>
 
           <h2 class="fw-bold text-dark mb-2">Merci {{ order.firstName|default('')|capitalize }} !</h2>
-          <p class="text-muted mb-0">Votre commande est valiée.</p>
+          <p class="text-muted mb-0">Votre commande est validée.</p>
           <p class="text-muted mb-4">
             Une confirmation vous a été envoyée à <strong>{{ order.email }}</strong>.
           </p>
 
           <div class="bg-light rounded-3 p-4 mb-4 text-start">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mb-2">
               <span class="fw-medium">Commande n°</span>
-              <span class="fw-bold">
-                {{ order.orderNumber is defined and order.orderNumber ? order.orderNumber : '%06d'|format(order.id) }}
-              </span>
+              <span class="fw-bold">{{ order.orderNumber ?? ('%06d'|format(order.id)) }}</span>
             </div>
+
+            {% if order.promoCode %}
+              <div class="d-flex justify-content-between mb-2">
+                <span class="fw-medium">Code promo</span>
+                <span class="badge bg-success">{{ order.promoCode.code }}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="fw-medium">Réduction</span>
+                <span class="text-success">-{{ order.discountAmount|number_format(2, ',', ' ') }} €</span>
+              </div>
+            {% endif %}
+
             <div class="d-flex justify-content-between mt-2">
               <span class="fw-medium">Total payé</span>
-              <span class="fw-bold">
-                {{ (order.total ?? order.totalPrice)|number_format(2, ',', ' ') }} €
-              </span>
+              <span class="fw-bold">{{ order.totalPrice|number_format(2, ',', ' ') }} €</span>
             </div>
             <div class="d-flex justify-content-between mt-2">
               <span class="fw-medium">Date</span>
-              <span>{{ order.createdAt|date('d/m/Y à H:i') }}</span>
+              <span>{{ order.orderDate|date('d/m/Y à H:i') }}</span>
             </div>
           </div>
 
-          
-
-          {# Accordéon détail (facultatif) #}
+          {# Accordéon détail #}
           <div class="text-start mb-4">
             <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#order-details">
               Voir le détail de la commande
@@ -63,7 +65,7 @@
                 <ul class="list-unstyled mb-3">
                   {% for line in order.orderProducts %}
                     <li class="d-flex justify-content-between">
-                      <span>{{ line.itemName }} &times; {{ line.qte|number_format(0, ',', ' ') }}</span>
+                      <span>{{ line.itemName }} × {{ line.qte|number_format(0, ',', ' ') }}</span>
                       <span>{{ line.totalPrice|number_format(2, ',', ' ') }} €</span>
                     </li>
                   {% else %}
@@ -83,7 +85,6 @@
                Retour à l'accueil
             </a>
           </div>
-
 
         </div>
       </div>

@@ -9,6 +9,7 @@ use App\Form\OrderForm;
 use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
 use App\Repository\OrderRepository;
+use App\Repository\PromoCodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,7 +20,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 #[Route('/order')]
@@ -28,6 +28,7 @@ class OrderController extends AbstractController
     public function __construct(
         private readonly ProductRepository $productRepository,
         private readonly DeviceRepository $deviceRepository,
+        private readonly PromoCodeRepository $promoCodeRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly MailerInterface $mailer
     ) {}
@@ -35,7 +36,6 @@ class OrderController extends AbstractController
     #[Route(name: 'app_order')]
     public function index(Request $request, SessionInterface $session): Response
     {
-        // Panier depuis la session
         $cart = $session->get('cart', []);
         $cartWithData = [];
 
@@ -60,13 +60,39 @@ class OrderController extends AbstractController
             }
         }
 
-        // Sous-total
+        // Calcul sous-total
         $subtotal = array_sum(array_map(
             fn ($row) => $row['product']->getPrice() * $row['quantity'],
             $cartWithData
         ));
 
-        // ➜ IMPORTANT : on stocke des RÉFÉRENCES (pas les objets)
+        // === GESTION CODE PROMO ===
+        $discount = 0;
+        $promoCodeEntity = null;
+        $appliedPromo = $session->get('promo_code');
+        
+        if ($appliedPromo) {
+            $promoCodeEntity = $this->promoCodeRepository->findByCode($appliedPromo);
+            if ($promoCodeEntity && $promoCodeEntity->isValid()) {
+                $eligibleAmount = 0;
+                foreach ($cartWithData as $item) {
+                    if ($promoCodeEntity->isEligible($item['product'])) {
+                        $eligibleAmount += $item['product']->getPrice() * $item['quantity'];
+                    }
+                }
+                $discount = $promoCodeEntity->calculateDiscount($eligibleAmount);
+            } else {
+                $session->remove('promo_code');
+                $appliedPromo = null;
+            }
+        }
+
+        $subtotalAfterDiscount = $subtotal - $discount;
+        $shipping = $subtotalAfterDiscount >= 49 ? 0 : 5.99;
+        $finalTotal = $subtotalAfterDiscount + $shipping;
+        // === FIN GESTION PROMO ===
+
+        // Stockage refs pour paiement
         $itemRefs = array_map(fn ($row) => [
             'type'     => $row['type'],
             'id'       => $row['product']->getId(),
@@ -75,10 +101,11 @@ class OrderController extends AbstractController
 
         $session->set('cart_item_refs', $itemRefs);
         $session->set('cart_subtotal', $subtotal);
+        $session->set('cart_discount', $discount);
+        $session->set('cart_promo_code_id', $promoCodeEntity?->getId());
 
-        // Pré-remplissage du formulaire
+        // Pré-remplissage formulaire
         $order = new Order();
-
         /** @var User|null $user */
         $user = $this->getUser();
         if ($user !== null) {
@@ -88,7 +115,6 @@ class OrderController extends AbstractController
             if ($user->getPhone())     { $order->setPhone($user->getPhone()); }
 
             $addresses = $user->getAddresses();
-            
             if (!$addresses->isEmpty()) {
                 $firstAddress = $addresses->first();
                 if ($firstAddress !== false) {
@@ -123,7 +149,6 @@ class OrderController extends AbstractController
                 return $this->redirectToRoute('app_order');
             }
 
-            // Récupération de la checkbox
             $saveInfo = $request->request->get('save-info');
             $saveInfoBool = $saveInfo === '1' || $saveInfo === 'on' || $saveInfo === true;
             
@@ -136,7 +161,11 @@ class OrderController extends AbstractController
         return $this->render('order/index.html.twig', [
             'form'  => $form->createView(),
             'items' => $cartWithData,
-            'total' => $subtotal,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'subtotalAfterDiscount' => $subtotalAfterDiscount,
+            'finalTotal' => $finalTotal,
+            'appliedPromo' => $appliedPromo,
         ]);
     }
 
@@ -145,7 +174,6 @@ class OrderController extends AbstractController
     {
         try {
             $paymentMethod = $request->get('payment_method');
-
             return match ($paymentMethod) {
                 'paypal' => $this->processPaypalPayment($request, $session),
                 'card'   => $this->processCardPayment($request, $session),
@@ -162,19 +190,19 @@ class OrderController extends AbstractController
     private function processPaypalPayment(Request $request, SessionInterface $session): JsonResponse
     {
         $paypalOrderId = $request->get('paypal_order_id');
-
         if (!$paypalOrderId) {
             return new JsonResponse(['success' => false, 'error' => 'Order ID manquant']);
         }
 
-        // On lit les RÉFÉRENCES
-        $itemRefs       = $session->get('cart_item_refs', []);
-        $orderData      = $session->get('order_data', []);
+        $itemRefs = $session->get('cart_item_refs', []);
+        $orderData = $session->get('order_data', []);
+        $discount = $session->get('cart_discount', 0);
+        $promoCodeId = $session->get('cart_promo_code_id');
+
         if (empty($itemRefs) || empty($orderData)) {
             return new JsonResponse(['success' => false, 'error' => 'Données de commande manquantes']);
         }
 
-        // Recharger les entités et recalculer
         $lines = [];
         $recalcSubtotal = 0.0;
 
@@ -182,11 +210,10 @@ class OrderController extends AbstractController
             $qty = (float) ($ref['quantity'] ?? 0);
             if ($qty <= 0) continue;
 
-            if ($ref['type'] === 'product') {
-                $entity = $this->productRepository->find((int)$ref['id']);
-            } else {
-                $entity = $this->deviceRepository->find((int)$ref['id']);
-            }
+            $entity = $ref['type'] === 'product'
+                ? $this->productRepository->find((int)$ref['id'])
+                : $this->deviceRepository->find((int)$ref['id']);
+            
             if (!$entity) continue;
 
             $price = (float) $entity->getPrice();
@@ -200,13 +227,12 @@ class OrderController extends AbstractController
             ];
         }
 
-        // Règle livraison + total (arrondi sécurité)
-        $shipping   = $recalcSubtotal > 49 ? 0.0 : 5.99;
-        $finalTotal = round($recalcSubtotal + $shipping, 2);
+        $subtotalAfterDiscount = $recalcSubtotal - $discount;
+        $shipping = $subtotalAfterDiscount >= 49 ? 0.0 : 5.99;
+        $finalTotal = round($subtotalAfterDiscount + $shipping, 2);
 
         try {
             $order = new Order();
-
             if ($this->getUser()) {
                 $order->setUser($this->getUser());
             }
@@ -218,6 +244,15 @@ class OrderController extends AbstractController
             $order->setStreet((string) $orderData['street']);
             $order->setCity((string) $orderData['city']);
             $order->setPostalCode((string) $orderData['postalCode']);
+
+            // Enregistrer le code promo
+            if ($promoCodeId) {
+                $promoCode = $this->promoCodeRepository->find($promoCodeId);
+                if ($promoCode) {
+                    $order->setPromoCode($promoCode);
+                    $order->setDiscountAmount($discount);
+                }
+            }
 
             $order->setTotalPrice($finalTotal);
             $order->setPaymentMethod('paypal');
@@ -241,21 +276,17 @@ class OrderController extends AbstractController
                 } else {
                     $op->setDevice($line['entity']);
                 }
-
                 $this->entityManager->persist($op);
             }
             $this->entityManager->flush();
 
-            // Sauvegarder les informations utilisateur pour PayPal
             if ($this->getUser() && $session->get('save_user_info', false)) {
                 $this->saveUserInformation($this->getUser(), $orderData);
             }
 
-            // Envoi de l'email de confirmation
-            $this->sendOrderConfirmationEmail($order, $recalcSubtotal, $shipping);
+            $this->sendOrderConfirmationEmail($order, $recalcSubtotal, $discount, $shipping);
 
-            // Nettoyage session
-            foreach (['cart','order_data','cart_subtotal','cart_items','cart_item_refs','save_user_info'] as $k) {
+            foreach (['cart','order_data','cart_subtotal','cart_items','cart_item_refs','save_user_info','promo_code','cart_discount','cart_promo_code_id'] as $k) {
                 $session->remove($k);
             }
 
@@ -275,11 +306,13 @@ class OrderController extends AbstractController
     {
         $itemRefs = $session->get('cart_item_refs', []);
         $orderData = $session->get('order_data', []);
+        $discount = $session->get('cart_discount', 0);
+        $promoCodeId = $session->get('cart_promo_code_id');
+
         if (empty($itemRefs) || empty($orderData)) {
             return new JsonResponse(['success' => false, 'error' => 'Données de commande manquantes']);
         }
 
-        // Recharger les entités et recalculer
         $lines = [];
         $recalcSubtotal = 0.0;
 
@@ -287,11 +320,10 @@ class OrderController extends AbstractController
             $qty = (float) ($ref['quantity'] ?? 0);
             if ($qty <= 0) continue;
 
-            if ($ref['type'] === 'product') {
-                $entity = $this->productRepository->find((int)$ref['id']);
-            } else {
-                $entity = $this->deviceRepository->find((int)$ref['id']);
-            }
+            $entity = $ref['type'] === 'product'
+                ? $this->productRepository->find((int)$ref['id'])
+                : $this->deviceRepository->find((int)$ref['id']);
+            
             if (!$entity) continue;
 
             $price = (float) $entity->getPrice();
@@ -305,12 +337,12 @@ class OrderController extends AbstractController
             ];
         }
 
-        $shipping = $recalcSubtotal > 49 ? 0.0 : 5.99;
-        $finalTotal = round($recalcSubtotal + $shipping, 2);
+        $subtotalAfterDiscount = $recalcSubtotal - $discount;
+        $shipping = $subtotalAfterDiscount >= 49 ? 0.0 : 5.99;
+        $finalTotal = round($subtotalAfterDiscount + $shipping, 2);
 
         try {
             $order = new Order();
-
             if ($this->getUser()) {
                 $order->setUser($this->getUser());
             }
@@ -323,6 +355,15 @@ class OrderController extends AbstractController
             $order->setCity((string) $orderData['city']);
             $order->setPostalCode((string) $orderData['postalCode']);
 
+            // Enregistrer le code promo
+            if ($promoCodeId) {
+                $promoCode = $this->promoCodeRepository->find($promoCodeId);
+                if ($promoCode) {
+                    $order->setPromoCode($promoCode);
+                    $order->setDiscountAmount($discount);
+                }
+            }
+
             $order->setTotalPrice($finalTotal);
             $order->setPaymentMethod('card');
             $order->setPaymentId('CARD_' . uniqid());
@@ -332,7 +373,6 @@ class OrderController extends AbstractController
             $this->entityManager->persist($order);
             $this->entityManager->flush();
 
-            // Lignes de commande
             foreach ($lines as $line) {
                 $op = new OrderProducts();
                 $op->setOrder($order);
@@ -345,18 +385,15 @@ class OrderController extends AbstractController
                 } else {
                     $op->setDevice($line['entity']);
                 }
-
                 $this->entityManager->persist($op);
             }
             $this->entityManager->flush();
 
-            // Sauvegarder les informations utilisateur si connecté et si checkbox était cochée
             if ($this->getUser() && $session->get('save_user_info', false)) {
                 $this->saveUserInformation($this->getUser(), $orderData);
             }
 
-            // Nettoyage session
-            foreach (['cart','order_data','cart_subtotal','cart_items','cart_item_refs','save_user_info'] as $k) {
+            foreach (['cart','order_data','cart_subtotal','cart_items','cart_item_refs','save_user_info','promo_code','cart_discount','cart_promo_code_id'] as $k) {
                 $session->remove($k);
             }
 
@@ -364,22 +401,19 @@ class OrderController extends AbstractController
                 'success' => true,
                 'redirect_url' => $this->generateUrl('app_order_confirmation', ['id' => $order->getId()])
             ]);
-
         } catch (\Throwable $e) {
             return new JsonResponse([
                 'success' => false,
-                'error' => 'Erreur lors du traitement par carte: ' . $e->getMessage()
+                'error' => 'Erreur: ' . $e->getMessage()
             ]);
         }
     }
 
-    private function sendOrderConfirmationEmail(Order $order, float $subtotal, float $shipping): void
+    private function sendOrderConfirmationEmail(Order $order, float $subtotal, float $discount, float $shipping): void
     {
         try {
-            // Forcer le rechargement de l'ordre avec ses relations
             $this->entityManager->refresh($order);
             
-            // Préparer les données des produits avec images
             $orderItems = [];
             foreach ($order->getOrderProducts() as $orderProduct) {
                 $item = null;
@@ -415,15 +449,16 @@ class OrderController extends AbstractController
                     'order' => $order,
                     'orderItems' => $orderItems,
                     'subtotal' => $subtotal,
+                    'discount' => $discount,
                     'shipping' => $shipping,
                     'total' => $order->getTotalPrice(),
-                    'user' => $order->getUser() ?: (object)['lastName' => $order->getLastName()]
+                    'user' => $order->getUser() ?: (object)['lastName' => $order->getLastName()],
+                    'promoCode' => $order->getPromoCode()
                 ]);
 
             $this->mailer->send($email);
-
         } catch (\Exception $e) {
-            error_log('Erreur envoi email confirmation commande #' . $order->getOrderNumber() . ': ' . $e->getMessage());
+            error_log('Erreur email: ' . $e->getMessage());
         }
     }
 
@@ -444,12 +479,7 @@ class OrderController extends AbstractController
     public function getAllOrders(OrderRepository $orderRepository, Request $request, PaginatorInterface $paginator): Response
     {   
         $data = $orderRepository->findBy([], ['orderDate' => 'DESC']);
-
-        $order= $paginator->paginate(
-            $data,
-            $request->query->getInt('page', 1),
-            5
-        );
+        $order= $paginator->paginate($data, $request->query->getInt('page', 1), 10);
 
         return $this->render('order/orders.html.twig', [
             'orders' => $order
@@ -516,24 +546,16 @@ class OrderController extends AbstractController
     public function updateOrderStatus(Order $order, Request $request): Response 
     {
         $newStatus = $request->get('status');
-        
-        $allowedStatuses = ['paid', 'cancelled'];
-        if (!in_array($newStatus, $allowedStatuses)) {
+        if (!in_array($newStatus, ['paid', 'cancelled'])) {
             $this->addFlash('error', 'Statut invalide.');
             return $this->redirectToRoute('app_admin_orders');
         }
 
         $order->setStatus($newStatus);
-        
-        if ($newStatus === 'paid') {
-            $order->setIsCompleted(false);
-        }
-        
+        if ($newStatus === 'paid') $order->setIsCompleted(false);
         $this->entityManager->flush();
 
-        $statusLabel = $newStatus === 'paid' ? 'payée' : 'annulée';
-        $this->addFlash('success', "Le statut de la commande a été mis à jour : {$statusLabel}.");
-
+        $this->addFlash('success', "Statut mis à jour.");
         return $this->redirectToRoute('app_admin_orders');
     }
 
@@ -542,14 +564,14 @@ class OrderController extends AbstractController
     public function markAsDelivered(Order $order, EntityManagerInterface $em): Response
     {
         if ($order->getStatus() !== 'paid') {
-            $this->addFlash('error', 'Seules les commandes payées peuvent être marquées comme livrées.');
+            $this->addFlash('error', 'Seules les commandes payées peuvent être livrées.');
             return $this->redirectToRoute('app_admin_orders');
         }
 
         $order->setIsCompleted(true);
         $em->flush();
 
-        $this->addFlash('success', 'La commande a été marquée comme livrée.');
+        $this->addFlash('success', 'Commande marquée comme livrée.');
         return $this->redirectToRoute('app_admin_orders');
     }
 
@@ -560,14 +582,13 @@ class OrderController extends AbstractController
         $this->entityManager->remove($order);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'La commande a été supprimée.');
+        $this->addFlash('success', 'Commande supprimée.');
         return $this->redirectToRoute('app_admin_orders');
     }
 
     private function saveUserInformation(User $user, array $orderData): void
     {
         try {
-            // Mettre à jour le téléphone s'il est vide ou différent
             $currentPhone = $user->getPhone();
             $newPhone = $orderData['phone'];
             
@@ -575,7 +596,6 @@ class OrderController extends AbstractController
                 $user->setPhone($newPhone);
             }
 
-            // Vérifier les adresses existantes
             $addresses = $user->getAddresses();
             $addressExists = false;
             
@@ -588,7 +608,6 @@ class OrderController extends AbstractController
                 }
             }
 
-            // Créer une nouvelle adresse si elle n'existe pas
             if (!$addressExists) {
                 $newAddress = new \App\Entity\Address();
                 $newAddress->setStreet($orderData['street']);
@@ -600,13 +619,10 @@ class OrderController extends AbstractController
                 $user->addAddress($newAddress);
             }
 
-            // Sauvegarder
             $this->entityManager->persist($user);
             $this->entityManager->flush();
-
         } catch (\Exception $e) {
-            error_log('Erreur sauvegarde informations utilisateur: ' . $e->getMessage());
-            error_log('Stack trace: ' . $e->getTraceAsString());
+            error_log('Erreur sauvegarde: ' . $e->getMessage());
         }
     }
 }

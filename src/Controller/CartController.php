@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
+use App\Repository\PromoCodeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -14,133 +14,142 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/cart')]
 final class CartController extends AbstractController
 {
-   public function __construct(
-       private readonly ProductRepository $productRepository,
-       private readonly DeviceRepository $deviceRepository
-   ){
-   }
+    public function __construct(
+        private readonly ProductRepository $productRepository,
+        private readonly DeviceRepository $deviceRepository,
+        private readonly PromoCodeRepository $promoCodeRepository
+    ){}
 
-   #[Route(name: 'app_cart')]
-   public function index(SessionInterface $session): Response
-   {
-       $cart = $session->get('cart', []);
-       $cartWithData = [];
-       
-       foreach ($cart as $itemKey => $quantity) {
-           // Vérifier le format de la clé et séparer le type et l'ID
-           $parts = explode('_', $itemKey);
-           
-           // S'assurer qu'on a bien 2 parties (type et id)
-           if (count($parts) !== 2) {
-               // Ignorer les entrées mal formatées
-               continue;
-           }
-           
-           [$type, $id] = $parts;
-           
-           // Vérifier que le type est valide
-           if (!in_array($type, ['product', 'device'])) {
-               continue;
-           }
-           
-           if ($type === 'product') {
-               $item = $this->productRepository->find($id);
-               $uploadPath = 'products';
-           } else { // device
-               $item = $this->deviceRepository->find($id);
-               $uploadPath = 'devices';
-           }
-           
-           if ($item) {
-               // Récupérer l'image
-               $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $uploadPath . '/*-' . $item->getId() . '-1-*.*';
-               $files = glob($pattern);
-               $image = !empty($files) ? '/uploads/' . $uploadPath . '/' . basename($files[0]) : '/images/no-image.jpg';
-               
-               $cartWithData[] = [
-                   'product' => $item, // On garde 'product' pour la compatibilité avec le template
-                   'quantity' => $quantity,
-                   'image' => $image,
-                   'type' => $type
-               ];
-           }
-       }
+    #[Route(name: 'app_cart')]
+    public function index(SessionInterface $session): Response
+    {
+        $cart = $session->get('cart', []);
+        $cartWithData = [];
+        
+        foreach ($cart as $itemKey => $quantity) {
+            $parts = explode('_', $itemKey);
+            if (count($parts) !== 2) continue;
+            
+            [$type, $id] = $parts;
+            if (!in_array($type, ['product', 'device'])) continue;
+            
+            $item = $type === 'product' 
+                ? $this->productRepository->find($id)
+                : $this->deviceRepository->find($id);
+            
+            if ($item) {
+                $uploadPath = $type === 'product' ? 'products' : 'devices';
+                $pattern = $_SERVER['DOCUMENT_ROOT'] . '/uploads/' . $uploadPath . '/*-' . $item->getId() . '-1-*.*';
+                $files = glob($pattern);
+                $image = !empty($files) ? '/uploads/' . $uploadPath . '/' . basename($files[0]) : '/images/no-image.jpg';
+                
+                $cartWithData[] = [
+                    'product' => $item,
+                    'quantity' => $quantity,
+                    'image' => $image,
+                    'type' => $type
+                ];
+            }
+        }
 
-       $total = array_sum(array_map(function ($item){
-           return $item['product']->getPrice() * $item['quantity'];
-       }, $cartWithData));
+        // Calcul du sous-total
+        $subtotal = array_sum(array_map(fn($item) => $item['product']->getPrice() * $item['quantity'], $cartWithData));
 
-       return $this->render('cart/index.html.twig', [
-           'items' => $cartWithData,
-           'total' => $total
-       ]);
-   }
+        // Gestion du code promo
+        $discount = 0;
+        $appliedPromo = $session->get('promo_code');
+        
+        if ($appliedPromo) {
+            $promoCode = $this->promoCodeRepository->findByCode($appliedPromo);
+            if ($promoCode && $promoCode->isValid()) {
+                $eligibleAmount = 0;
+                foreach ($cartWithData as $item) {
+                    if ($promoCode->isEligible($item['product'])) {
+                        $eligibleAmount += $item['product']->getPrice() * $item['quantity'];
+                    }
+                }
+                $discount = $promoCode->calculateDiscount($eligibleAmount);
+            } else {
+                // Code invalide ou expiré, le retirer
+                $session->remove('promo_code');
+                $appliedPromo = null;
+            }
+        }
 
-   #[Route('/add/{type}/{id}', name: 'app_cart_add', methods: ['GET'], requirements: ['type' => 'product|device'])]
-   public function addToCart(string $type, int $id, Request $request, SessionInterface $session): Response
-   {
-       $cart = $session->get('cart', []);
-       $itemKey = $type . '_' . $id; // Clé unique : "product_1" ou "device_5"
-       
-       // Récupérer la quantité depuis l'URL (défaut = 1)
-       $quantity = max(1, (int) $request->query->get('quantity', 1));
-       
-       if (!empty($cart[$itemKey])) {
-           $cart[$itemKey] += $quantity;
-       } else {
-           $cart[$itemKey] = $quantity;
-       }
+        // Sous-total après réduction
+        $subtotalAfterDiscount = $subtotal - $discount;
 
-       $session->set('cart', $cart);
+        // Calcul livraison
+        $shipping = $subtotalAfterDiscount >= 49 ? 0 : 5.99;
 
-       return $this->redirectToRoute('app_cart');
-   }
+        // Total final
+        $finalTotal = $subtotalAfterDiscount + $shipping;
 
-   #[Route('/update/{type}/{id}', name: 'app_cart_update', methods: ['POST'], requirements: ['type' => 'product|device'])]
-   public function updateQuantity(string $type, int $id, Request $request, SessionInterface $session): JsonResponse
-   {
-       $data = json_decode($request->getContent(), true);
-       $quantity = max(1, (int) $data['quantity']);
-       
-       $cart = $session->get('cart', []);
-       $itemKey = $type . '_' . $id;
-       
-       if (isset($cart[$itemKey])) {
-           $cart[$itemKey] = $quantity;
-           $session->set('cart', $cart);
-           
-           return new JsonResponse([
-               'success' => true,
-               'message' => 'Quantité mise à jour',
-               'quantity' => $quantity
-           ]);
-       }
-       
-       return new JsonResponse([
-           'success' => false,
-           'message' => 'Produit non trouvé dans le panier'
-       ], 400);
-   }
+        return $this->render('cart/index.html.twig', [
+            'items' => $cartWithData,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'subtotalAfterDiscount' => $subtotalAfterDiscount,
+            'finalTotal' => $finalTotal,
+            'total' => $subtotal, // Pour compatibilité
+            'appliedPromo' => $appliedPromo
+        ]);
+    }
 
-   #[Route('/remove/{type}/{id}', name: 'app_cart_remove', methods: ['GET'], requirements: ['type' => 'product|device'])]
-   public function removeFromCart(string $type, int $id, SessionInterface $session): Response
-   {
-       $cart = $session->get('cart', []);
-       $itemKey = $type . '_' . $id; // Clé unique : "product_1" ou "device_5"
-       
-       if (!empty($cart[$itemKey])) {
-           unset($cart[$itemKey]);
-       }
+    #[Route('/add/{type}/{id}', name: 'app_cart_add', methods: ['GET'], requirements: ['type' => 'product|device'])]
+    public function addToCart(string $type, int $id, Request $request, SessionInterface $session): Response
+    {
+        $cart = $session->get('cart', []);
+        $itemKey = $type . '_' . $id;
+        $quantity = max(1, (int) $request->query->get('quantity', 1));
+        
+        $cart[$itemKey] = ($cart[$itemKey] ?? 0) + $quantity;
+        $session->set('cart', $cart);
 
-       $session->set('cart', $cart);
+        return $this->redirectToRoute('app_cart');
+    }
 
-       return $this->redirectToRoute('app_cart');
-   }
+    #[Route('/update/{type}/{id}/{action}', name: 'app_cart_update_quantity', methods: ['GET'], requirements: ['type' => 'product|device', 'action' => 'increase|decrease'])]
+    public function updateQuantity(string $type, int $id, string $action, SessionInterface $session): Response
+    {
+        $cart = $session->get('cart', []);
+        $itemKey = $type . '_' . $id;
+        
+        if (isset($cart[$itemKey])) {
+            if ($action === 'increase') {
+                $cart[$itemKey]++;
+            } elseif ($action === 'decrease' && $cart[$itemKey] > 1) {
+                $cart[$itemKey]--;
+            }
+            $session->set('cart', $cart);
+        }
+        
+        return $this->redirectToRoute('app_cart');
+    }
 
-   #[Route('/clear', name: 'app_cart_clear', methods: ['GET'])]
-   public function clearCart(SessionInterface $session): Response
-   {
-       $session->remove('cart');
-       return $this->redirectToRoute('app_cart');
-   }
+    #[Route('/remove/{type}/{id}', name: 'app_cart_remove', methods: ['GET'], requirements: ['type' => 'product|device'])]
+    public function removeFromCart(string $type, int $id, SessionInterface $session): Response
+    {
+        $cart = $session->get('cart', []);
+        unset($cart[$type . '_' . $id]);
+        $session->set('cart', $cart);
+
+        return $this->redirectToRoute('app_cart');
+    }
+
+    #[Route('/clear', name: 'app_cart_clear', methods: ['GET'])]
+    public function clearCart(SessionInterface $session): Response
+    {
+        $session->remove('cart');
+        $session->remove('promo_code');
+        return $this->redirectToRoute('app_cart');
+    }
+
+    #[Route('/promo/remove', name: 'app_cart_remove_promo', methods: ['GET'])]
+    public function removePromo(SessionInterface $session): Response
+    {
+        $session->remove('promo_code');
+        $this->addFlash('info', 'Code promo retiré.');
+        return $this->redirectToRoute('app_cart');
+    }
 }

@@ -20,9 +20,19 @@
     <li class="list-group-item w-75">{{ order.status|capitalize }}</li>
   </ul>
 
+  {% if order.promoCode %}
+  <ul class="list-group list-group-horizontal">
+    <li class="list-group-item w-25">Code promo</li>
+    <li class="list-group-item w-75">
+      <span class="badge bg-success">{{ order.promoCode.code }}</span>
+      <small class="text-muted ms-2">Réduction : -{{ order.discountAmount|number_format(2, ',', ' ') }} €</small>
+    </li>
+  </ul>
+  {% endif %}
+
   <ul class="list-group list-group-horizontal">
     <li class="list-group-item w-25">Total</li>
-    <li class="list-group-item w-75">{{ order.total|number_format(2, ',', ' ') }} €</li>
+    <li class="list-group-item w-75">{{ order.totalPrice|number_format(2, ',', ' ') }} €</li>
   </ul>
 
   <ul class="list-group list-group-horizontal mt-3">

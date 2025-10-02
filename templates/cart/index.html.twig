@@ -22,10 +22,10 @@
                         </thead>
                         <tbody>
                             {% for item in items %}
-                            <tr class="border-bottom" data-type="{{ item.type }}">
+                            <tr class="border-bottom">
                                 <td class="py-3 py-md-4 px-3 px-md-4">
                                     <div class="d-flex flex-column flex-md-row align-items-center">
-                                        <a href="{{ path('app_cart_remove', {'type': item.type, 'id': item.product.id})}}">
+                                        <a href="{{ path('app_cart_remove', {'type': item.type, 'id': item.product.id})}}" class="text-decoration-none">
                                             <button class="btn btn-sm btn-outline-danger border-0 me-md-3 rounded-circle p-2 text-muted remove-item">
                                                 <i class="fas fa-times"></i>
                                             </button>
@@ -38,24 +38,26 @@
                                             </div>
                                         {% endif %}
                                         <span class="fw-medium text-dark text-center text-md-start">{{ item.product.title }}</span>
-                                        <!-- Prix mobile -->
                                         <div class="d-md-none mt-2">
                                             <span class="fw-medium">€{{ item.product.price }}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <!-- Prix desktop -->
                                 <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle d-none d-md-table-cell">
                                     <span class="fw-medium">€{{ item.product.price }}</span>
                                 </td>
                                 <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle">
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <button class="btn btn-sm btn-outline-secondary border rounded-1 quantity-btn" style="width: 25px; height: 25px;" data-action="decrease">−</button>
-                                        <span class="mx-2 mx-md-3 fw-medium quantity-display" data-product-id="{{ item.product.id }}">{{ item.quantity }}</span>
-                                        <button class="btn btn-sm btn-outline-secondary border rounded-1 quantity-btn" style="width: 25px; height: 25px;" data-action="increase">+</button>
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <a href="{{ path('app_cart_update_quantity', {'type': item.type, 'id': item.product.id, 'action': 'decrease'}) }}" 
+                                           class="btn btn-sm btn-outline-secondary border rounded-1 text-decoration-none d-flex align-items-center justify-content-center" 
+                                           style="width: 25px; height: 25px;">−</a>
+                                        <span class="mx-2 mx-md-3 fw-medium">{{ item.quantity }}</span>
+                                        <a href="{{ path('app_cart_update_quantity', {'type': item.type, 'id': item.product.id, 'action': 'increase'}) }}" 
+                                           class="btn btn-sm btn-outline-secondary border rounded-1 text-decoration-none d-flex align-items-center justify-content-center" 
+                                           style="width: 25px; height: 25px;">+</a>
                                     </div>
                                 </td>
-                                <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle total-cell" data-product-id="{{ item.product.id }}" data-price="{{ item.product.price }}">
+                                <td class="py-3 py-md-4 px-3 px-md-4 text-center align-middle">
                                     <span class="fw-bold">€{{ (item.product.price * item.quantity)|number_format(2, '.', '') }}</span>
                                 </td>
                             </tr>
@@ -91,59 +93,106 @@
                     <tbody>
                         <tr>
                             <td class="p-4">
-                                <!-- Paiements -->
-                                {% if total > 0 and total < 49 %}
+                                <!-- Messages flash -->
+                                {% for type, messages in app.flashes %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ type }} alert-dismissible fade show mb-3" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+
+                                <!-- Message livraison gratuite -->
+                                {% if subtotal > 0 and subtotal < 49 %}
                                     <div class="alert alert-info small mb-3">
-                                        Plus que €{{ (49 - total)|number_format(2, '.', ',') }} pour bénéficier de la livraison gratuite !
+                                        Plus que €{{ (49 - subtotal)|number_format(2, '.', ',') }} pour bénéficier de la livraison gratuite !
                                     </div>
                                 {% endif %}
-                                <div class="d-flex justify-content-between text-muted mb-4">
-                                    <span>Expédition</span>
-                                    <span>{% if total > 49 %}Gratuit{% else %}€5.99{% endif %}</span>
+                                
+                                <!-- Sous-total -->
+                                <div class="d-flex justify-content-between text-muted mb-2">
+                                    <span>Sous-total</span>
+                                    <span>€{{ subtotal|number_format(2, '.', '') }}</span>
                                 </div>
 
-                                <!-- Code promo -->
+                                <!-- Code promo section -->
                                 <div class="border-top pt-3 mt-3">
-                                    <div class="mb-4">
-                                    <h6 class="fw-medium text-dark mb-2">Code promo</h6>
-                                    <div class="d-flex gap-2 small">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Saisissez votre code de réduction" id="promo-code">
-                                        <button class="submit-btn p-2 rounded " type="button" id="apply-promo">Appliquer</button>
+                                    <h6 class="fw-medium text-dark mb-3">Code promo</h6>
+                                    
+                                    <!-- Message promo (pour AJAX uniquement) -->
+                                    <div id="promo-message" class="d-none mb-3" role="alert">
+                                        <span id="promo-message-text"></span>
                                     </div>
-                                 </div>
+
+                                    {% if appliedPromo %}
+                                        <!-- Code promo appliqué -->
+                                        <div class="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded mb-3">
+                                            <div>
+                                                <small class="text-success fw-medium">Code appliqué :</small>
+                                                <strong class="d-block">{{ appliedPromo }}</strong>
+                                            </div>
+                                            <a href="{{ path('app_cart_remove_promo') }}" class="btn btn-sm btn-link text-danger p-0 text-decoration-none" title="Retirer">
+                                                <i class="fas fa-times"></i>
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <!-- Formulaire code promo -->
+                                        <div class="mb-3">
+                                            <div class="d-flex gap-2">
+                                                <input type="text" class="form-control form-control-sm" placeholder="Entrez votre code" id="promo-code">
+                                                <button class="submit-btn p-2 rounded " type="button" id="apply-promo">Appliquer</button>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Réduction -->
+                                {% if discount > 0 %}
+                                <div class="border-top pt-3 mt-3">
+                                    <div class="d-flex justify-content-between text-success mb-2">
+                                        <span>Réduction</span>
+                                        <span>-€{{ discount|number_format(2, '.', '') }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Expédition -->
+                                <div class="d-flex justify-content-between text-muted mb-4">
+                                    <span>Expédition</span>
+                                    <span>{% if subtotalAfterDiscount >= 49 %}Gratuit{% else %}€5.99{% endif %}</span>
+                                </div>
                                 
-                                <!-- Total -->
+                                <!-- Total final -->
                                 <div class="border-top pt-3 mb-4">
                                     <div class="d-flex justify-content-between fw-bold fs-5">
                                         <span>TOTAL</span>
-                                        <span id="cart-total">€{{ total > 49 ? total : total + 5.99 }}</span>
+                                        <span>€{{ finalTotal|number_format(2, '.', '') }}</span>
                                     </div>
                                 </div>
 
-                                <a href="{{ path('app_order') }}"><button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4 text-decoration-none">
-                                    Continuer vers l'expédition
-                                </button></a>
+                                <a href="{{ path('app_order') }}" class="text-decoration-none">
+                                    <button class="btn btn-dark w-100 py-3 fw-semibold rounded-2 mb-4">
+                                        Continuer vers l'expédition
+                                    </button>
+                                </a>
                                 
                                 <!-- Moyens de paiement -->
-                                <div class="d-flex gap-2 align-items-center">
+                                <div class="d-flex gap-2 align-items-center justify-content-center flex-wrap">
                                     <div class="payment-methods">
-                                        <img src="{{ asset('images/visa.png') }}" alt="visa" class="img-fluid">
+                                        <img src="{{ asset('images/visa.png') }}" alt="visa" class="img-fluid" style="height: 25px;">
                                     </div>
-
                                     <div class="payment-methods">
-                                        <img src="{{ asset('images/paypal.png') }}" alt="paypal" class="img-fluid">
+                                        <img src="{{ asset('images/paypal.png') }}" alt="paypal" class="img-fluid" style="height: 25px;">
                                     </div>
-
                                     <div class="payment-methods">
-                                        <img src="{{ asset('images/mastercard.png') }}" alt="mastercard" class="img-fluid">
+                                        <img src="{{ asset('images/mastercard.png') }}" alt="mastercard" class="img-fluid" style="height: 25px;">
                                     </div>
-
                                     <div class="payment-methods">
-                                        <img src="{{ asset('images/amex.png') }}" alt="american express" class="img-fluid">
+                                        <img src="{{ asset('images/amex.png') }}" alt="american express" class="img-fluid" style="height: 25px;">
                                     </div>
-
                                     <div class="payment-methods">
-                                        <img src="{{ asset('images/jcb.png') }}" alt="jcb" class="img-fluid">
+                                        <img src="{{ asset('images/jcb.png') }}" alt="jcb" class="img-fluid" style="height: 25px;">
                                     </div>
                                 </div>
                             </td>
@@ -158,104 +207,54 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.quantity-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const action = this.getAttribute('data-action');
-            const row = this.closest('tr');
-            const quantityDisplay = row.querySelector('.quantity-display');
-            const productId = quantityDisplay.getAttribute('data-product-id');
-            const type = row.getAttribute('data-type');
-            
-            let currentValue = parseInt(quantityDisplay.textContent);
-            let newValue = currentValue;
-            
-            if (action === 'increase') {
-                newValue = currentValue + 1;
-            } else if (action === 'decrease' && currentValue > 1) {
-                newValue = currentValue - 1;
+    const applyBtn = document.getElementById('apply-promo');
+    const promoInput = document.getElementById('promo-code');
+    
+    if (!applyBtn || !promoInput) return; // Si pas de formulaire promo, on sort
+    
+    function showMsg(msg, type) {
+        const el = document.getElementById('promo-message');
+        el.className = `alert alert-${type} alert-dismissible fade show mb-3`;
+        el.querySelector('span').textContent = msg;
+        el.classList.remove('d-none');
+        setTimeout(() => el.classList.add('d-none'), 5000);
+    }
+    
+    applyBtn.addEventListener('click', function() {
+        const code = promoInput.value.trim();
+        if (!code) return showMsg('Veuillez entrer un code promo.', 'warning');
+        
+        this.disabled = true;
+        this.textContent = 'Vérification...';
+        
+        fetch('/api/promo/validate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code})
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                location.reload();
+            } else {
+                showMsg(d.message, 'danger');
+                this.disabled = false;
+                this.textContent = 'Appliquer';
             }
-            
-            if (newValue !== currentValue) {
-                // Désactiver les boutons pendant la requête
-                const buttons = row.querySelectorAll('.quantity-btn');
-                buttons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.5';
-                });
-                
-                // Requête AJAX
-                fetch(`/cart/update/${type}/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ quantity: newValue })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mise à jour réussie
-                        quantityDisplay.textContent = newValue;
-                        
-                        // Recalculer le total de la ligne
-                        const priceElement = row.querySelector('td:nth-child(2) span') || 
-                                           row.querySelector('.d-md-none .fw-medium');
-                        const price = parseFloat(priceElement.textContent.replace('€', ''));
-                        const totalCell = row.querySelector('.total-cell span');
-                        totalCell.textContent = `€${(price * newValue).toFixed(2)}`;
-                        
-                        // Recalculer le total général
-                        updateCartTotal();
-                    } else {
-                        alert('Erreur: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur AJAX:', error);
-                    alert('Erreur de connexion. Veuillez réessayer.');
-                })
-                .finally(() => {
-                    // Réactiver les boutons
-                    buttons.forEach(btn => {
-                        btn.disabled = false;
-                        btn.style.opacity = '1';
-                    });
-                });
-            }
+        })
+        .catch(() => {
+            showMsg('Erreur de connexion. Veuillez réessayer.', 'danger');
+            this.disabled = false;
+            this.textContent = 'Appliquer';
         });
     });
     
-    function updateCartTotal() {
-        let subtotal = 0;
-        
-        document.querySelectorAll('.total-cell span').forEach(cell => {
-            subtotal += parseFloat(cell.textContent.replace('€', ''));
-        });
-        
-        // Gestion du message livraison gratuite
-        const alertDiv = document.querySelector('.alert-info');
-        const shippingSpan = document.querySelector('.d-flex.justify-content-between span:last-child');
-        
-        if (subtotal < 49) {
-            const remaining = (49 - subtotal).toFixed(2);
-            if (alertDiv) {
-                alertDiv.innerHTML = `Plus que €${remaining} pour bénéficier de la livraison gratuite !`;
-                alertDiv.style.display = 'block';
-            }
-            if (shippingSpan) shippingSpan.textContent = '€5.99';
-        } else {
-            if (alertDiv) alertDiv.style.display = 'none';
-            if (shippingSpan) shippingSpan.textContent = 'Gratuit';
+    promoInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyBtn.click();
         }
-        
-        // Total final
-        let finalTotal = subtotal + (subtotal < 49 ? 5.99 : 0);
-        const totalElement = document.getElementById('cart-total');
-        if (totalElement) {
-            totalElement.textContent = `€${finalTotal.toFixed(2)}`;
-        }
-    }
+    });
 });
 </script>
 

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+</head>
+<body style="background-color:#f6ecdd">
+<div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+  <img 
+    src="{{ absolute_url(asset('images/logo/gbs_logo.png')) }}" 
+    alt="logo glow beauty skin"
+    style="width:90px; border-radius:50%;">
+  <span style="color:#698866; font-size:40px; font-weight:bold;">
+    Glow Beauty Skin
+  </span>
+</div>
+
+    <main style="width:80%; margin: 0 auto; padding: 20px; font-size:20px; line-height:1.5; font-weight: 700">
+        
+    </main>
+
+    <div style="width:80%; margin: 0 auto; padding: 20px; border: 10px solid #ebd4bd; background-color:transparent; border-radius:10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <p>Bonjour {{ user.lastName|capitalize }},</p>
+        
+        <h2 style="color: #698866; text-align: center; margin: 20px 0;">
+             Bienvenue dans notre communauté beauté !
+        </h2>
+        
+        <p>Nous sommes ravis de vous compter parmi nous ! </p>
+        
+        <p>En vous inscrivant à notre newsletter, vous bénéficiez de nombreux avantages :</p>
+        
+        <ul style="line-height: 1.8;">
+            <li> <strong>Offres exclusives</strong> réservées à nos abonnés</li>
+            <li> <strong>Conseils beauté</strong> et routines skincare personnalisées</li>
+            <li> <strong>Nouveautés en avant-première</strong></li>
+            <li> <strong>Codes promo privilèges</strong> tout au long de l'année</li>
+            <li> <strong>Guides et tutoriels</strong> pour sublimer votre peau</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ absolute_url(path('app_home')) }}" 
+               style="display: inline-block; 
+                      background-color: #698866; 
+                      color: white; 
+                      padding: 15px 40px; 
+                      text-decoration: none; 
+                      border-radius: 8px; 
+                      font-weight: bold;
+                      font-size: 18px;">
+                Découvrir nos produits
+            </a>
+        </div>
+        
+        <p style="margin-top: 30px; background-color: #f6ecdd; padding: 15px; border-radius: 8px; text-align: center;">
+            <strong> Cadeau de bienvenue :</strong><br>
+            Utilisez le code <strong style="color: #698866; font-size: 22px;">BIENVENUE10</strong> 
+            pour bénéficier de <strong>10% de réduction</strong> sur votre première commande !
+        </p>
+        
+        <br>
+        <p>Merci de votre confiance, à très vite.</p>
+        <p>L'équipe Glow Beauty Skin</p>
+        
+        <p style="font-size: 14px; color: #666; margin-top: 30px; border-top: 1px solid #ebd4bd; padding-top: 20px; text-align: center;">
+            Vous ne souhaitez plus recevoir nos emails ? 
+            <a href="{{ absolute_url(path('app_newsletter_unsubscribe', {token: token})) }}" 
+               style="color: #698866; text-decoration: none;">
+                Cliquez ici pour vous désinscrire
+            </a>
+        </p>
+    </div>
+</body>
+</html>

@@ -38,7 +38,6 @@ class Order
     #[ORM\Column(length: 20)]
     private string $phone;
 
-    // Adresse de livraison stockée directement dans la commande
     #[ORM\Column(length: 255)]
     private string $street;
 
@@ -48,7 +47,6 @@ class Order
     #[ORM\Column(length: 10)]
     private string $postalCode;
 
-    // Référence optionnelle vers l'adresse utilisateur (pour historique)
     #[ORM\ManyToOne(targetEntity: Address::class)]
     private ?Address $sourceAddress = null;
 
@@ -61,7 +59,6 @@ class Order
     #[ORM\Column]
     private ?float $totalPrice = null;
 
-    // Paiement
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $paymentMethod = null;
 
@@ -74,9 +71,20 @@ class Order
     #[ORM\Column(nullable: true)]
     private ?bool $isCompleted = null;
 
+    // ============ AJOUT CODE PROMO ============
+    
+    #[ORM\ManyToOne(targetEntity: PromoCode::class, inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?PromoCode $promoCode = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $discountAmount = null;
+
+    // ==========================================
+
     public function __construct()
     {
-        $this->orderDate    = new \DateTimeImmutable();
+        $this->orderDate = new \DateTimeImmutable();
         $this->orderProducts = new ArrayCollection();
         $this->generateOrderNumber();
     }
@@ -94,7 +102,7 @@ class Order
     public function getOrderDate(): \DateTimeImmutable { return $this->orderDate; }
     public function setOrderDate(\DateTimeImmutable $orderDate): self { $this->orderDate = $orderDate; return $this; }
 
-    // Alias utilisés par certains templates
+    // Alias pour compatibilité templates
     public function getCreatedAt(): \DateTimeImmutable { return $this->orderDate; }
     public function setCreatedAt(\DateTimeImmutable $createdAt): self { $this->orderDate = $createdAt; return $this; }
 
@@ -104,7 +112,6 @@ class Order
     {
         $this->user = $user;
 
-        // Ne copie que les valeurs non vides pour éviter d’écraser avec null
         if ($user) {
             $v = $user->getFirstName(); if ($v !== null && $v !== '') { $this->firstName = $v; }
             $v = $user->getLastName();  if ($v !== null && $v !== '') { $this->lastName  = $v; }
@@ -139,12 +146,11 @@ class Order
     public function getSourceAddress(): ?Address { return $this->sourceAddress; }
     public function setSourceAddress(?Address $sourceAddress): self { $this->sourceAddress = $sourceAddress; return $this; }
 
-    // Copier une adresse utilisateur vers l'adresse de livraison
     public function copyFromAddress(Address $address): self
     {
-        $this->street       = $address->getStreet();
-        $this->city         = $address->getCity();
-        $this->postalCode   = $address->getPostalCode();
+        $this->street = $address->getStreet();
+        $this->city = $address->getCity();
+        $this->postalCode = $address->getPostalCode();
         $this->sourceAddress = $address;
         return $this;
     }
@@ -174,11 +180,10 @@ class Order
     public function getTotalPrice(): ?float { return $this->totalPrice; }
     public function setTotalPrice(float $totalPrice): static { $this->totalPrice = $totalPrice; return $this; }
 
-    // Alias pour compatibilité (Twig/contrôleur)
+    // Alias pour compatibilité templates
     public function getTotal(): ?float { return $this->totalPrice; }
     public function setTotal(float $total): static { $this->totalPrice = $total; return $this; }
 
-    // Paiement
     public function getPaymentMethod(): ?string { return $this->paymentMethod; }
     public function setPaymentMethod(?string $paymentMethod): self { $this->paymentMethod = $paymentMethod; return $this; }
 
@@ -189,19 +194,22 @@ class Order
     public function setStatus(string $status): self { $this->status = $status; return $this; }
 
     public function isPaid(): bool { return $this->status === 'paid'; }
-    public function isPending(): bool { return $this->status === 'pending'; }
     public function isCancelled(): bool { return $this->status === 'cancelled'; }
-    public function isRefunded(): bool { return $this->status === 'refunded'; }
 
-    public function isCompleted(): ?bool
+    public function isCompleted(): ?bool { return $this->isCompleted; }
+    public function setIsCompleted(?bool $isCompleted): static { $this->isCompleted = $isCompleted; return $this; }
+
+    // ============ MÉTHODES CODE PROMO ============
+
+    public function getPromoCode(): ?PromoCode { return $this->promoCode; }
+    public function setPromoCode(?PromoCode $promoCode): static { $this->promoCode = $promoCode; return $this; }
+
+    public function getDiscountAmount(): ?float { return $this->discountAmount; }
+    public function setDiscountAmount(?float $discountAmount): static { $this->discountAmount = $discountAmount; return $this; }
+
+    // Calcul du sous-total avant réduction
+    public function getSubtotal(): float
     {
-        return $this->isCompleted;
-    }
-
-    public function setIsCompleted(?bool $isCompleted): static
-    {
-        $this->isCompleted = $isCompleted;
-
-        return $this;
+        return $this->totalPrice + ($this->discountAmount ?? 0);
     }
 }
