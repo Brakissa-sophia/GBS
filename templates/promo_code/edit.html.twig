@@ -39,19 +39,26 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.maxUsesPerUser, 'Utilisations max/utilisateur') }}
+                            {{ form_widget(form.maxUsesPerUser) }}
+                            {{ form_errors(form.maxUsesPerUser) }}
+                            <small class="text-muted">Vide = illimité</small>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.endDate, 'Date d\'expiration') }}
                             {{ form_widget(form.endDate) }}
                             {{ form_errors(form.endDate) }}
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.category, 'Catégorie') }}
                             {{ form_widget(form.category) }}
                             {{ form_errors(form.category) }}
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.brand, 'Marque') }}
                             {{ form_widget(form.brand) }}
                             {{ form_errors(form.brand) }}
@@ -85,12 +92,18 @@
                 <p><strong>Code :</strong> {{ promoCode.code }}</p>
                 <p><strong>Réduction :</strong> {{ promoCode.formattedDiscount }}</p>
                 
+                {% if promoCode.maxUsesPerUser %}
+                <p><strong>Limite d'utilisation :</strong> {{ promoCode.maxUsesPerUser }} fois/utilisateur</p>
+                {% else %}
+                <p><strong>Limite d'utilisation :</strong> Illimité</p>
+                {% endif %}
+
                 {% if promoCode.category %}
                 <p><strong>Catégorie :</strong> {{ promoCode.category.name }}</p>
                 {% endif %}
 
                 {% if promoCode.brand %}
-                <p><strong>Marque :</strong> {{ promoCode.brand.name }}</p>
+                <p><strong>Marque :</strong> {{ promoCode.brand.title }}</p>
                 {% endif %}
 
                 {% if not promoCode.category and not promoCode.brand %}

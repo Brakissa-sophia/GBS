@@ -52,6 +52,10 @@ class PromoCode
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    // ========== NOUVEAU : Limite d'utilisation par utilisateur ==========
+    #[ORM\Column(nullable: true)]
+    private ?int $maxUsesPerUser = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -147,6 +151,19 @@ class PromoCode
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    // ========== NOUVEAU : Getter/Setter pour maxUsesPerUser ==========
+    
+    public function getMaxUsesPerUser(): ?int
+    {
+        return $this->maxUsesPerUser;
+    }
+
+    public function setMaxUsesPerUser(?int $maxUsesPerUser): static
+    {
+        $this->maxUsesPerUser = $maxUsesPerUser;
+        return $this;
     }
 
     // Vérifier si le code est valide

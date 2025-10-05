@@ -9,6 +9,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -58,6 +59,19 @@ class PromoCodeType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'La valeur est obligatoire.']),
                     new Assert\Positive(['message' => 'La valeur doit être supérieure à 0.'])
+                ]
+            ])
+            ->add('maxUsesPerUser', IntegerType::class, [
+                'label' => 'Nombre max d\'utilisations par utilisateur',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Ex: 1=usage unique',
+                    'min' => '1'
+                ],
+                'help' => 'Laissez vide pour illimité. ',
+                'constraints' => [
+                    new Assert\Positive(['message' => 'Le nombre doit être supérieur à 0.'])
                 ]
             ])
             ->add('endDate', DateTimeType::class, [

@@ -14,13 +14,8 @@ class SkinTypeForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('title')
-            ->add('products', EntityType::class, [
-                'class' => Product::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-            ])
-        ;
+            ->add('title');
+            
     }
 
     public function configureOptions(OptionsResolver $resolver): void

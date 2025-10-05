@@ -259,23 +259,6 @@ class ProductForm extends AbstractType
                 ],
             ])
 
-           /*  ->add('stock', IntegerType::class, [
-            
-            'help' => 'La quantité doit être supérieure à <span class="text-danger">0</span> unité',
-            'help_html' => true, // ← Ajouter ceci pour interpréter le HTML
-            'help_attr' => [
-                'class' => 'text-warning fst-italic'
-            ],
-            'label' => 'Stock<span class="text-danger">*</span>',
-            'label_html' => true,
-            'required' => false,
-            'constraints' => [
-            
-                new Positive([
-                    'message' => 'Le stock doit être un nombre positif'
-                ])
-            ] 
-        ])*/
         ;
     }
 

@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+ {% block title %}{{ parent() }} | Ajouter une adresse {% endblock %}
+ {% block description %}{{ parent() }} | Ajouter une adresse  {% endblock %}
+ {% block keywords %}{{ parent() }} | Ajouter une adresse   {% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <h2 class="mb-4">Ajouter une nouvelle adresse</h2>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="bg-white col-md-8 mx-auto p-4 rounded border border-2 border-success">
+        {{ form_start(addressForm) }}
+        
+        <div class="mb-3">
+            {{ form_label(addressForm.street) }}
+            {{ form_widget(addressForm.street) }}
+            {{ form_errors(addressForm.street) }}
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form_label(addressForm.postalCode) }}
+                {{ form_widget(addressForm.postalCode) }}
+                {{ form_errors(addressForm.postalCode) }}
+            </div>
+
+            <div class="col-md-8 mb-3">
+                {{ form_label(addressForm.city) }}
+                {{ form_widget(addressForm.city) }}
+                {{ form_errors(addressForm.city) }}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ path('app_profile_index') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Retour
+            </a>
+            <button type="submit" class="boutonColor">
+                <i class="bi bi-plus-circle me-1"></i>Ajouter l'adresse
+            </button>
+        </div>
+
+        {{ form_end(addressForm) }}
+    </div>
+</div>
+{% endblock %}

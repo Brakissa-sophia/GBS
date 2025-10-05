@@ -1,13 +1,46 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}{{ parent() }} | Modifier la catégorie{% endblock %}
+{% block description %}{{ parent() }} | Modifier la catégorie{% endblock %}
+{% block keywords %}{{ parent() }} | Modifier la catégorie{% endblock %}
+
 {% block body %}
+<h2>Modifier la catégorie</h2>
 
-<h2 class='mt-3'>Modifier la catégorie</h2>
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-dark" href="{{ path('app_category_index') }}">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
 
-    <a class="btn btn-dark" href="{{ path('app_category_index') }}">Gestion des catégories</a>
+<div class="row mt-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0 text-dark">Modification de la catégorie</h5>
+            </div>
+            <div class="card-body">
+                {{ include('category/_form.html.twig', {'button_label': 'Enregistrer'}) }}
+            </div>
+        </div>
+    </div>
 
-    {{ include('category/_form.html.twig', {'button_label': 'Modifier la catégorie'}) }}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-danger">
+                <h5 class="mb-0 text-white">Zone de danger</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">La suppression de cette catégorie est irréversible.</p>
+                <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                    <button type="submit" class="btn btn-danger text-white w-100">
+                        <i class="bi bi-trash"></i> Supprimer la catégorie
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-    {{ include('category/_delete_form.html.twig') }}
 {% endblock %}

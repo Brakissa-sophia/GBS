@@ -55,7 +55,7 @@ final class ProductController extends AbstractController
             // 2. Traiter les 4 images avec le système de nommage personnalisé
             $this->handleImageUploads($form, $product, $slugger);
 
-            // 3. Historique de stock (votre code existant)
+            // 3. Historique de stock 
             $stockHistory = new AddProductHistory();
             $stockHistory->setQte($product->getStock());
             $stockHistory->setProduct($product);
@@ -63,7 +63,7 @@ final class ProductController extends AbstractController
             $entityManager->persist($stockHistory);
             $entityManager->flush();
 
-            $this->addFlash('success','Le produit "' . $product->getTitle() . '" a bien été ajouté avec ses images');
+            flash()->success('Le produit "' . $product->getTitle() . '" a bien été ajouté avec ses images');
 
             return $this->redirectToRoute('app_product_index');
         }

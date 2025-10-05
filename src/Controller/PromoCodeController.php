@@ -7,6 +7,7 @@ use App\Form\PromoCodeType;
 use App\Repository\ProductRepository;
 use App\Repository\DeviceRepository;
 use App\Repository\PromoCodeRepository;
+use App\Repository\PromoCodeUsageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ class PromoCodeController extends AbstractController
 {
     public function __construct(
         private readonly PromoCodeRepository $promoCodeRepository,
+        private readonly PromoCodeUsageRepository $promoCodeUsageRepository,
         private readonly ProductRepository $productRepository,
         private readonly DeviceRepository $deviceRepository,
         private readonly EntityManagerInterface $entityManager
@@ -63,6 +65,16 @@ class PromoCodeController extends AbstractController
                 'success' => false,
                 'message' => 'Ce code promo n\'est plus valide ou a expiré.'
             ], 400);
+        }
+
+        // NOUVELLE VÉRIFICATION : Code déjà utilisé par l'utilisateur
+        if ($this->getUser()) {
+            if ($this->promoCodeUsageRepository->hasUserUsedPromoCode($this->getUser(), $promoCode)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Vous avez déjà utilisé ce code promo.'
+                ], 400);
+            }
         }
 
         // Calculer le montant éligible
@@ -125,6 +137,8 @@ class PromoCodeController extends AbstractController
         ]);
     }
 
+    // ... reste du code inchangé (removePromoCode, index, new, edit, toggle, delete)
+
     #[Route('/api/promo/remove', name: 'api_promo_remove', methods: ['POST'])]
     public function removePromoCode(SessionInterface $session): JsonResponse
     {
@@ -160,8 +174,6 @@ class PromoCodeController extends AbstractController
         ]);
     }
 
-    // ========== ROUTES ADMIN ==========
-
     #[Route('/admin/promo-codes', name: 'admin_promo_codes_index')]
     #[IsGranted('ROLE_ADMIN')]
     public function index(): Response
@@ -183,14 +195,12 @@ class PromoCodeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Vérifier l'unicité du code
             $existing = $this->promoCodeRepository->findByCode($promoCode->getCode());
             if ($existing) {
                 $this->addFlash('error', 'Ce code promo existe déjà.');
                 return $this->redirectToRoute('admin_promo_codes_add');
             }
 
-            // Validation personnalisée
             if ($promoCode->getDiscountType() === 'percentage' && $promoCode->getDiscountValue() > 100) {
                 $this->addFlash('error', 'Le pourcentage ne peut pas dépasser 100%.');
                 return $this->redirectToRoute('admin_promo_codes_add');
@@ -220,7 +230,6 @@ class PromoCodeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Vérifier l'unicité si le code a changé
             if ($originalCode !== $promoCode->getCode()) {
                 $existing = $this->promoCodeRepository->findByCode($promoCode->getCode());
                 if ($existing && $existing->getId() !== $promoCode->getId()) {
@@ -229,7 +238,6 @@ class PromoCodeController extends AbstractController
                 }
             }
 
-            // Validation personnalisée
             if ($promoCode->getDiscountType() === 'percentage' && $promoCode->getDiscountValue() > 100) {
                 $this->addFlash('error', 'Le pourcentage ne peut pas dépasser 100%.');
                 return $this->redirectToRoute('admin_promo_codes_edit', ['id' => $promoCode->getId()]);

@@ -33,6 +33,20 @@ class OrderController extends AbstractController
         private readonly MailerInterface $mailer
     ) {}
 
+    #[Route('/test-flasher', name: 'app_test_flasher')]
+    public function testFlasher(): Response
+    {
+        flash()
+        ->option('position', 'top-center') 
+        ->option('timeout', 10000)
+        ->success(' Test réussi : aFlasher fonctionne !');       
+        flash()->error(' Ceci est un message d\'erreur');
+        flash()->info('Message d\'information');
+        flash()->warning('Message d\'avertissement');
+        
+        return $this->redirectToRoute('app_admin_orders');
+    }
+
     #[Route(name: 'app_order')]
     public function index(Request $request, SessionInterface $session): Response
     {
@@ -73,15 +87,33 @@ class OrderController extends AbstractController
         
         if ($appliedPromo) {
             $promoCodeEntity = $this->promoCodeRepository->findByCode($appliedPromo);
+            
             if ($promoCodeEntity && $promoCodeEntity->isValid()) {
-                $eligibleAmount = 0;
-                foreach ($cartWithData as $item) {
-                    if ($promoCodeEntity->isEligible($item['product'])) {
-                        $eligibleAmount += $item['product']->getPrice() * $item['quantity'];
+                // Vérifier si l'utilisateur peut utiliser ce code
+                $currentUser = $this->getUser();
+                
+                if (!$this->promoCodeRepository->canBeUsedByUser($promoCodeEntity, $currentUser)) {
+                    $maxUses = $promoCodeEntity->getMaxUsesPerUser();
+                    if ($maxUses !== null) {
+                        flash()->error("Vous avez déjà utilisé ce code promo le nombre maximum de fois autorisé ({$maxUses}).");
+                    } else {
+                        flash()->error("Vous ne pouvez pas utiliser ce code promo.");
                     }
+                    $session->remove('promo_code');
+                    $appliedPromo = null;
+                    $promoCodeEntity = null;
+                } else {
+                    // Calculer la réduction uniquement sur les produits éligibles
+                    $eligibleAmount = 0;
+                    foreach ($cartWithData as $item) {
+                        if ($promoCodeEntity->isEligible($item['product'])) {
+                            $eligibleAmount += $item['product']->getPrice() * $item['quantity'];
+                        }
+                    }
+                    $discount = $promoCodeEntity->calculateDiscount($eligibleAmount);
                 }
-                $discount = $promoCodeEntity->calculateDiscount($eligibleAmount);
             } else {
+                flash()->error('Ce code promo n\'est plus valide.');
                 $session->remove('promo_code');
                 $appliedPromo = null;
             }
@@ -145,7 +177,7 @@ class OrderController extends AbstractController
             $required = ['firstName','lastName','email','phone','street','city','postalCode'];
             $missing  = array_filter($required, fn($f) => $payload[$f] === '');
             if ($missing) {
-                $this->addFlash('error', 'Veuillez compléter tous les champs requis.');
+                flash()->error('Veuillez compléter tous les champs requis.');
                 return $this->redirectToRoute('app_order');
             }
 
@@ -246,10 +278,11 @@ class OrderController extends AbstractController
             $order->setPostalCode((string) $orderData['postalCode']);
 
             // Enregistrer le code promo
+            $promoCodeEntity = null;
             if ($promoCodeId) {
-                $promoCode = $this->promoCodeRepository->find($promoCodeId);
-                if ($promoCode) {
-                    $order->setPromoCode($promoCode);
+                $promoCodeEntity = $this->promoCodeRepository->find($promoCodeId);
+                if ($promoCodeEntity) {
+                    $order->setPromoCode($promoCodeEntity);
                     $order->setDiscountAmount($discount);
                 }
             }
@@ -262,6 +295,17 @@ class OrderController extends AbstractController
 
             $this->entityManager->persist($order);
             $this->entityManager->flush();
+
+            // Enregistrer l'utilisation du code promo dans PromoCodeUsage
+            if ($promoCodeEntity && $discount > 0) {
+                $promoUsage = new \App\Entity\PromoCodeUsage();
+                $promoUsage->setPromoCode($promoCodeEntity);
+                $promoUsage->setUser($this->getUser());
+                $promoUsage->setOrderRef($order);
+                $promoUsage->setDiscountApplied($discount);
+                $this->entityManager->persist($promoUsage);
+                $this->entityManager->flush();
+            }
 
             // Lignes de commande
             foreach ($lines as $line) {
@@ -356,10 +400,11 @@ class OrderController extends AbstractController
             $order->setPostalCode((string) $orderData['postalCode']);
 
             // Enregistrer le code promo
+            $promoCodeEntity = null;
             if ($promoCodeId) {
-                $promoCode = $this->promoCodeRepository->find($promoCodeId);
-                if ($promoCode) {
-                    $order->setPromoCode($promoCode);
+                $promoCodeEntity = $this->promoCodeRepository->find($promoCodeId);
+                if ($promoCodeEntity) {
+                    $order->setPromoCode($promoCodeEntity);
                     $order->setDiscountAmount($discount);
                 }
             }
@@ -372,6 +417,17 @@ class OrderController extends AbstractController
 
             $this->entityManager->persist($order);
             $this->entityManager->flush();
+
+            // Enregistrer l'utilisation du code promo
+            if ($promoCodeEntity && $discount > 0) {
+                $promoUsage = new \App\Entity\PromoCodeUsage();
+                $promoUsage->setPromoCode($promoCodeEntity);
+                $promoUsage->setUser($this->getUser());
+                $promoUsage->setOrderRef($order);
+                $promoUsage->setDiscountApplied($discount);
+                $this->entityManager->persist($promoUsage);
+                $this->entityManager->flush();
+            }
 
             foreach ($lines as $line) {
                 $op = new OrderProducts();
@@ -392,6 +448,8 @@ class OrderController extends AbstractController
             if ($this->getUser() && $session->get('save_user_info', false)) {
                 $this->saveUserInformation($this->getUser(), $orderData);
             }
+
+            $this->sendOrderConfirmationEmail($order, $recalcSubtotal, $discount, $shipping);
 
             foreach (['cart','order_data','cart_subtotal','cart_items','cart_item_refs','save_user_info','promo_code','cart_discount','cart_promo_code_id'] as $k) {
                 $session->remove($k);
@@ -547,7 +605,7 @@ class OrderController extends AbstractController
     {
         $newStatus = $request->get('status');
         if (!in_array($newStatus, ['paid', 'cancelled'])) {
-            $this->addFlash('error', 'Statut invalide.');
+            flash()->error('Statut invalide.');
             return $this->redirectToRoute('app_admin_orders');
         }
 
@@ -555,7 +613,7 @@ class OrderController extends AbstractController
         if ($newStatus === 'paid') $order->setIsCompleted(false);
         $this->entityManager->flush();
 
-        $this->addFlash('success', "Statut mis à jour.");
+        flash()->success('Statut mis à jour avec succès.');
         return $this->redirectToRoute('app_admin_orders');
     }
 
@@ -564,14 +622,14 @@ class OrderController extends AbstractController
     public function markAsDelivered(Order $order, EntityManagerInterface $em): Response
     {
         if ($order->getStatus() !== 'paid') {
-            $this->addFlash('error', 'Seules les commandes payées peuvent être livrées.');
+            flash()->error('Seules les commandes payées peuvent être livrées.');
             return $this->redirectToRoute('app_admin_orders');
         }
 
         $order->setIsCompleted(true);
         $em->flush();
 
-        $this->addFlash('success', 'Commande marquée comme livrée.');
+        flash()->success('Commande marquée comme livrée.');
         return $this->redirectToRoute('app_admin_orders');
     }
 
@@ -582,7 +640,7 @@ class OrderController extends AbstractController
         $this->entityManager->remove($order);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Commande supprimée.');
+        flash()->success('Commande supprimée avec succès.');
         return $this->redirectToRoute('app_admin_orders');
     }
 

@@ -1,13 +1,29 @@
 {% extends 'base.html.twig' %}
 
-
+{% block title %}{{ parent() }} | Ajouter un type de peau{% endblock %}
+{% block description %}{{ parent() }} | Ajouter un type de peau{% endblock %}
+{% block keywords %}{{ parent() }} | Ajouter un type de peau{% endblock %}
 
 {% block body %}
-    <h2>Ajouter un type de peau</h2>
+<h2>Ajouter un type de peau</h2>
 
-    <a class="btn btn-dark" href="{{ path('app_skin_type_index') }}">Gestion type de peau</a>
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-dark" href="{{ path('app_skin_type_index') }}">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+</div>
 
-    {{ include('skin_type/_form.html.twig') }}
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h5 class="mb-0 text-dark">Nouveau type de peau</h5>
+            </div>
+            <div class="card-body">
+                {{ include('skin_type/_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
 
-    
 {% endblock %}

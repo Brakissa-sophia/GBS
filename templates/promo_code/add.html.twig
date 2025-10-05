@@ -39,21 +39,28 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
+                            {{ form_label(form.maxUsesPerUser, 'Utilisations max/utilisateur') }}
+                            {{ form_widget(form.maxUsesPerUser) }}
+                            {{ form_errors(form.maxUsesPerUser) }}
+                            <small class="text-muted">Laissez vide pour illimité</small>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.endDate, 'Date d\'expiration') }}
                             {{ form_widget(form.endDate) }}
                             {{ form_errors(form.endDate) }}
                             <small class="text-muted">Optionnel</small>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.category, 'Catégorie') }}
                             {{ form_widget(form.category) }}
                             {{ form_errors(form.category) }}
                             <small class="text-muted">Optionnel</small>
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             {{ form_label(form.brand, 'Marque') }}
                             {{ form_widget(form.brand) }}
                             {{ form_errors(form.brand) }}

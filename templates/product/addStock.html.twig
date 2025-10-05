@@ -1,34 +1,58 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Ajouter le stock {% endblock %}
- {% block description %}{{ parent() }} |Ajouter le stock {% endblock %}
- {% block keywords %}{{ parent() }} | Ajouter le stock  {% endblock %}
-
+{% block title %}{{ parent() }} | Ajouter le stock {% endblock %}
+{% block description %}{{ parent() }} | Ajouter le stock {% endblock %}
+{% block keywords %}{{ parent() }} | Ajouter le stock {% endblock %}
 
 {% block body %}
+<h2>Ajouter le stock : "{{ product.title|capitalize }}"</h2>
 
- <h2 class="pt-5">Ajouter le stock: "{{ product.title|capitalize}}"</h2>
-
-    <a class="btn btn-dark" href="{{ path('app_product_index') }}">Gestion des produits</a>
-
-    <a class="btn btn-outline-secondary" href="{{ path('app_product_stock_add_history',{'id':product.id}) }}">Afficher l'historique d'ajout du stock</a>
-
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-dark" href="{{ path('app_product_index') }}">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+    <a class="btn btn-secondary" href="{{ path('app_product_stock_add_history',{'id':product.id}) }}">
+        <i class="bi bi-clock-history"></i> Historique
+    </a>
+</div>
 
 {% include "_include/_flashes.html.twig" %}
-    {{ form_start(form) }}
-   
-    
-    <div class="row">
-            
-        {{ form_row(form.qte) }}
-        
-        {{ form_rest(form.qte) }}
-        <input type="submit" value="Enregistrer" class="btn btn-dark w-100 mt-3">
 
+<div class="row mt-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0 text-dark">Ajouter du stock</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                {{ form_row(form.qte) }}
+                
+                {{ form_rest(form) }}
+                
+                <button type="submit" class="btn btn-dark">Enregistrer</button>
+                <a href="{{ path('app_product_index') }}" class="btn btn-outline-secondary">Annuler</a>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
     </div>
-       
 
-    {{ form_end(form) }}
- 
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-success">
+                <h5 class="mb-0 text-white">Informations</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Produit :</strong> {{ product.title|capitalize }}</p>
+                <p><strong>Stock actuel :</strong></p>
+                <div class="text-center">
+                    <span class="badge bg-success fs-4">{{ product.stock }} unités</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-{% endblock %} 
+{% endblock %}

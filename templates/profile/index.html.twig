@@ -5,115 +5,158 @@
 {% block keywords %}{{ parent() }} | Mon compte {% endblock %}
 
 {% block body %}
-<h2>Mon compte</h2>
+<div class="container my-4">
+  <h2 class="mb-4">Mon compte</h2>
 
-<div class="bg-white col-md-10 mt-3 mx-auto p-4 rounded border border-2 border-success">
-   {# Coordonnées personnelles #}
-  <ul class="list-group list-group-horizontal">
-    <li class="list-group-item list-group-item-dark w-100">Coordonnées personnelles</li>
-  </ul>
-
-  <div class="p-3 mt-3">
-    <ul class="list-group list-group-horizontal">
-      <li class="list-group-item w-25">Email</li>
-      <li class="list-group-item w-75">{{ app.user.email }}</li>
-    </ul>
-    <ul class="list-group list-group-horizontal">
-      <li class="list-group-item w-25">Nom</li>
-      <li class="list-group-item w-75">{{ app.user.firstName }}</li>
-    </ul>
-    <ul class="list-group list-group-horizontal">
-      <li class="list-group-item w-25">Prénom</li>
-      <li class="list-group-item w-75">{{ app.user.lastName }}</li>
-    </ul>
-    <ul class="list-group list-group-horizontal">
-      <li class="list-group-item w-25">Téléphone</li>
-      <li class="list-group-item w-75">{{ app.user.phone ?? 'Non renseigné' }}</li>
-    </ul>
-
-    <div class="mt-4 d-flex flex-column flex-md-row justify-content-center gap-3">
-      <a class="boutonColor" href="{{ path('app_profile_edit') }}">Modifier mon compte</a>
-      <a class="boutonColor" href="{{ path('app_profile_password_edit') }}">Modifier mon mot de passe</a>
-      <a class="btn btn-outline-danger" href="{{ path('app_profile_delete') }}">Supprimer mon compte</a>
-    </div>
-  </div>
-</div>
-
-{# Adresses #}
-<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
-   <ul class="list-group list-group-horizontal">
-    <li class="list-group-item list-group-item-dark w-100">Mes adresses</li>
-  </ul>
-
-  {% if app.user.addresses is empty %}
-    <div class="alert alert-info mt-3">
-      Vous n'avez encore enregistré aucune adresse.
-    </div>
-  {% else %}
-    {% for address in app.user.addresses %}
-      <div class="p-3 mt-3">
-        <ul class="list-group list-group-horizontal">
-          <li class="list-group-item w-25">Rue</li>
-          <li class="list-group-item w-75">{{ address.street }}</li>
-        </ul>
-        <ul class="list-group list-group-horizontal">
-          <li class="list-group-item w-25">Code postal</li>
-          <li class="list-group-item w-75">{{ address.postalCode }}</li>
-        </ul>
-        <ul class="list-group list-group-horizontal">
-          <li class="list-group-item w-25">Ville</li>
-          <li class="list-group-item w-75">{{ address.city }}</li>
-        </ul>
-        <div class="text-center mt-4">
-          <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
-            <a href="{{ path('app_profile_address_edit', { id: address.id }) }}" class="boutonColor">
-              Modifier adresse
-            </a>
-            <a href="{{ path('app_profile_delete', { id: address.id }) }}" 
-               class="btn btn-danger"
-               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')">
-              Supprimer
-            </a>
-          </div>
-        </div>
+  {# Messages flash #}
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
-  {% endif %}
-</div>
+  {% endfor %}
 
-{# Historique de commandes #}
-<div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
-   <ul class="list-group list-group-horizontal">
-    <li class="list-group-item list-group-item-dark w-100">Mes commandes</li>
-  </ul>
+  {# Coordonnées personnelles #}
+  <div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success">
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item list-group-item-dark w-100">
+        <i class="bi bi-person-circle me-2"></i>Coordonnées personnelles
+      </li>
+    </ul>
 
-  {% if orders is empty %}
-    <div class="alert alert-info mt-3">
-      Vous n'avez encore passé aucune commande.
-    </div>
-  {% else %}
     <div class="p-3 mt-3">
       <ul class="list-group list-group-horizontal">
-        <li class="list-group-item w-25 fw-semibold">N° de commande</li>
-        <li class="list-group-item w-25 fw-semibold">Date</li>
-        <li class="list-group-item w-25 fw-semibold">Total</li>
-        <li class="list-group-item w-25 fw-semibold text-center">Actions</li>
+        <li class="list-group-item w-25 fw-semibold">Email</li>
+        <li class="list-group-item w-75">{{ app.user.email }}</li>
+      </ul>
+      <ul class="list-group list-group-horizontal">
+        <li class="list-group-item w-25 fw-semibold">Nom</li>
+        <li class="list-group-item w-75">{{ app.user.firstName }}</li>
+      </ul>
+      <ul class="list-group list-group-horizontal">
+        <li class="list-group-item w-25 fw-semibold">Prénom</li>
+        <li class="list-group-item w-75">{{ app.user.lastName }}</li>
+      </ul>
+      <ul class="list-group list-group-horizontal">
+        <li class="list-group-item w-25 fw-semibold">Téléphone</li>
+        <li class="list-group-item w-75 d-flex justify-content-between align-items-center">
+          <span>{{ app.user.phone ?? 'Non renseigné' }}</span>
+          {% if app.user.phone is null %}
+            <a href="{{ path('app_profile_edit') }}" class="btn btn-sm btn-outline-success" title="Ajouter un numéro de téléphone">
+              <i class="bi bi-plus-circle"></i> Ajouter
+            </a>
+          {% endif %}
+        </li>
       </ul>
 
-      {% for order in orders %}
-        <ul class="list-group list-group-horizontal">
-          <li class="list-group-item w-25">#{{ order.orderNumber }}</li>
-          <li class="list-group-item w-25">{{ order.orderDate|date('d/m/Y H:i') }}</li>
-          <li class="list-group-item w-25">{{ order.total|number_format(2, ',', ' ') }} €</li>
-          <li class="list-group-item w-25 text-center">
-            <a class="btn btn-sm btn-outline-success"
-               href="{{ path('app_profile_order_show', { id: order.id }) }}">
-              Voir le détail
-            </a>
-          </li>
-        </ul>
-      {% endfor %}
+      <div class="mt-4 d-flex flex-column flex-md-row justify-content-center gap-3">
+        <a class="boutonColor" href="{{ path('app_profile_edit') }}">
+          <i class="bi bi-pencil-square me-1"></i>Modifier mon compte
+        </a>
+        <a class="boutonColor" href="{{ path('app_profile_password_edit') }}">
+          <i class="bi bi-key me-1"></i>Modifier mon mot de passe
+        </a>
+        <a class="btn btn-outline-danger" href="{{ path('app_profile_delete') }}">
+          <i class="bi bi-trash me-1"></i>Supprimer mon compte
+        </a>
+      </div>
     </div>
-  {% endif %}
+  </div>
+
+  {# Adresses #}
+  <div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item list-group-item-dark w-100">
+        <i class="bi bi-geo-alt-fill me-2"></i>Mes adresses
+      </li>
+    </ul>
+
+    {% if app.user.addresses is empty %}
+      <div class="p-3 mt-3 d-flex align-items-center justify-content-between">
+        <span>Vous n'avez encore enregistré aucune adresse.</span>
+        <a href="{{ path('app_profile_address_add') }}" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-plus-circle me-1"></i>Ajouter une adresse
+        </a>
+      </div>
+    {% else %}
+      <div class="text-end mt-3">
+        <a href="{{ path('app_profile_address_add') }}" class="btn btn-success">
+          <i class="bi bi-plus-circle me-1"></i>Ajouter une nouvelle adresse
+        </a>
+      </div>
+
+      {% for address in app.user.addresses %}
+        <div class="p-3 mt-3 border rounded">
+          <ul class="list-group list-group-horizontal">
+            <li class="list-group-item w-25 fw-semibold">Rue</li>
+            <li class="list-group-item w-75">{{ address.street }}</li>
+          </ul>
+          <ul class="list-group list-group-horizontal">
+            <li class="list-group-item w-25 fw-semibold">Code postal</li>
+            <li class="list-group-item w-75">{{ address.postalCode }}</li>
+          </ul>
+          <ul class="list-group list-group-horizontal">
+            <li class="list-group-item w-25 fw-semibold">Ville</li>
+            <li class="list-group-item w-75">{{ address.city }}</li>
+          </ul>
+          
+          <div class="text-center mt-3">
+            <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+              <a href="{{ path('app_profile_address_edit', { id: address.id }) }}" class="boutonColor">
+                <i class="bi bi-pencil me-1"></i>Modifier
+              </a>
+              <form method="post" action="{{ path('app_profile_address_delete', { id: address.id }) }}" style="display: inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ address.id) }}">
+                <button type="submit" class="btn btn-danger" 
+                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')">
+                  <i class="bi bi-trash me-1"></i>Supprimer
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  {# Historique de commandes #}
+  <div class="bg-white col-md-10 mx-auto p-4 rounded border border-2 border-success mt-4">
+    <ul class="list-group list-group-horizontal">
+      <li class="list-group-item list-group-item-dark w-100">
+        <i class="bi bi-cart-check me-2"></i>Mes commandes
+      </li>
+    </ul>
+
+    {% if orders is empty %}
+      <div class="alert alert-info mt-3">
+        Vous n'avez encore passé aucune commande.
+      </div>
+    {% else %}
+      <div class="p-3 mt-3">
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item w-25 fw-semibold">N° de commande</li>
+          <li class="list-group-item w-25 fw-semibold">Date</li>
+          <li class="list-group-item w-25 fw-semibold">Total</li>
+          <li class="list-group-item w-25 fw-semibold text-center">Actions</li>
+        </ul>
+
+        {% for order in orders %}
+          <ul class="list-group list-group-horizontal">
+            <li class="list-group-item w-25">#{{ order.orderNumber }}</li>
+            <li class="list-group-item w-25">{{ order.orderDate|date('d/m/Y H:i') }}</li>
+            <li class="list-group-item w-25">{{ order.total|number_format(2, ',', ' ') }} €</li>
+            <li class="list-group-item w-25 text-center">
+              <a class="btn btn-sm btn-outline-success"
+                 href="{{ path('app_profile_order_show', { id: order.id }) }}">
+                <i class="bi bi-eye me-1"></i>Voir le détail
+              </a>
+            </li>
+          </ul>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

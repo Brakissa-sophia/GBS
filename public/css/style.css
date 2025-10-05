@@ -80,7 +80,41 @@ h1 {
     background-color: var(--color-sauge);
     box-shadow: 0 0 0 0.2rem rgba(105, 136, 105, 0.25);
 }
-/************************************************/
+/*************SECTION NEWSLETTER***********************************/
+
+/* --- Newsletter Modal (GBS) --- */
+.newsletter-hero {
+  height: 220px;
+  object-fit: cover;
+}
+
+/* Bouton vert sauge */
+.btn-sage {
+  background-color: #698866;
+  border-color: #698866;
+  color: #fff;
+}
+.btn-sage:hover,
+.btn-sage:focus {
+  filter: brightness(0.95);
+  color: #fff;
+}
+
+/* Backdrop flouté pour la modale Bootstrap */
+.modal-backdrop.show {
+  background-color: rgba(255, 254, 254, 0.55);
+  backdrop-filter: blur(15px);
+}
+
+/* Petits ajustements responsive */
+@media (min-width: 768px) {
+  .newsletter-hero { height: 260px; }
+}
+
+.bg-sage {
+  background-color: #698866;
+}
+
 /* Section suggestions de recherche */
 .search-suggestions {
     background-color: #f9f6f4 ;
@@ -831,7 +865,6 @@ footer p {
     border-color: var(--color-sauge);
 }
 
-/* Bouton */
 .submit-btn {
     height: 3rem;
     background-color: var(--color-sauge);
@@ -843,4 +876,21 @@ footer p {
     background-color: var(--color-sauge);
     opacity: 0.8;
     color: white;
+}
+
+
+
+
+
+/* Position des notifications Flasher */
+.fl-wrapper {
+    top: 100px !important;
+    z-index: 99999 !important;
+    max-width: 400px !important;
+}
+
+@media (min-width: 992px) {
+    .fl-wrapper {
+        top: 180px !important;
+    }
 }

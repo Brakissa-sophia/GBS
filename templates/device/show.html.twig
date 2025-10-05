@@ -7,125 +7,145 @@
 {% block body %}
 <h2>{{ device.title|capitalize }}</h2>
 
-<a class="btn btn-outline-dark" href="{{ path('app_device_index') }}">Gestion des appareils</a>
-<a class="btn btn-outline-secondary" href="{{ path('app_device_stock_add_history',{'id':device.id}) }}">Afficher l'historique d'ajout du stock</a>
-<a class="btn btn-outline-warning" href="{{ path('app_device_edit', {'id': device.id}) }}">Modifier l'appareil</a>
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-dark" href="{{ path('app_device_index') }}">
+        <i class="bi bi-arrow-left"></i> Retour
+    </a>
+    <a class="btn btn-secondary" href="{{ path('app_device_stock_add_history',{'id':device.id}) }}">
+        <i class="bi bi-clock-history"></i> Historique
+    </a>
+    <a class="btn btn-warning" href="{{ path('app_device_edit', {'id': device.id}) }}">
+        <i class="bi bi-pencil"></i> Modifier
+    </a>
+</div>
 
-<table class="table table-striped table-hover table-bordered text-center mt-3">
-    <tr>
-        <th class="w-25">ID</th>
-        <td class="w-75">{{ device.id }}</td>
-    </tr>
-    <tr>
-        <th class="w-25">Titre</th>
-        <td class="w-75">{{ device.title|capitalize }}</td>
-    </tr>
-    <tr>
-        <th class="w-25">Prix</th>
-        <td class="w-75">{{ device.price }}€</td>
-    </tr>
-    <tr>
-        <th class="w-25">Description</th>
-        <td class="w-75">
-            {% if device.description %}
-                {{ device.description }}
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Catégorie</th>
-        <td class="w-75">
-            {% if device.category %}
-                <a class="text-decoration-none text-dark" href="{{ path('app_category_show', {'id': device.category.id} ) }}">
-                    {{ device.category.name }}
-                </a>
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Marque</th>
-        <td class="w-75">
-            {% if device.brand %}
-                <a class="text-decoration-none text-dark" href="{{ path('app_brand_show', {'id': device.brand.id} ) }}">
-                    {{ device.brand.title }}
-                </a>
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Type de peau</th>
-        <td class="w-75">
-            {% if device.skinType is not empty %}
-                {% for type in device.skinType %}
-                    <a class="text-decoration-none text-dark" href="{{ path('app_skin_type_show', {'id': type.id}) }}">
-                        {{ type.title }}
-                    </a>{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Composants/Matériaux</th>
-        <td class="w-75 text-start">
-            {% if device.ingredients %}
-                {{ device.ingredients|nl2br }}
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Mode d'emploi</th>
-        <td class="w-75 text-start">
-            {% if device.usageAdvice %}
-                {{ device.usageAdvice|nl2br }}
-            {% else %}
-                <span class="fst-italic text-danger">N.R</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Stock</th>
-        <td class="w-75">
-            {% if device.stock > 0 %}
-                <span class="badge bg-success">{{ device.stock }} unités</span>
-            {% else %}
-                <span class="badge bg-danger">Stock épuisé</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    <tr>
-        <th class="w-25">Images</th>
-        <td class="w-75 text-start">
-            {% if deviceImages is defined and deviceImages is not empty %}
-                {% for imageNumber in 1..4 %}
-                    {% if deviceImages[imageNumber] is defined %}
-                        <div class="mb-1">
-                            <strong>Image {{ imageNumber }} :</strong>
-                            <span class="fst-italic fs-6">{{ deviceImages[imageNumber] }}</span>
-                        </div>
+<div class="row mt-3">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header bg-primary">
+                <h5 class="mb-0 text-dark">Informations générales</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>ID :</strong> {{ device.id }}</p>
+                <p><strong>Titre :</strong> {{ device.title|capitalize }}</p>
+                <p><strong>Prix :</strong> <span class="text-success fw-bold">{{ device.price }}€</span></p>
+                <p><strong>Description :</strong></p>
+                <div class="p-3 bg-light rounded border">
+                    {% if device.description %}
+                        {{ device.description }}
+                    {% else %}
+                        <span class="fst-italic text-danger">Non renseigné</span>
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                <span class="fst-italic text-danger">Aucune image</span>
-            {% endif %}
-        </td>
-    </tr>
-</table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-success">
+                <h5 class="mb-0 text-dark">Détails de l'appareil</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Composants/Matériaux :</strong></p>
+                <div class="p-3 bg-light rounded border mb-3">
+                    {% if device.ingredients %}
+                        {{ device.ingredients|nl2br }}
+                    {% else %}
+                        <span class="fst-italic text-danger">Non renseigné</span>
+                    {% endif %}
+                </div>
+
+                <p><strong>Mode d'emploi :</strong></p>
+                <div class="p-3 bg-light rounded border">
+                    {% if device.usageAdvice %}
+                        {{ device.usageAdvice|nl2br }}
+                    {% else %}
+                        <span class="fst-italic text-danger">Non renseigné</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header bg-info">
+                <h5 class="mb-0 text-dark">Classification</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Catégorie :</strong> 
+                    {% if device.category %}
+                        <a class="text-decoration-none" href="{{ path('app_category_show', {'id': device.category.id} ) }}">
+                            {{ device.category.name }}
+                        </a>
+                    {% else %}
+                        <span class="fst-italic text-danger">Non renseigné</span>
+                    {% endif %}
+                </p>
+
+                <p><strong>Marque :</strong> 
+                    {% if device.brand %}
+                        <a class="text-decoration-none" href="{{ path('app_brand_show', {'id': device.brand.id} ) }}">
+                            {{ device.brand.title }}
+                        </a>
+                    {% else %}
+                        <span class="fst-italic text-danger">Non renseigné</span>
+                    {% endif %}
+                </p>
+
+                <p><strong>Type de peau :</strong></p>
+                {% if device.skinType is not empty %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for type in device.skinType %}
+                            <a class="badge bg-secondary text-decoration-none" href="{{ path('app_skin_type_show', {'id': type.id}) }}">
+                                {{ type.title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="fst-italic text-danger">Non renseigné</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">Stock</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if device.stock > 0 %}
+                    <div class="display-4 text-success fw-bold mb-2">{{ device.stock }}</div>
+                    <p class="text-muted mb-0">unités disponibles</p>
+                    <div class="progress mt-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (device.stock > 100) ? 100 : device.stock }}%;">
+                            En stock
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger mb-0" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div class="mt-2 fw-bold">Stock épuisé</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-secondary">
+                <h5 class="mb-0 text-dark">Images</h5>
+            </div>
+            <div class="card-body">
+                {% if deviceImages is defined and deviceImages is not empty %}
+                    {% for imageNumber in 1..4 %}
+                        {% if deviceImages[imageNumber] is defined %}
+                            <p><strong>Image {{ imageNumber }} :</strong> <span class="fst-italic">{{ deviceImages[imageNumber] }}</span></p>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <span class="fst-italic text-danger">Aucune image</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

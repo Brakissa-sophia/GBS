@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Supprimer mon compte {% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <h2 class="mb-4 text-danger">Supprimer mon compte</h2>
+
+    {# Messages flash #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="bg-white col-md-8 mx-auto p-4 rounded border border-2 border-danger">
+        <div class="alert alert-danger">
+            <h5 class="alert-heading">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Attention : Action irréversible
+            </h5>
+            <hr>
+            <p class="mb-0">
+                <strong>La suppression de votre compte entraînera :</strong>
+            </p>
+            <ul class="mt-2">
+                <li>La suppression définitive de toutes vos informations personnelles</li>
+                <li>La suppression de toutes vos adresses enregistrées</li>
+                <li>La perte de l'accès à l'historique de vos commandes</li>
+                <li>La déconnexion immédiate de votre session</li>
+            </ul>
+            <p class="mb-0 fw-bold text-danger">
+                Cette action est irréversible et ne peut pas être annulée.
+            </p>
+        </div>
+
+        <div class="my-4 p-3 bg-light rounded">
+            <h6 class="mb-3">Informations du compte à supprimer :</h6>
+            <p class="mb-1"><strong>Email :</strong> {{ app.user.email }}</p>
+            <p class="mb-1"><strong>Nom :</strong> {{ app.user.firstName }} {{ app.user.lastName }}</p>
+            <p class="mb-1"><strong>Nombre d'adresses :</strong> {{ app.user.addresses|length }}</p>
+            <p class="mb-0"><strong>Nombre de commandes :</strong> {{ app.user.orders|length }}</p>
+        </div>
+
+        <form method="post" onsubmit="return confirm('Êtes-vous absolument certain(e) de vouloir supprimer votre compte ? Cette action est irréversible.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('app_profile_index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à mon compte
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i>Supprimer définitivement mon compte
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
