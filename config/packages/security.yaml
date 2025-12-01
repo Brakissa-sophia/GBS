@@ -1,39 +1,47 @@
 security:
+    # Hiérarchie des rôles : permet l'héritage des permissions
     role_hierarchy:
-        ROLE_EDITOR: [ROLE_USER]
-        ROLE_ADMIN:  [ROLE_EDITOR, ROLE_USER]
+        ROLE_ADMIN: [ROLE_USER]
 
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        # used to reload user from session & other features (e.g. switch_user)
+        # Utilisé pour recharger l'utilisateur depuis la session
         app_user_provider:
             entity:
                 class: App\Entity\User
                 property: email
+
+
+    
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        
         main:
             lazy: true
+            #  Vérifie que le compte est activé avant la connexion
             user_checker: App\Security\UserChecker
             provider: app_user_provider
             custom_authenticator: App\Security\EmailAuthenticator
+            
             logout:
                 path: app_logout
-                # where to redirect after logout
+                # Redirection après déconnexion
                 target: 'app_home'
 
+            # Fonction "Se souvenir de moi" - activée via checkbox dans le formulaire
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800
+                lifetime: 604800  # 7 jours en secondes
                 path: /
-                # by default, the feature is enabled by checking a checkbox in the
-                # login form, uncomment the following line to always enable it.
-                #always_remember_me: true
+                # L'utilisateur choisit via la checkbox dans le formulaire de connexion
+                # Si la checkbox est cochée, la session persiste 7 jours
+                always_remember_me: false
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -44,9 +52,20 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-         - { path: ^/order/admin, roles: ROLE_ADMIN }
-         - { path: ^/admin, roles: ROLE_ADMIN }
-         - { path: ^/mon-compte, roles: ROLE_USER }
+        # Routes admin (ordre du plus spécifique au plus général)
+        - { path: ^/admin/user, roles: ROLE_ADMIN }
+        - { path: ^/order/admin, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        
+        # Espace client
+        - { path: ^/mon-compte, roles: ROLE_USER }
+        
+        # Routes publiques (inscription, connexion, activation)
+        - { path: ^/inscription, roles: PUBLIC_ACCESS }
+        - { path: ^/activation-compte, roles: PUBLIC_ACCESS }
+        - { path: ^/renvoyer-activation, roles: PUBLIC_ACCESS }
+        - { path: ^/connexion, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

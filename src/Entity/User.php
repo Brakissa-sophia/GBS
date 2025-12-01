@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -42,7 +43,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $lastName = null;
 
+    // Sexe obligatoire (inscription) : masculin / féminin / non-genré
     #[ORM\Column(length: 255)]
+    #[Assert\Choice(choices: ['Homme','Femme','Non genré'], message: 'Veuillez choisir Homme, Femme ou Non genré.')]
     private ?string $sexe = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -53,6 +56,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $token = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private ?bool $isActive = false;
+
+    // Expiration du token en IMMUTABLE 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $tokenExpiresAt = null;
 
     /**
      * @var Collection<int, Address>
@@ -82,10 +92,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
+    // Normalisation en lowercase pour éviter les doublons A@A.com / a@a.com
     public function setEmail(string $email): static
     {
-        $this->email = $email;
-
+        $this->email = strtolower($email);
         return $this;
     }
 
@@ -197,10 +207,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->phone;
     }
 
-    public function setPhone(string $phone): static
+    // Phone facultatif (nullable)
+    public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
-
         return $this;
     }
 
@@ -212,6 +222,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setToken(?string $token): static
     {
         $this->token = $token;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->tokenExpiresAt;
+    }
+
+    public function setTokenExpiresAt(?\DateTimeImmutable $tokenExpiresAt): static
+    {
+        $this->tokenExpiresAt = $tokenExpiresAt;
 
         return $this;
     }

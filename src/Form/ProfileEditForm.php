@@ -75,9 +75,9 @@ class ProfileEditForm extends AbstractType
             ->add('sexe', ChoiceType::class, [
                 'label' => 'Sexe',
                 'choices' => [
-                    'Homme' => 'homme',
-                    'Femme' => 'femme',
-                    'Autre' => 'autre'
+                    'Homme' => 'Homme',
+                    'Femme' => 'Femme',
+                    'Non genré' => 'Non genré'
                 ],
                 'attr' => [
                     'class' => 'form-select'
@@ -100,13 +100,14 @@ class ProfileEditForm extends AbstractType
                 'label' => 'Téléphone',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Ex: 06 12 34 56 78'
+                    'placeholder' => 'Ex: 0612345678',
+                    'maxlength' => 10  // ← Limite la saisie à 10 caractères
                 ],
                 'required' => false,
                 'constraints' => [
                     new Regex([
-                        'pattern' => '/^[0-9\s\.\-\+\(\)]{10,20}$/',
-                        'message' => 'Le numéro de téléphone n\'est pas valide'
+                        'pattern' => '/^[0-9]{10}$/',  // ← Exactement 10 chiffres
+                        'message' => 'Le numéro de téléphone doit contenir exactement 10 chiffres'
                     ])
                 ]
             ]);

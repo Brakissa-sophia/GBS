@@ -28,8 +28,8 @@
                     <img class="img-fluid d-block w-100" src="{{ asset('images/carou1.png') }}" alt="">
                 </picture>
                 <div class="carousel-caption d-flex flex-column text-start w-50">
-                    <h2>Game Création : Design Environemental</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, iure ipsum numquam excepturi minus nisi vitae atque magni totam delectus.</p>
+                    <h2 class ="text-dark"> La Beauté Pour Toutes </h2>
+                    <p class ="text-dark"> Découvrez une routine skincare pensée pour chaque peau, chaque couleur, chaque sourire.</p>
                 </div>
             </div>
             
@@ -41,8 +41,8 @@
                     <img class="img-fluid d-block w-100" src="{{ asset('images/carou5.png') }}" alt="">
                 </picture>
                 <div class="carousel-caption d-flex flex-column text-start w-50">
-                    <h2>Game Création : PixelArt, Artistique conception</h2>
-                    <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores quidem quasi recusandae temporibus dolorem porro nihil, vel exercitationem.</p>
+                    <h2 class ="text-dark"> La Skincare C'est Pour Tout Le Monde </h2>
+                    <p class ="text-dark">Un moment de soin partagé, où bien-être rime avec simplicité et complicité.</p>
                 </div>
             </div>
             
@@ -54,8 +54,8 @@
                     <img class="img-fluid d-block w-100" src="{{ asset('images/carou2.png') }}" alt="">
                 </picture>
                 <div class="carousel-caption d-flex flex-column text-start w-50">
-                    <h2>Game Création : Art et Level Design</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae sequi voluptatem blanditiis, aliquam hic dolore.</p>
+                    <h2 class ="text-dark">Rituels Coréens, Eclat Instantané</h2>
+                    <p class ="text-dark"> Des gestes simples et efficaces pour réveiller l’éclat naturel de votre peau.</p>
                 </div>
             </div>
             
@@ -67,8 +67,8 @@
                     <img class="img-fluid d-block w-100" src="{{ asset('images/carou10.png') }}" alt="">
                 </picture>
                 <div class="carousel-caption d-flex flex-column text-start w-50">
-                    <h2>Game Création : Conception Props</h2>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit perferendis repellendus nam incidunt maxime dicta provident.</p>
+                    <h2 class ="text-dark"> Les Outils Essentiels Glow Beauty Skin </h2>
+                    <p class ="text-dark">Boostez votre routine grâce à des accessoires conçus pour apaiser, sculpter et illuminer.</p>
                 </div>
             </div>
 
@@ -78,9 +78,9 @@
                     <source srcset="{{ asset('images/carou11.jpg') }}" media="(min-width:768px)">
                     <img class="img-fluid d-block w-100" src="{{ asset('images/carou11.jpg') }}" alt="">
                 </picture>
-                <div class="carousel-caption d-flex flex-column text-end w-50">
-                    <h2>Game Création : Conception Props</h2>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit perferendis repellendus nam incidunt maxime dicta provident.</p>
+                <div class="carousel-caption d-flex flex-column text-start w-50">
+                    <h2 class ="text-dark">Soin Expert à Domicile</h2>
+                    <p class ="text-dark"> Offrez à votre peau un moment de détente profonde inspiré des instituts coréens. </p>
                 </div>
             </div>
         </div>
@@ -95,17 +95,18 @@
         </button>
     </section>
 
-    <!-- Section Hero -->
-    <section class="gbs_hero">
-        <div class="hero-bg row">
-            <figure class="col-lg-6 py-lg-4">
+<!-- Section Hero -->
+<section class="gbs_hero">
+    <div class="hero-bg">
+        <h2 class="text-center py-3">À propos Glow Beauty Skin</h2>
+        <div class="hero-content-wrapper">
+            <figure class="hero-image-container">
                 <picture class="d-block">
-                    <img class="hero-img img-fluid w-100 rounded shadow" src="{{ asset('images/imgp2.jpg') }}" alt="Soins Glow Beauty Skin"> 
+                    <img class="hero-img img-fluid rounded shadow" src="{{ asset('images/imgp2.jpg') }}" alt="Soins Glow Beauty Skin"> 
                 </picture> 
             </figure> 
-            <div class="col-lg-6 gbs-hero-text p-1 py-lg-4">
-                <h2 class="py-2">À propos Glow Beauty Skin</h2>
-                <p class="fs-0.90 mb-1 mb-sm-2">
+            <div class="hero-text-container">
+                <p class="hero-description">
                     Chez <em>Glow Beauty Skin</em>, nous croyons que chaque peau mérite attention, douceur et lumière, quelle que soit son origine ou son histoire.
                     Offrez à votre peau l'excellence de la skincare coréenne.
                     Notre boutique en ligne sélectionne avec rigueur les meilleurs soins venus de Corée, réputés pour leur efficacité, leur douceur et leurs formules innovantes.
@@ -118,7 +119,8 @@
                 </p>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Section 10 étapes - Mobile First: 3-3-3-1 | Desktop: 4-5-1 -->
     <section class="container-fluid py-5 text-center etapes-soin-conteneur">

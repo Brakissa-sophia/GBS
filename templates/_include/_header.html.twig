@@ -46,9 +46,11 @@
                             <li><hr class="dropdown-divider m-lg-0"></li>
                             <li><a class="dropdown-item fw-bold py-lg-2 fw-bold" href="{{ path('app_profile_index') }}">Mon compte</a></li>
                             <li><a class="dropdown-item" href="{{ path('app_order') }}">Mes commandes</a></li>
-                            <li><a class="dropdown-item" href="{{ path('app_addresse') }}">Mes adresses</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_address') }}">Mes adresses</a></li>
                             <li><a class="dropdown-item" href="{{ path('app_setting') }}">Paramètres</a></li>
+                            {% if is_granted('ROLE_ADMIN') %}
                             <li><a class="dropdown-item" href="{{ path('app_admin') }}">Back office</a></li>
+                              {% endif %}
                             <li><hr class="dropdown-divider m-lg-0"></li>
                             <li><a class="dropdown-item text-danger py-lg-2" href="{{ path('app_logout') }}">Se déconnecter</a></li>
                         </ul>

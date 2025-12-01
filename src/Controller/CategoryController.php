@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
-use App\Form\CategoryForm;
+use App\Entity\Category; // Import de l'entité Category
+use App\Form\CategoryForm; // Import du formulaire pour créer/éditer une catégorie
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,6 +34,8 @@ final class CategoryController extends AbstractController
             $entityManager->persist($category);
             $entityManager->flush();
             $this->addFlash('success','La catégorie "' . $category->getName() . '" a bien été ajoutée');
+            // Concatène du texte avec la méthode getName() de l'entité pour afficher un message personnalisé
+            // $category->getName() : appelle la méthode getter pour récupérer le nom de la catégorie
             return $this->redirectToRoute('app_category_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -74,13 +76,14 @@ final class CategoryController extends AbstractController
  #[Route('/{id}/delete', name: 'app_category_delete', methods: ['POST'])]
 public function delete(Request $request, Category $category, EntityManagerInterface $entityManager): Response
 {
-    dump('test');
+    dump('test'); // Fonction Symfony pour déboguer : affiche la valeur dans la barre de debug (équivalent de var_dump mais plus propre)
+    
     if ($this->isCsrfTokenValid('delete'.$category->getId(), $request->getPayload()->getString('_token'))) {
         $entityManager->remove($category);
         $entityManager->flush();
         $this->addFlash('success','La catégorie "' . $category->getName() . '" a bien été supprimée');
-    } else {
-        $this->addFlash('error', 'Vous ne pouvez pas supprimer cette catégorie');
+    } else { // Bloc else : exécuté si le token CSRF est invalide
+        $this->addFlash('error', 'Vous ne pouvez pas supprimer cette catégorie'); // Message flash de type 'error'
     }
 
     return $this->redirectToRoute('app_category_index', [], Response::HTTP_SEE_OTHER);

@@ -20,7 +20,7 @@ final class CartController extends AbstractController
         private readonly PromoCodeRepository $promoCodeRepository
     ){}
 
-    #[Route(name: 'app_cart')]
+    #[Route(name: 'app_cart', methods: ['GET'])]
     public function index(SessionInterface $session): Response
     {
         $cart = $session->get('cart', []);
@@ -99,12 +99,27 @@ final class CartController extends AbstractController
     #[Route('/add/{type}/{id}', name: 'app_cart_add', methods: ['GET'], requirements: ['type' => 'product|device'])]
     public function addToCart(string $type, int $id, Request $request, SessionInterface $session): Response
     {
+        // Récupérer l'entité selon le type
+        $item = $type === 'product' 
+            ? $this->productRepository->find($id)
+            : $this->deviceRepository->find($id);
+        
+        // Vérifier que l'article existe
+        if (!$item) {
+            flash()->error('Produit introuvable.');
+            return $this->redirectToRoute('app_cart');
+        }
+        
+        // Ajouter au panier
         $cart = $session->get('cart', []);
         $itemKey = $type . '_' . $id;
         $quantity = max(1, (int) $request->query->get('quantity', 1));
         
         $cart[$itemKey] = ($cart[$itemKey] ?? 0) + $quantity;
         $session->set('cart', $cart);
+        
+        // Message flash avec le nom du produit
+        flash()->success('Vous venez d\'ajouter "' . $item->getTitle() . '" à votre panier');
 
         return $this->redirectToRoute('app_cart');
     }
@@ -127,7 +142,7 @@ final class CartController extends AbstractController
         return $this->redirectToRoute('app_cart');
     }
 
-    #[Route('/remove/{type}/{id}', name: 'app_cart_remove', methods: ['GET'], requirements: ['type' => 'product|device'])]
+    #[Route('/remove/{type}/{id}', name: 'app_cart_remove', methods: ['GET', 'POST'], requirements: ['type' => 'product|device'])]
     public function removeFromCart(string $type, int $id, SessionInterface $session): Response
     {
         $cart = $session->get('cart', []);
@@ -149,7 +164,7 @@ final class CartController extends AbstractController
     public function removePromo(SessionInterface $session): Response
     {
         $session->remove('promo_code');
-        $this->addFlash('info', 'Code promo retiré.');
+        flash()->info('Code promo retiré.');
         return $this->redirectToRoute('app_cart');
     }
 }

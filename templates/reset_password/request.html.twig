@@ -1,35 +1,46 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Mot de passe oublié {% endblock %}
- {% block description %}{{ parent() }} | Mot de passe oublié  {% endblock %}
- {% block keywords %}{{ parent() }} | Mot de passe oublié   {% endblock %}
-
+{% block title %}{{ parent() }} | Mot de passe oublié {% endblock %}
+{% block description %}{{ parent() }} | Mot de passe oublié {% endblock %}
+{% block keywords %}{{ parent() }} | Mot de passe oublié {% endblock %}
 
 {% block body %}
- 
 <div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
     <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
-        <form method="post">
-
-    {% for flash_error in app.flashes('reset_password_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-    <h3 class="mb-4">Mot de passe oublié</h3>
-
-    {{ form_start(requestForm) }}
-        {{ form_row(requestForm.email) }}
-        <div>
-            <small class="text-muted">
-                Entrez votre adresse e-mail, et nous vous enverrons un
-                lien pour réinitialiser votre mot de passe.
         
-            </small>
-        </div>
+        {# Affichage des messages flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show rounded-3 mb-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
 
-        <button class="submit-btn w-100 rounded-2 fw-semibold my-3" type="submit">Envoyer un email </button>
-    {{ form_end(requestForm) }}
+        <h3 class="mb-4">Mot de passe oublié</h3>
 
-        </form>
+        {{ form_start(requestForm) }}
+            {{ form_row(requestForm.email, {
+                'label': 'Adresse email',
+                'attr': {'class': 'form-control form-control-lg bg-light border-1 rounded-2', 'placeholder': 'votre@email.com'}
+            }) }}
+            
+            <div class="mb-3">
+                <small class="text-muted">
+                    Entrez votre adresse e-mail, et nous vous enverrons un
+                    lien pour réinitialiser votre mot de passe.
+                </small>
+            </div>
+
+            <button class="submit-btn w-100 rounded-2 fw-semibold my-3" type="submit">
+                Envoyer l'email de réinitialisation
+            </button>
+        {{ form_end(requestForm) }}
+
+        <p class="text-center text-muted small mb-0 mt-3">
+            <a href="{{ path('app_login') }}" class="text-primary text-decoration-none">Retour à la connexion</a>
+        </p>
     </div>
 </div>
 {% endblock %}

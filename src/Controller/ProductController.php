@@ -28,38 +28,31 @@ final class ProductController extends AbstractController
     {
         $products = $productRepository->findAll();
 
-       return $this->render('product/index.html.twig', [
-        'products' => $products
-       ]);
+        return $this->render('product/index.html.twig', [
+            'products' => $products
+        ]);
     }
-
-
 
     #[Route('/ajouter', name:'app_product_new')]
     public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $product = new Product();
-        dump($product);
-
+       
         $form = $this->createForm(ProductForm::class, $product);
-        
-        $form->handleRequest($request);
-        dump($form);
+        $form->handleRequest($request); 
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            // 1. Sauvegarder d'abord le produit pour avoir les relations (brand, category)
             $entityManager->persist($product);
             $entityManager->flush();
 
-            // 2. Traiter les 4 images avec le système de nommage personnalisé
             $this->handleImageUploads($form, $product, $slugger);
 
-            // 3. Historique de stock 
             $stockHistory = new AddProductHistory();
             $stockHistory->setQte($product->getStock());
             $stockHistory->setProduct($product);
             $stockHistory->setCreatedAt(new \DateTimeImmutable());
+            
             $entityManager->persist($stockHistory);
             $entityManager->flush();
 
@@ -73,14 +66,22 @@ final class ProductController extends AbstractController
         ]);
     }
 
-    /**
-     * Méthode privée pour gérer les uploads d'images avec unicité garantie
-     */
     private function handleImageUploads($form, Product $product, SluggerInterface $slugger): void
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/products';
 
-        // Mapping des marques vers leurs abréviations
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/jpg', 
+            'image/png',
+            'image/webp',
+            'image/gif'
+        ];
+        
+        $maxFileSize = 5 * 1024 * 1024;
+
         $brandAbbreviations = [
             'Anua' => 'Anu',
             'MediCube' => 'Medi',
@@ -88,7 +89,6 @@ final class ProductController extends AbstractController
             'Beauty of Jason' => 'Beau'
         ];
 
-        // Mapping des catégories vers leurs abréviations
         $categoryAbbreviations = [
             'démaquillant' => 'Déma',
             'nettoyant' => 'Nett',
@@ -103,12 +103,10 @@ final class ProductController extends AbstractController
             'tonique' => 'Toni'
         ];
 
-        // Récupérer les informations du produit
         $brandName = $product->getBrand() ? $product->getBrand()->getTitle() : 'Unknown';
         $categoryName = $product->getCategory() ? strtolower($product->getCategory()->getName()) : 'unknown';
         $productTitle = $slugger->slug($product->getTitle())->toString();
 
-        // Obtenir les abréviations
         $brandAbbr = $brandAbbreviations[$brandName] ?? substr($brandName, 0, 4);
         $categoryAbbr = $categoryAbbreviations[$categoryName] ?? substr($categoryName, 0, 4);
 
@@ -122,45 +120,69 @@ final class ProductController extends AbstractController
             if ($imageFile) {
                 $imageNumber = $index + 1;
                 
-                // UNICITÉ GARANTIE : ID produit + timestamp + uniqid
+                if ($imageFile->getSize() > $maxFileSize) {
+                    flash()->warning('Image ' . $imageNumber . ' : Fichier trop volumineux (max 5 Mo)');
+                    continue;
+                }
+                
+                $mimeType = $imageFile->getMimeType();
+                if (!in_array($mimeType, $allowedMimeTypes)) {
+                    flash()->warning('Image ' . $imageNumber . ' : Type de fichier non autorisé. Seules les images sont acceptées.');
+                    continue;
+                }
+                
+                $originalExtension = strtolower($imageFile->getClientOriginalExtension());
+                if (!in_array($originalExtension, $allowedExtensions)) {
+                    flash()->warning('Image ' . $imageNumber . ' : Extension non autorisée. Extensions acceptées : jpg, jpeg, png, webp, gif');
+                    continue;
+                }
+                
+                $safeExtension = $originalExtension;
+                
+                $imageInfo = @getimagesize($imageFile->getPathname());
+                if ($imageInfo === false) {
+                    flash()->warning('Image ' . $imageNumber . ' : Le fichier n\'est pas une image valide.');
+                    continue;
+                }
+                
                 $productId = $product->getId();
                 $timestamp = time();
                 $uniqueId = uniqid();
                 
-                // Format: Marque-Catégorie-NomProduit-IDProduit-NuméroImage-Timestamp-UniqueID.extension
-                // Exemple: Anu-Déma-Nettoyant-Doux-123-1-1691234567-64f8a2b3c.jpg
-                $newFilename = $brandAbbr . '-' . $categoryAbbr . '-' . $productTitle . '-' . $productId . '-' . $imageNumber . '-' . $timestamp . '-' . $uniqueId . '.' . $imageFile->guessExtension();
+                $newFilename = $brandAbbr . '-' . 
+                               $categoryAbbr . '-' . 
+                               $productTitle . '-' . 
+                               $productId . '-' . 
+                               $imageNumber . '-' . 
+                               $timestamp . '-' . 
+                               $uniqueId . '.' . 
+                               $safeExtension;
 
                 try {
                     $imageFile->move($uploadDirectory, $newFilename);
                     $uploadedCount++;
                     
                 } catch (FileException $e) {
-                    $this->addFlash('warning', 'Erreur lors de l\'upload de l\'image ' . $imageNumber . ': ' . $e->getMessage());
+                    flash()->warning('Erreur lors de l\'upload de l\'image ' . $imageNumber . ': ' . $e->getMessage());
                 }
             }
         }
         
         if ($uploadedCount > 0) {
-            $this->addFlash('success', $uploadedCount . ' image(s) uploadée(s) avec succès');
+            flash()->success($uploadedCount . ' image(s) uploadée(s) avec succès');
         }
     }
 
-    /**
-     * Méthode pour récupérer les images d'un produit
-     */
     public function getProductImages(int $productId): array
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/products';
         $images = [];
         
-        // Chercher les images par numéro (1, 2, 3, 4)
         for ($i = 1; $i <= 4; $i++) {
             $pattern = $uploadDirectory . '/*-' . $productId . '-' . $i . '-*.*';
             $files = glob($pattern);
             
             if (!empty($files)) {
-                // Prendre le premier fichier trouvé (il ne devrait y en avoir qu'un)
                 $images[$i] = basename($files[0]);
             }
         }
@@ -168,31 +190,20 @@ final class ProductController extends AbstractController
         return $images;
     }
 
-    /**
-     * Compte le nombre d'images d'un produit
-     */
     public function countProductImages(int $productId): int
     {
         return count($this->getProductImages($productId));
     }
 
-    /**
-     * Récupère l'image principale (image1) d'un produit
-     */
     public function getMainProductImage(int $productId): ?string
     {
         $images = $this->getProductImages($productId);
         return $images[1] ?? null;
     }
 
-    /**
-     * Méthode pour supprimer les images d'un produit
-     */
     private function deleteProductImages(int $productId): int
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/products';
-        
-        // Chercher tous les fichiers qui contiennent l'ID du produit
         $pattern = $uploadDirectory . '/*-' . $productId . '-*.*';
         $files = glob($pattern);
         $deletedCount = 0;
@@ -210,12 +221,11 @@ final class ProductController extends AbstractController
     #[Route('/fiche/{id}', name:'app_product_show')]
     public function show(Product $product): Response
     {
-        // Récupérer les images du produit
         $productImages = $this->getProductImages($product->getId());
         
         return $this->render('product/show.html.twig', [
             'product' => $product,
-            'productImages' => $productImages // Ajouter les images
+            'productImages' => $productImages
         ]);
     }
 
@@ -223,10 +233,8 @@ final class ProductController extends AbstractController
     public function edit(Product $product, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $existingImages = $this->getProductImages($product->getId());
-        
         $form = $this->createForm(ProductForm::class, $product);
         
-        // 🆕 PRÉ-REMPLIR LES CHAMPS AVEC LES DONNÉES EXISTANTES
         $form->get('ingredients')->setData($product->getIngredients());
         $form->get('usageAdvice')->setData($product->getUsageAdvice());
         
@@ -234,33 +242,30 @@ final class ProductController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            // 🆕 RÉCUPÉRER ET SAUVEGARDER LES DONNÉES DES CHAMPS NON MAPPÉS
             $product->setIngredients($form->get('ingredients')->getData());
             $product->setUsageAdvice($form->get('usageAdvice')->getData());
             
             $imageFields = ['image1', 'image2', 'image3', 'image4'];
             $hasNewImages = false;
             
-            // 🔥 Pour chaque champ d'image, supprimer l'ancienne si une nouvelle est uploadée
             foreach ($imageFields as $index => $fieldName) {
                 $imageFile = $form->get($fieldName)->getData();
                 
                 if ($imageFile) {
                     $hasNewImages = true;
                     $imageNumber = $index + 1;
-                    
-                    // Supprimer l'ancienne image de ce numéro spécifique
                     $this->deleteSpecificProductImage($product->getId(), $imageNumber);
                 }
             }
             
             if ($hasNewImages) {
                 $this->handleImageUploads($form, $product, $slugger);
-                $this->addFlash('success', 'Les images ont été mises à jour avec succès');
+                flash()->success('Les images ont été mises à jour avec succès');
             }
             
             $entityManager->flush();
-            $this->addFlash('success','Le produit "' . $product->getTitle() . '" a bien été modifié');
+            flash()->success('Le produit "' . $product->getTitle() . '" a bien été modifié');
+            
             return $this->redirectToRoute('app_product_index');
         }
 
@@ -271,9 +276,6 @@ final class ProductController extends AbstractController
         ]);
     }
 
-    /**
-     * Supprimer une image spécifique par numéro
-     */
     private function deleteSpecificProductImage(int $productId, int $imageNumber): bool
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/products';
@@ -290,23 +292,26 @@ final class ProductController extends AbstractController
         return false;
     }
 
-    #[Route('/supprimer/{id}', name:'app_product_delete')]
-    public function delete(Product $product, EntityManagerInterface $entityManager): Response
+    #[Route('/supprimer/{id}', name:'app_product_delete', methods: ['POST'])]
+    public function delete(Product $product, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('delete_product_' . $product->getId(), $request->request->get('_token'))) {
+            flash()->error('Token CSRF invalide. Suppression annulée.');
+            return $this->redirectToRoute('app_product_index');
+        }
+
         $productTitle = $product->getTitle();
         $productId = $product->getId();
         
-        // Supprimer les images associées au produit AVANT de supprimer le produit
         $deletedImagesCount = $this->deleteProductImages($productId);
         
-        // Supprimer le produit de la base de données
         $entityManager->remove($product);
         $entityManager->flush();
         
         if ($deletedImagesCount > 0) {
-            $this->addFlash('success', 'Le produit "' . $productTitle . '" et ses ' . $deletedImagesCount . ' image(s) ont bien été supprimés');
+            flash()->success('Le produit "' . $productTitle . '" et ses ' . $deletedImagesCount . ' image(s) ont bien été supprimés');
         } else {
-            $this->addFlash('success', 'Le produit "' . $productTitle . '" a bien été supprimé');
+            flash()->success('Le produit "' . $productTitle . '" a bien été supprimé');
         }
         
         return $this->redirectToRoute('app_product_index');
@@ -316,33 +321,34 @@ final class ProductController extends AbstractController
     public function addStock($id, EntityManagerInterface $entityManager, Request $request, ProductRepository $productRepository): Response
     {
         $product = $productRepository->find($id);
-        
         $addStock = new AddProductHistory();
+        
         $form = $this->createForm(AddProductHistoryForm::class,$addStock);
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
             if($addStock->getQte()>0){
-                // Mettre à jour le stock
                 $newQte = $product->getStock() + $addStock->getQte();
                 $product->setStock($newQte);
 
                 $addStock->setCreatedAt (new \DateTimeImmutable());
                 $addStock->setProduct(($product));
+                
                 $entityManager->persist($addStock);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Le stock du produit "' . $product->getTitle() . '" a bien été modifié');
+                flash()->success('Le stock du produit "' . $product->getTitle() . '" a bien été modifié');
+                
                 return $this->redirectToRoute('app_product_index');
             } else {
-                $this->addFlash('danger', 'Le stock ne doit pas être inférieur à 0');
+                flash()->error('Le stock ne doit pas être inférieur à 0');
                 return $this->redirectToRoute('app_product_stock_add', ['id' => $product->getId()]);
             }
         }
 
         return $this->render('product/addStock.html.twig', [
             'form' => $form->createView(),
-            'product' => $product  
+            'product' => $product
         ]);
     }
 
@@ -350,6 +356,7 @@ final class ProductController extends AbstractController
     public function productAddHistory($id, ProductRepository $productRepository, AddProductHistoryRepository $addProductHistoryRepository): Response
     {
         $product = $productRepository->find($id);
+        
         $productAddedHistory= $addProductHistoryRepository->findBy(
             ['product' => $product],
             ['id' => 'DESC']

@@ -1,19 +1,44 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} |Réinitialiser{% endblock %}
- {% block description %}{{ parent() }} |Réinitialiser{% endblock %}
- {% block keywords %}{{ parent() }} |Réinitialiser{% endblock %}
-
+{% block title %}{{ parent() }} | Réinitialiser le mot de passe {% endblock %}
+{% block description %}{{ parent() }} | Réinitialiser le mot de passe {% endblock %}
+{% block keywords %}{{ parent() }} | Réinitialiser le mot de passe {% endblock %}
 
 {% block body %}
-    <h3 class="mb-3">Réinitialiser votre mot de passe</h3>
-  <div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
-     <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
+<div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
+    <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
+        
+        {# Affichage des messages flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show rounded-3 mb-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
 
-    {{ form_start(resetForm) }}
-        {{ form_row(resetForm.plainPassword) }}
-        <button class="submit-btn w-100 rounded-2 fw-semibold my-3">Réinitialiser</button>
-    {{ form_end(resetForm) }}
+        <h3 class="mb-4">Réinitialiser votre mot de passe</h3>
 
+        {{ form_start(resetForm) }}
+            {{ form_row(resetForm.plainPassword.first, {
+                'label': 'Nouveau mot de passe',
+                'attr': {'class': 'form-control form-control-lg bg-light border-1 rounded-2'}
+            }) }}
+            
+            {{ form_row(resetForm.plainPassword.second, {
+                'label': 'Confirmer le mot de passe',
+                'attr': {'class': 'form-control form-control-lg bg-light border-1 rounded-2'}
+            }) }}
+
+            <button class="submit-btn w-100 rounded-2 fw-semibold my-3" type="submit">
+                Réinitialiser le mot de passe
+            </button>
+        {{ form_end(resetForm) }}
+
+        <p class="text-center text-muted small mb-0 mt-3">
+            <a href="{{ path('app_login') }}" class="text-primary text-decoration-none">Retour à la connexion</a>
+        </p>
     </div>
+</div>
 {% endblock %}

@@ -40,12 +40,10 @@ final class DeviceController extends AbstractController
         $device = new Device();
 
         $form = $this->createForm(DeviceForm::class, $device);
-        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            // ✅ Force des valeurs par défaut si NULL
             if ($device->getIngredients() === null) {
                 $device->setIngredients('');
             }
@@ -53,14 +51,11 @@ final class DeviceController extends AbstractController
                 $device->setUsageAdvice('');
             }
             
-            // 1. Sauvegarder d'abord l'outil de beauté pour avoir les relations (brand, category)
             $entityManager->persist($device);
             $entityManager->flush();
 
-            // 2. Traiter les 4 images avec le système de nommage personnalisé
             $this->handleImageUploads($form, $device, $slugger);
 
-            // 3. Historique de stock
             $stockHistory = new AddDeviceHistory();
             $stockHistory->setQte($device->getStock());
             $stockHistory->setDevice($device);
@@ -68,7 +63,7 @@ final class DeviceController extends AbstractController
             $entityManager->persist($stockHistory);
             $entityManager->flush();
 
-            $this->addFlash('success','L\'outil de beauté "' . $device->getTitle() . '" a bien été ajouté avec ses images');
+            flash()->success('L\'outil de beauté "' . $device->getTitle() . '" a bien été ajouté avec ses images');
 
             return $this->redirectToRoute('app_device_index');
         }
@@ -78,14 +73,22 @@ final class DeviceController extends AbstractController
         ]);
     }
 
-    /**
-     * Méthode privée pour gérer les uploads d'images avec unicité garantie
-     */
     private function handleImageUploads($form, Device $device, SluggerInterface $slugger): void
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
 
-        // Mapping des marques vers leurs abréviations
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/jpg', 
+            'image/png',
+            'image/webp',
+            'image/gif'
+        ];
+        
+        $maxFileSize = 5 * 1024 * 1024;
+
         $brandAbbreviations = [
             'Anua' => 'Anu',
             'MediCube' => 'Medi',
@@ -93,7 +96,6 @@ final class DeviceController extends AbstractController
             'Beauty of Jason' => 'Beau'
         ];
 
-        // Mapping des catégories vers leurs abréviations pour outils de beauté
         $categoryAbbreviations = [
             'appareils électroniques' => 'Elec',
             'accessoires' => 'Acce',
@@ -101,12 +103,10 @@ final class DeviceController extends AbstractController
             'appareils de massage' => 'Mass'
         ];
 
-        // Récupérer les informations de l'outil de beauté
         $brandName = $device->getBrand() ? $device->getBrand()->getTitle() : 'Unknown';
         $categoryName = $device->getCategory() ? strtolower($device->getCategory()->getName()) : 'unknown';
         $deviceTitle = $slugger->slug($device->getTitle())->toString();
 
-        // Obtenir les abréviations
         $brandAbbr = $brandAbbreviations[$brandName] ?? substr($brandName, 0, 4);
         $categoryAbbr = $categoryAbbreviations[$categoryName] ?? substr($categoryName, 0, 4);
 
@@ -120,44 +120,62 @@ final class DeviceController extends AbstractController
             if ($imageFile) {
                 $imageNumber = $index + 1;
                 
-                // UNICITÉ GARANTIE : ID device + timestamp + uniqid
+                if ($imageFile->getSize() > $maxFileSize) {
+                    flash()->warning('Image ' . $imageNumber . ' : Fichier trop volumineux (max 5 Mo)');
+                    continue;
+                }
+                
+                $mimeType = $imageFile->getMimeType();
+                if (!in_array($mimeType, $allowedMimeTypes)) {
+                    flash()->warning('Image ' . $imageNumber . ' : Type de fichier non autorisé. Seules les images sont acceptées.');
+                    continue;
+                }
+                
+                $originalExtension = strtolower($imageFile->getClientOriginalExtension());
+                if (!in_array($originalExtension, $allowedExtensions)) {
+                    flash()->warning('Image ' . $imageNumber . ' : Extension non autorisée. Extensions acceptées : jpg, jpeg, png, webp, gif');
+                    continue;
+                }
+                
+                $safeExtension = $originalExtension;
+                
+                $imageInfo = @getimagesize($imageFile->getPathname());
+                if ($imageInfo === false) {
+                    flash()->warning('Image ' . $imageNumber . ' : Le fichier n\'est pas une image valide.');
+                    continue;
+                }
+                
                 $deviceId = $device->getId();
                 $timestamp = time();
                 $uniqueId = uniqid();
                 
-                // Format: Marque-Catégorie-NomOutil-IDDevice-NuméroImage-Timestamp-UniqueID.extension
-                $newFilename = $brandAbbr . '-' . $categoryAbbr . '-' . $deviceTitle . '-' . $deviceId . '-' . $imageNumber . '-' . $timestamp . '-' . $uniqueId . '.' . $imageFile->guessExtension();
+                $newFilename = $brandAbbr . '-' . $categoryAbbr . '-' . $deviceTitle . '-' . $deviceId . '-' . $imageNumber . '-' . $timestamp . '-' . $uniqueId . '.' . $safeExtension;
 
                 try {
                     $imageFile->move($uploadDirectory, $newFilename);
                     $uploadedCount++;
                     
                 } catch (FileException $e) {
-                    $this->addFlash('warning', 'Erreur lors de l\'upload de l\'image ' . $imageNumber . ': ' . $e->getMessage());
+                    flash()->warning('Erreur lors de l\'upload de l\'image ' . $imageNumber . ': ' . $e->getMessage());
                 }
             }
         }
         
         if ($uploadedCount > 0) {
-            $this->addFlash('success', $uploadedCount . ' image(s) uploadée(s) avec succès');
+            flash()->success($uploadedCount . ' image(s) uploadée(s) avec succès');
         }
     }
 
-    /**
-     * Méthode pour récupérer les images d'un outil de beauté
-     */
     public function getDeviceImages(int $deviceId): array
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
         $images = [];
         
-        // Chercher les images par numéro (1, 2, 3, 4)
         for ($i = 1; $i <= 4; $i++) {
             $pattern = $uploadDirectory . '/*-' . $deviceId . '-' . $i . '-*.*';
             $files = glob($pattern);
             
             if (!empty($files)) {
-                // Prendre le premier fichier trouvé (il ne devrait y en avoir qu'un)
                 $images[$i] = basename($files[0]);
             }
         }
@@ -168,7 +186,6 @@ final class DeviceController extends AbstractController
     #[Route('/{id}', name: 'app_device_show')]
     public function showDevice(Device $device): Response
     {
-        // Récupérer les images de l'outil de beauté
         $deviceImages = $this->getDeviceImages($device->getId());
         
         return $this->render('device/show.html.twig', [
@@ -183,8 +200,6 @@ final class DeviceController extends AbstractController
         $existingImages = $this->getDeviceImages($device->getId());
         
         $form = $this->createForm(DeviceForm::class, $device);
-    
-        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -192,26 +207,23 @@ final class DeviceController extends AbstractController
             $imageFields = ['image1', 'image2', 'image3', 'image4'];
             $hasNewImages = false;
             
-            // Pour chaque champ d'image, supprimer l'ancienne si une nouvelle est uploadée
             foreach ($imageFields as $index => $fieldName) {
                 $imageFile = $form->get($fieldName)->getData();
                 
                 if ($imageFile) {
                     $hasNewImages = true;
                     $imageNumber = $index + 1;
-                    
-                    // Supprimer l'ancienne image de ce numéro spécifique
                     $this->deleteSpecificDeviceImage($device->getId(), $imageNumber);
                 }
             }
             
             if ($hasNewImages) {
                 $this->handleImageUploads($form, $device, $slugger);
-                $this->addFlash('success', 'Les images ont été mises à jour avec succès');
+                flash()->success('Les images ont été mises à jour avec succès');
             }
             
             $entityManager->flush();
-            $this->addFlash('success','L\'outil de beauté "' . $device->getTitle() . '" a bien été modifié');
+            flash()->success('L\'outil de beauté "' . $device->getTitle() . '" a bien été modifié');
             return $this->redirectToRoute('app_device_index');
         }
 
@@ -222,9 +234,6 @@ final class DeviceController extends AbstractController
         ]);
     }
 
-    /**
-     * Supprimer une image spécifique par numéro
-     */
     private function deleteSpecificDeviceImage(int $deviceId, int $imageNumber): bool
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
@@ -241,13 +250,17 @@ final class DeviceController extends AbstractController
         return false;
     }
 
-    #[Route('/{id}/delete', name: 'app_device_delete')]
-    public function delete(Device $device, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete', name: 'app_device_delete', methods: ['POST'])]
+    public function delete(Device $device, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('delete_device_' . $device->getId(), $request->request->get('_token'))) {
+            flash()->error('Token CSRF invalide. Suppression annulée.');
+            return $this->redirectToRoute('app_device_index');
+        }
+
         $deviceTitle = $device->getTitle();
         $deviceId = $device->getId();
         
-        // 1. Supprimer d'abord TOUT l'historique lié à cet appareil
         $historyEntries = $device->getAddDeviceHistories();
         $deletedHistoryCount = 0;
         foreach ($historyEntries as $history) {
@@ -255,14 +268,11 @@ final class DeviceController extends AbstractController
             $deletedHistoryCount++;
         }
         
-        // 2. Supprimer les images associées à l'outil de beauté AVANT de supprimer l'outil
         $deletedImagesCount = $this->deleteDeviceImages($deviceId);
         
-        // 3. Supprimer l'outil de beauté de la base de données
         $entityManager->remove($device);
         $entityManager->flush();
-        
-        // 4. Message de confirmation avec détails
+
         $message = 'L\'outil de beauté "' . $deviceTitle . '" a bien été supprimé';
         
         if ($deletedHistoryCount > 0) {
@@ -273,19 +283,14 @@ final class DeviceController extends AbstractController
             $message .= ' et ' . $deletedImagesCount . ' image(s)';
         }
         
-        $this->addFlash('success', $message);
+        flash()->success($message);
         
         return $this->redirectToRoute('app_device_index');
     }
 
-    /**
-     * Méthode pour supprimer les images d'un outil de beauté
-     */
     private function deleteDeviceImages(int $deviceId): int
     {
         $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/devices';
-        
-        // Chercher tous les fichiers qui contiennent l'ID de l'outil de beauté
         $pattern = $uploadDirectory . '/*-' . $deviceId . '-*.*';
         $files = glob($pattern);
         $deletedCount = 0;
@@ -311,7 +316,6 @@ final class DeviceController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid()){
             if($addStock->getQte() > 0){
-                // Mettre à jour le stock
                 $newQte = $device->getStock() + $addStock->getQte();
                 $device->setStock($newQte);
 
@@ -320,17 +324,17 @@ final class DeviceController extends AbstractController
                 $entityManager->persist($addStock);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Le stock de l\'outil de beauté "' . $device->getTitle() . '" a bien été modifié');
+                flash()->success('Le stock de l\'outil de beauté "' . $device->getTitle() . '" a bien été modifié');
                 return $this->redirectToRoute('app_device_index');
             } else {
-                $this->addFlash('danger', 'Le stock ne doit pas être inférieur à 0');
+                flash()->error('Le stock ne doit pas être inférieur à 0');
                 return $this->redirectToRoute('app_device_stock_add', ['id' => $device->getId()]);
             }
         }
 
         return $this->render('device/addStock.html.twig', [
             'form' => $form->createView(),
-            'device' => $device  
+            'device' => $device
         ]);
     }
 

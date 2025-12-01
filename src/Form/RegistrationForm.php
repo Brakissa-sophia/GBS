@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Choice; // OK
 
 class RegistrationForm extends AbstractType
 {
@@ -30,26 +31,28 @@ class RegistrationForm extends AbstractType
             'label_attr' => ['class' => 'form-label small fw-medium'],
             'required' => false,
             'placeholder' => false,
-            'expanded' => true,        
+            'expanded' => true,
             'multiple' => false,
-            
+
             'choices' => [
-                'Homme' => 'homme',
-                'Femme' => 'femme',
-                'Non genré' => 'autre',  
+                'Homme'     => 'Homme',
+                'Femme'     => 'Femme',
+                'Non genré' => 'Non genré',
             ],
-            
-            
-            'attr' => ['class' => 'd-flex gap-3'], 
+
+            'attr' => ['class' => 'd-flex gap-3'],
             'choice_attr' => ['class' => 'form-check-input'],
-            
+
             'constraints' => [
                 new NotBlank([
                     'message' => 'Veuillez sélectionner votre sexe'
-                ])
+                ]),
+                new Choice([
+                    'choices' => ['Homme','Femme','Non genré'],
+                    'message' => 'Veuillez sélectionner votre sexe',
+                ]),
             ]
         ])
-
 
             ->add('firstName', TextType::class, [
                 'label' => 'Nom<span class="text-danger">*</span>',
@@ -111,26 +114,6 @@ class RegistrationForm extends AbstractType
                 ]
             ])
 
-
-            // ->add('plainPassword', PasswordType::class, [
-            //    'label' => 'Mot de passe<span class="text-danger">*</span>',
-           //     'label_html' => true,
-           //     'mapped' => false,
-            //    'attr' => ['autocomplete' => 'new-password'],
-            //    'required' => false, 
-              //  'constraints' => [
-               //     new NotBlank([
-                 //       'message' => 'Veuillez saisir votre mot de passe',
-                  //  ]),
-                 //   new Regex([
-                   //     'pattern' => '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
-                //    'match' => true,
-                  //      'message' => 'Votre mot de passe doit comporter au moins douze caractères, dont des lettres majuscules et minuscules, un chiffre et un symbole : - + ! * $ @ % _ ? .',
-                  //  ]),
-
-               // ],
-           // ])
-
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
@@ -153,9 +136,9 @@ class RegistrationForm extends AbstractType
                         'message' => 'Veuillez saisir votre mot de passe',
                     ]),
                     new Regex([
-                        'pattern' => '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
+                        'pattern' => '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*\-]).{8,}$/',
                         'match' => true,
-                        'message' => 'Votre mot de passe doit comporter au moins 8 caractères, dont des lettres majuscules et minuscules, un chiffre et un symbole : - + ! * $ @ % _ ? .',
+                        'message' => 'Au moins 8 caractères, avec majuscules, minuscules, un chiffre et un symbole parmi # ? ! @ $ % ^ & * -',
                     ]),
                 ]
             ])
@@ -183,4 +166,3 @@ class RegistrationForm extends AbstractType
         ]);
     }
 }
-   

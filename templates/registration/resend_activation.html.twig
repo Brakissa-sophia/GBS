@@ -10,40 +10,61 @@
     <div class="col-lg-10 col-md-8">
 
       <div class="card-reset p-3 p-md-5 shadow rounded-3" role="status">
+        
+        {#  Affichage des messages flash #}
+        {% for message in app.flashes('success') %}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+
+        {% for message in app.flashes('danger') %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+
         <p class="mb-1">
-          Votre inscription a bien été prise en compte. Vous allez recevoir, d’ici quelques instants,
+          Votre inscription a bien été prise en compte. Vous allez recevoir, d'ici quelques instants,
           un e-mail pour <strong>activer votre compte</strong>.
         </p>
-        <p class="mb-0">
-          Si vous ne voyez pas l’e-mail, vérifiez vos dossiers <em>Spam/Indésirables</em> ou utilisez le
-          formulaire ci-dessous pour <strong>renvoyer un e-mail d’activation</strong>.
+        <p class="mb-3">
+          Si vous ne voyez pas l'e-mail, vérifiez vos dossiers <em>Spam/Indésirables</em> ou utilisez le
+          formulaire ci-dessous pour <strong>renvoyer un e-mail d'activation</strong>.
         </p>
-      
-        
 
-          <form method="post" novalidate>
-            <div class="mb-3">
-              <label for="email" class="form-label">Votre adresse e-mail</label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                class="form-control"
-                placeholder="nom@exemple.com"
-                required
-                autocomplete="email"
-                inputmode="email"
-              >
-            </div>
+        {# ✅ Utilisation du formulaire Symfony avec protection CSRF #}
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+          
+          <div class="mb-3">
+            {{ form_label(form.email, 'Votre adresse e-mail', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.email, {
+              'attr': {
+                'class': 'form-control',
+                'placeholder': 'nom@exemple.com',
+                'autocomplete': 'email',
+                'inputmode': 'email'
+              }
+            }) }}
+            {{ form_errors(form.email) }}
+          </div>
 
-            <button type="submit" class="submit-btn w-100 rounded-2 fw-semibold my-3">
-              Renvoyer l’e-mail
-            </button>
-          </form>
+          <button type="submit" class="submit-btn w-100 rounded-2 fw-semibold my-3">
+            Renvoyer l'e-mail
+          </button>
+
+        {{ form_end(form) }}
+
+        {# Lien retour vers la page de connexion #}
+        <div class="text-center mt-3">
+          <a href="{{ path('app_login') }}" class="text-decoration-none">
+            ← Retour à la connexion
+          </a>
         </div>
-        </div>
+
       </div>
-
     </div>
   </div>
 </div>

@@ -1,43 +1,65 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ parent() }} | Connexion {% endblock %}
-{% block description %}{{ parent() }} | Connexion  {% endblock %}
-{% block keywords %}{{ parent() }} | ConnexionI  {% endblock %}
+{% block description %}{{ parent() }} | Connexion {% endblock %}
+{% block keywords %}{{ parent() }} | Connexion {% endblock %}
 
 {% block body %}
-{% if error %}
-    <div class="alert alert-danger text-center rounded-3 mb-4">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-{% endif %}
 
 <div class="container-login d-flex align-items-center justify-content-center p-5 rounded">
     <div class="carte-login rounded-3 shadow p-3 p-md-5 w-100">
-       <form method="post" action="{{ path('app_login') }}">
-            
-
-            {% if app.user %}
-                <div class="mb-3 alert alert-info rounded-3">
-                    Vous êtes déjà connecté(e) en tant que {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}" class="alert-link">Me déconnecter</a>
+        
+        {# Affichage des messages flash (succès, erreurs, warnings) #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show rounded-3 mb-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            {% endif %} 
+            {% endfor %}
+        {% endfor %}
 
-            <h3>Ravie de vous revoir</h3>
+        {# Affichage des erreurs de connexion #}
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        {# Si l'utilisateur est déjà connecté #}
+        {% if app.user %}
+            <div class="alert alert-info alert-dismissible fade show rounded-3 mb-3" role="alert">
+                Vous êtes déjà connecté(e) en tant que <strong>{{ app.user.userIdentifier }}</strong>. 
+                <a href="{{ path('app_logout') }}" class="alert-link">Me déconnecter</a>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            
+            <h3 class="mb-4">Ravie de vous revoir</h3>
 
             <div class="mb-3">
-                <label for="inputEmail" class="form-label text-muted fw-medium">Email<span class="text-danger">*</span></label>
+                <label for="inputEmail" class="form-label text-muted fw-medium">
+                    Email <span class="text-danger">*</span>
+                </label>
                 <input
                     type="email" 
                     value="{{ last_username }}"
                     name="email" 
                     id="inputEmail" 
                     class="form-control form-control-lg bg-light border-1 rounded-2" 
-                    autocomplete="off" 
+                    autocomplete="email" 
                     placeholder="exemple@gbs.com"
                     required 
                     autofocus>
             </div>
 
             <div class="mb-3">
-                <label for="inputPassword" class="form-label text-muted fw-medium">Mot de passe <span class="text-danger">*</span></label>
+                <label for="inputPassword" class="form-label text-muted fw-medium">
+                    Mot de passe <span class="text-danger">*</span>
+                </label>
                 <input 
                     type="password" 
                     name="password" 
@@ -47,18 +69,26 @@
                     placeholder="Veuillez saisir votre mot de passe" 
                     required>
                 
-                <a href="{{ path('app_forgot_password_request') }}" class="mdp-oublie d-inline-block mt-2 text-primary text-decoration-none small">Mot de passe oublié</a>
+                <a href="{{ path('app_forgot_password_request') }}" 
+                   class="mdp-oublie d-inline-block mt-2 text-primary text-decoration-none small">
+                    Mot de passe oublié ?
+                </a>
             </div>
 
+            {# Token CSRF pour la sécurité #}
             <input 
                 type="hidden" 
                 name="_csrf_token" 
-                data-controller="csrf-protection" 
                 value="{{ csrf_token('authenticate') }}">
 
+            {# Checkbox "Se souvenir de moi" #}
             <div class="mb-3">
                 <div class="form-check">
-                    <input type="checkbox" name="_remember_me" class="form-check-input" id="remember">
+                    <input 
+                        type="checkbox" 
+                        name="_remember_me" 
+                        class="form-check-input" 
+                        id="remember">
                     <label class="form-check-label text-muted small" for="remember">
                         Se souvenir de moi
                     </label>
@@ -69,11 +99,14 @@
                 Se connecter
             </button>
             
-            <p class="text-center text-muted small mb-0">Vous n'avez pas de compte? <a href="{{ path('app_register')}}" class="text-primary text-decoration-none">Inscrivez-vous</a></p>
+            <p class="text-center text-muted small mb-0">
+                Vous n'avez pas de compte ? 
+                <a href="{{ path('app_register') }}" class="text-primary text-decoration-none">Inscrivez-vous</a>
+            </p>
+
+    
         </form>
     </div>
 </div>
-
-
 
 {% endblock %}

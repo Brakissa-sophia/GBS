@@ -90,7 +90,6 @@
                  </td>
 
                  <td>
-                    {# Fiche complète #}
                     <a 
                         href="{{ path('app_device_show', {'id': device.id }) }}" 
                         class="text-decoration-none"
@@ -98,7 +97,6 @@
                         <img src="{{ asset('images/fiche.png') }}" alt="voir" class="sizeSvg30">  
                     </a>
 
-                    {# Modifier #}
                     <a 
                         href="{{ path('app_device_edit', {'id': device.id }) }}" 
                         class="text-decoration-none"
@@ -106,16 +104,16 @@
                         <img src="{{ asset('images/edit.png')}}" alt="modifier" class="sizeSvg30">
                     </a>
 
-                    {# Supprimer #}
-                    <a 
-                        href="{{ path('app_device_delete', {'id': device.id }) }}" 
-                        class="text-decoration-none"
-                        onclick="return confirm('Attention ! Supprimer cet appareil supprimera également tout son historique de stock. Êtes-vous sûr de vouloir supprimer cet outil de beauté ?')"
-                    >
-                        <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
-                    </a>
+                    <form method="post" 
+                          action="{{ path('app_device_delete', {'id': device.id }) }}" 
+                          class="d-inline"
+                          onsubmit="return confirm('Attention ! Supprimer cet appareil supprimera également tout son historique de stock. Êtes-vous sûr de vouloir supprimer cet outil de beauté ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_device_' ~ device.id) }}">
+                        <button type="submit" class="btn btn-link p-0 border-0">
+                            <img src="{{ asset('images/supp.png')}}" alt="supprimer" class="sizeSvg30">
+                        </button>
+                    </form>
 
-                    {# Ajouter stock #}
                     <a 
                         href="{{ path('app_device_stock_add', {'id': device.id }) }}"
                         class="text-decoration-none"

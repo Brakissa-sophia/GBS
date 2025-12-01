@@ -5,13 +5,28 @@
 {% block keywords %}{{ parent() }} | Catalogue Produits {% endblock %}
 
 {% block body %}
-<h2 class="pb-2">Catalogue</h2>
-
 <div class="container-fluid">
-    <div class="row g-5">
-        <!-- Sidebar filtres -->
-        <aside class="col-lg-2 col-sm-4 bg-light p-3 rounded">
-            {# Catégories - ROUTES UNIVERSELLES #}
+    <!-- MOBILE UNIQUEMENT - Bouton Filtres -->
+    <div class="d-flex justify-content-between align-items-center mb-3 d-md-none">
+        <h2 class="pb-2 mb-0">Catalogue</h2>
+        <button class="btn btn-outline-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtresOffcanvas">
+            <i class="fas fa-filter me-2"></i>Filtres
+        </button>
+    </div>
+    
+    <!-- TABLETTE+ UNIQUEMENT - Texte descriptif -->
+    <div class="d-none d-md-block mb-4">
+        <p class="px-3 px-md-5">
+            Bienvenue dans notre sélection de soins spécialement choisis pour révéler l'éclat naturel de votre peau. 
+            Ici, chaque produit a été soigneusement sélectionné pour sa qualité, son efficacité et sa douceur, afin de 
+            répondre aux besoins de tous les types de peau. Nettoyants, sérums, crèmes ou protections solaires… composez 
+            votre routine idéale en toute confiance à travers notre catalogue.
+        </p>
+    </div>
+
+    <div class="row g-3">
+        <!-- TABLETTE+ UNIQUEMENT - Sidebar filtres (n'existe PAS en mobile) -->
+        <aside class="col-md-4 col-lg-2 d-none d-md-block bg-light p-3 rounded">
             {% if categories is defined %}
             <div class="mb-4 pt-2">
                 <h4 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#categoriesCollapse" aria-expanded="true">
@@ -37,7 +52,6 @@
             </div>
             {% endif %}
 
-            {# Marques - ROUTES UNIVERSELLES #}
             {% if brands is defined %}
             <div class="mb-4">
                 <h4 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#brandsCollapse" aria-expanded="false">
@@ -63,7 +77,6 @@
             </div>
             {% endif %}
 
-            {# Types de peau - ROUTES UNIVERSELLES #}
             {% if skinTypes is defined %}
             <div class="mb-4">
                 <h4 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#skinTypesCollapse" aria-expanded="false">
@@ -90,19 +103,103 @@
             {% endif %}
         </aside>
 
-        <!-- Zone produits -->
-        <div class="col-lg-10 col-sm-8">
-            <div class="row g-4">
+        <!-- MOBILE UNIQUEMENT - Offcanvas pour les filtres -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="filtresOffcanvas" aria-labelledby="filtresOffcanvasLabel">
+            <div class="offcanvas-header" style="background-color: var(--color-beigef);">
+                <h5 class="offcanvas-title gbs_text-color" id="filtresOffcanvasLabel">Filtres</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body" style="background-color: var(--color-beige);">
+                {% if categories is defined %}
+                <div class="mb-4">
+                    <h5 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#categoriesCollapseMobile" aria-expanded="true">
+                        Catégories
+                        <span class="toggle-icon-categories-mobile">−</span>
+                    </h5>
+                    <div class="collapse show" id="categoriesCollapseMobile">
+                        <div class="mb-2">
+                            <a href="{{ path('app_catalog') }}"
+                               class="text-decoration-none text-dark {% if selectedCategory is not defined %}text-success fw-bold{% endif %}">
+                                Toutes les catégories
+                            </a>
+                        </div>
+                        {% for category in categories %}
+                            <div class="mb-2">
+                                <a href="{{ path('app_universal_catalog_category', {'id': category.id}) }}"
+                                   class="text-decoration-none text-dark {% if selectedCategory is defined and selectedCategory.id == category.id %}text-success fw-bold{% endif %}">
+                                    {{ category.name }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if brands is defined %}
+                <div class="mb-4">
+                    <h5 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#brandsCollapseMobile" aria-expanded="false">
+                        Marques
+                        <span class="toggle-icon-brands-mobile">+</span>
+                    </h5>
+                    <div class="collapse" id="brandsCollapseMobile">
+                        <div class="mb-2">
+                            <a href="{{ path('app_catalog') }}"
+                               class="text-decoration-none text-dark {% if selectedBrand is not defined %}text-success fw-bold{% endif %}">
+                                Toutes les marques
+                            </a>
+                        </div>
+                        {% for brand in brands %}
+                            <div class="mb-2">
+                                <a href="{{ path('app_universal_catalog_brand', {'id': brand.id}) }}"
+                                   class="text-decoration-none text-dark {% if selectedBrand is defined and selectedBrand.id == brand.id %}text-success fw-bold{% endif %}">
+                                    {{ brand.title }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if skinTypes is defined %}
+                <div class="mb-4">
+                    <h5 class="d-flex justify-content-between align-items-center mb-3" data-bs-toggle="collapse" data-bs-target="#skinTypesCollapseMobile" aria-expanded="false">
+                        Types de peau
+                        <span class="toggle-icon-skin-mobile">+</span>
+                    </h5>
+                    <div class="collapse" id="skinTypesCollapseMobile">
+                        <div class="mb-2">
+                            <a href="{{ path('app_catalog') }}"
+                               class="text-decoration-none text-dark {% if selectedSkinType is not defined %}text-success fw-bold{% endif %}">
+                                Tous les types
+                            </a>
+                        </div>
+                        {% for skinType in skinTypes %}
+                            <div class="mb-2">
+                                <a href="{{ path('app_universal_catalog_skintype', {'name': skinType.title}) }}"
+                                   class="text-decoration-none text-dark {% if selectedSkinType is defined and selectedSkinType.title == skinType.title %}text-success fw-bold{% endif %}">
+                                    {{ skinType.title }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Zone produits - MOBILE: 100% largeur / TABLETTE+: 8 ou 10 colonnes -->
+        <div class="col-12 col-md-8 col-lg-10">
+            <div class="row g-3">
                 {% if productsWithImages is empty %}
                     <div class="col-12">
                         <p>Aucun produit disponible pour le moment.</p>
                     </div>
                 {% else %}
                     {% for item in productsWithImages %}
-                        <div class="col-lg-3 col-md-4 col-sm-6">
+                        <!-- MOBILE: col-6 (2 par ligne) / TABLETTE: col-md-4 (3 par ligne) / DESKTOP: col-lg-3 (4 par ligne) -->
+                        <div class="col-6 col-md-4 col-lg-3">
                             <div class="card h-100 shadow position-relative">
                                 
-                                <!-- Bouton favoris (si connecté) -->
                                 {% if app.user %}
                                     <a href="{{ path('app_favorite_toggle', {itemType: 'product', itemId: item.product.id}) }}"
                                        class="btn btn-outline-danger position-absolute top-0 end-0 m-2 rounded-circle border-0"
@@ -114,7 +211,11 @@
 
                                 {% if item.image %}
                                     <a class="text-decoration-none text-dark" href="{{ path('app_catalog_product_show', {'id': item.product.id}) }}">
-                                        <img src="{{ asset(item.image) }}" class="card-img-top" alt="{{ item.product.title }}">
+                                        <img src="{{ asset(item.image) }}"
+                                                class="card-img-top"
+                                                alt="{{ item.product.title }}"
+                                                loading="lazy">
+
                                     </a>
                                 {% else %}
                                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
@@ -169,6 +270,27 @@ document.addEventListener('DOMContentLoaded', function () {
     if (skinTypesCollapse && toggleIconSkin) {
         skinTypesCollapse.addEventListener('show.bs.collapse', () => toggleIconSkin.textContent = '−');
         skinTypesCollapse.addEventListener('hide.bs.collapse', () => toggleIconSkin.textContent = '+');
+    }
+
+    const categoriesCollapseMobile = document.getElementById('categoriesCollapseMobile');
+    const toggleIconCategoriesMobile = document.querySelector('.toggle-icon-categories-mobile');
+    if (categoriesCollapseMobile && toggleIconCategoriesMobile) {
+        categoriesCollapseMobile.addEventListener('show.bs.collapse', () => toggleIconCategoriesMobile.textContent = '−');
+        categoriesCollapseMobile.addEventListener('hide.bs.collapse', () => toggleIconCategoriesMobile.textContent = '+');
+    }
+
+    const brandsCollapseMobile = document.getElementById('brandsCollapseMobile');
+    const toggleIconBrandsMobile = document.querySelector('.toggle-icon-brands-mobile');
+    if (brandsCollapseMobile && toggleIconBrandsMobile) {
+        brandsCollapseMobile.addEventListener('show.bs.collapse', () => toggleIconBrandsMobile.textContent = '−');
+        brandsCollapseMobile.addEventListener('hide.bs.collapse', () => toggleIconBrandsMobile.textContent = '+');
+    }
+
+    const skinTypesCollapseMobile = document.getElementById('skinTypesCollapseMobile');
+    const toggleIconSkinMobile = document.querySelector('.toggle-icon-skin-mobile');
+    if (skinTypesCollapseMobile && toggleIconSkinMobile) {
+        skinTypesCollapseMobile.addEventListener('show.bs.collapse', () => toggleIconSkinMobile.textContent = '−');
+        skinTypesCollapseMobile.addEventListener('hide.bs.collapse', () => toggleIconSkinMobile.textContent = '+');
     }
 });
 </script>

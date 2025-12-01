@@ -3,9 +3,6 @@
 namespace App\Security;
 
 use App\Entity\User as AppUser;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\Exception\AccountExpiredException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -18,10 +15,12 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        if ($user->getToken() != null) {
-            // the message passed to this exception is meant to be displayed to the user
-            throw new CustomUserMessageAccountStatusException('Votre compte n\'a pas encore été activé. Veuillez vérifier votre boîte e-mail pour le lien d\'activation.');
-        } 
+        // ✅ Vérifier si le compte est activé
+        if (!$user->isActive()) {
+            throw new CustomUserMessageAccountStatusException(
+                'Votre compte n\'est pas encore activé. Veuillez vérifier votre boîte e-mail pour le lien d\'activation.'
+            );
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void

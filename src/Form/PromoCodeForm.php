@@ -27,7 +27,7 @@ class PromoCodeType extends AbstractType
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control text-uppercase',
-                    'placeholder' => 'Ex: GLOW20, BIENVENUE10',
+                    'placeholder' => 'Entrer votre code promo',
                     'maxlength' => 50
                 ],
                 'constraints' => [

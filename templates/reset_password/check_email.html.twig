@@ -1,16 +1,37 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Password Reset Email Sent{% endblock %}
+{% block title %}{{ parent() }} | Email envoyé {% endblock %}
+{% block description %}{{ parent() }} | Email de réinitialisation envoyé {% endblock %}
+{% block keywords %}{{ parent() }} | Réinitialisation mot de passe {% endblock %}
 
 {% block body %}
-<div class="card-reset p-3 p-md-5 shadow rounded-3">
-    <p>
-        Si vous avez un compte correspondant à votre adresse e-mail, un e-mail vient de vous être envoyé contenant un lien que vous pouvez utiliser pour réinitialiser votre mot de passe.
-        Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
-    </p>
-    <p>
-        Si vous ne recevez pas d'e-mail, veuillez vérifier votre dossier de spam ou <a href="{{ path('app_forgot_password_request') }}">réessayer</a>.
-    </p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card-reset p-3 p-md-5 shadow rounded-3">
+                <h3 class="mb-4">Email de réinitialisation envoyé</h3>
+                
+                <div class="alert alert-success" role="alert">
+                    <p class="mb-3">
+                        Si vous avez un compte correspondant à votre adresse e-mail, un e-mail vient de vous être envoyé contenant un lien que vous pouvez utiliser pour réinitialiser votre mot de passe.
+                    </p>
+                    <p class="mb-0">
+                        Ce lien expirera dans <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+                    </p>
+                </div>
+
+                <p class="text-muted">
+                    Si vous ne recevez pas d'e-mail, veuillez vérifier votre dossier de spam ou 
+                    <a href="{{ path('app_forgot_password_request') }}" class="text-primary">réessayer</a>.
+                </p>
+
+                <div class="text-center mt-4">
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
+                        Retour à la connexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-   
 {% endblock %}

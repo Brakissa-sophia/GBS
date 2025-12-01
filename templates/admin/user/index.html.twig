@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Membres {% endblock %}
+{% block description %}{{ parent() }} | Membres {% endblock %}
+{% block keywords %}{{ parent() }} | Membres {% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestion des membres ({{ users|length }})</h2>
+        <a class="btn btn-dark" href="{{ path('app_admin') }}">Retour au back office</a>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Prénom</th>
+                    <th>Nom</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.firstName }}</td>
+                    <td>{{ user.lastName }}</td>
+                    <td>
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="badge bg-primary">Administrateur</span>
+                        {% else %}
+                            <span class="badge bg-secondary">User</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.user.id != user.id %}
+                            
+                            {% if 'ROLE_ADMIN' not in user.roles %}
+                                <form method="post" 
+                                      action="{{ path('app_admin_user_to_admin', {'id': user.id}) }}" 
+                                      class="d-inline-block"
+                                      onsubmit="return confirm('Voulez-vous vraiment ajouter le rôle administrateur à {{ user.firstName }} {{ user.lastName }} ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        Promouvoir admin
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form method="post" 
+                                      action="{{ path('app_admin_user_remove_admin_role', {'id': user.id}) }}" 
+                                      class="d-inline-block"
+                                      onsubmit="return confirm('Voulez-vous vraiment retirer le rôle administrateur à {{ user.firstName }} {{ user.lastName }} ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('remove_admin_' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        Retirer admin
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            <form method="post" 
+                                  action="{{ path('app_admin_user_delete', {'id': user.id}) }}" 
+                                  class="d-inline-block ms-2"
+                                  onsubmit="return confirm('Voulez-vous vraiment supprimer {{ user.firstName }} {{ user.lastName }} ? Cette action est irréversible.');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ user.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Supprimer
+                                </button>
+                            </form>
+
+                        {% else %}
+                            <span class="text-muted">C'est vous (auto-modification interdite)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        Aucun membre enregistré
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

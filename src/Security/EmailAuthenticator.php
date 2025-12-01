@@ -47,14 +47,16 @@ class EmailAuthenticator extends AbstractLoginFormAuthenticator
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
+
         $user = $token->getUser();
-        if (in_array('ROLE_ADMIN',$user->getRoles())){
+        
+        // ✅ Rediriger les admins vers le back office
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return new RedirectResponse($this->urlGenerator->generate('app_admin'));
         }
 
-        // For example:
+        // ✅ Rediriger les utilisateurs normaux vers la page d'accueil
         return new RedirectResponse($this->urlGenerator->generate('app_home'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }
 
     protected function getLoginUrl(Request $request): string
