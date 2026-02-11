@@ -1,14 +1,179 @@
 {% extends 'base.html.twig' %}
 
- {% block title %}{{ parent() }} | Erreur 500 {% endblock %}
- {% block description %}{{ parent() }} | Erreur 500 {% endblock %}
- {% block keywords %}{{ parent() }} | Erreur 500 {% endblock %}
+{% block title %}{{ parent() }} | Erreur Serveur{% endblock %}
+{% block description %}{{ parent() }} | Erreur 500 - Erreur serveur{% endblock %}
+{% block keywords %}{{ parent() }} | Erreur 500{% endblock %}
 
 {% block body %}
 
+<style>
+    /* ===== VARIABLES CSS ===== */
+    :root {
+        --color-beige: #f6ecdd;
+        --color-sauge: #698869;
+        --color-beigef: #ebd4bd;
+    }
 
- <h1> Erreur 500 </h1> 
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
+    .error-500-wrapper {
+        font-family: 'Georgia', 'Times New Roman', serif;
+        background-color: var(--color-beige);
+        color: var(--color-sauge);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 1rem;
+        position: relative;
+    }
 
+    .error-500-container {
+        text-align: center;
+        padding: 3rem 2rem;
+        max-width: 40rem;
+        width: 100%;
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(105, 136, 105, 0.1);
+    }
+
+    .title-500 {
+        font-size: 8rem;
+        font-weight: 800;
+        color: var(--color-sauge);
+        margin-bottom: 1rem;
+        line-height: 1;
+        animation: pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+    
+    @keyframes pulse-animation {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    .subtitle-500 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-sauge);
+        margin-bottom: 1.5rem;
+        font-family: 'Georgia', serif;
+    }
+
+    .message-500 {
+        font-size: 1.125rem;
+        color: #5a7a5a;
+        margin-bottom: 2.5rem;
+        line-height: 1.7;
+    }
+
+    .home-link-500 {
+        display: inline-block;
+        background-color: var(--color-sauge);
+        color: #ffffff;
+        padding: 1rem 2.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 300ms ease;
+        box-shadow: 0 4px 15px rgba(105, 136, 105, 0.3);
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .home-link-500:hover {
+        background-color: #5a7a5a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(105, 136, 105, 0.4);
+        color: #ffffff;
+    }
+
+    .home-link-500:active {
+        transform: translateY(0);
+    }
+
+    .decorative-circle {
+        width: 100px;
+        height: 100px;
+        background-color: var(--color-beigef);
+        border-radius: 50%;
+        position: absolute;
+        z-index: -1;
+        opacity: 0.5;
+    }
+
+    .circle-1 {
+        top: 10%;
+        left: 10%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .circle-2 {
+        bottom: 15%;
+        right: 10%;
+        width: 150px;
+        height: 150px;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .title-500 {
+            font-size: 5rem;
+        }
+
+        .subtitle-500 {
+            font-size: 1.5rem;
+        }
+
+        .message-500 {
+            font-size: 1rem;
+        }
+
+        .error-500-container {
+            padding: 2rem 1.5rem;
+        }
+
+        .decorative-circle {
+            display: none;
+        }
+    }
+</style>
+
+<div class="error-500-wrapper">
+    <!-- Cercles décoratifs -->
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+
+    <main class="error-500-container">
+        <h1 class="title-500">500</h1>
+        <h2 class="subtitle-500">Erreur Serveur</h2>
+        <p class="message-500">
+            Oups ! Une erreur inattendue s'est produite sur nos serveurs. 
+            Notre équipe technique a été informée et travaille à résoudre le problème. 
+            Veuillez réessayer dans quelques instants.
+        </p>
+        <a href="{{ path('app_home') }}" class="home-link-500">
+            Retourner à l'accueil
+        </a>
+    </main>
+</div>
 
 {% endblock %}

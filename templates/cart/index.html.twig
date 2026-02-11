@@ -216,8 +216,8 @@
 <script>
 function applyPromo(e) {
     e.preventDefault();
-    const code = document.getElementById('promo-input').value;
-    
+    const code = document.getElementById('promo-input').value.trim();
+
     fetch('{{ path('api_promo_validate') }}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -225,14 +225,17 @@ function applyPromo(e) {
     })
     .then(r => r.json())
     .then(d => {
-        if(d.success) location.reload();
+        if(d.success){
+            document.getElementById('promo-input').value = '';
+            window.location.href = "{{ path('app_cart') }}"; // reload propre
+        }
         else alert(d.message);
     });
 }
 
 function removePromo() {
     fetch('{{ path('api_promo_remove') }}', {method: 'POST'})
-    .then(() => location.reload());
+    .then(() => window.location.href = "{{ path('app_cart') }}");
 }
 </script>
 

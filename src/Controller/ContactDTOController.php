@@ -2,48 +2,66 @@
 
 namespace App\Controller;
 
-use App\DTO\ContactDTO; // Import du DTO (Data Transfer Object) pour le formulaire de contact
-use App\Form\ContactForm; // Import du formulaire de contact
-use Symfony\Bridge\Twig\Mime\TemplatedEmail; // Import pour créer un email avec un template Twig
+use App\DTO\ContactDTO;
+use App\Entity\Contact; //  AJOUT : Import de l'entité Contact
+use App\Form\ContactForm;
+use Doctrine\ORM\EntityManagerInterface; //  AJOUT : Import de l'EntityManager
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface; // Import de l'interface pour envoyer des emails
-use Symfony\Component\Mime\Address; // Import pour créer des adresses email avec nom
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class ContactDTOController extends AbstractController // Classe finale (non héritable)
+final class ContactDTOController extends AbstractController
 {
-    #[Route('/contact', name: 'app_contact_dto')] // Route simple sans préfixe de classe
-    public function contact(Request $request, MailerInterface $mailer): Response // Injection du service Mailer
-    {
-        $data = new ContactDTO(); // Crée une nouvelle instance du DTO (objet de transfert de données)
-        $form = $this->createForm(ContactForm::class, $data); // Crée le formulaire lié au DTO
-        $form->handleRequest($request); // Traite la requête et remplit le formulaire
+    #[Route('/contact', name: 'app_contact_dto')]
+    public function contact(
+        Request $request, 
+        MailerInterface $mailer,
+        EntityManagerInterface $entityManager //  AJOUT : Injection de l'EntityManager
+    ): Response {
+        $data = new ContactDTO();
+        $form = $this->createForm(ContactForm::class, $data);
+        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) { // Vérifie si le formulaire est soumis et valide
-            try { // Bloc try : tente d'exécuter le code, capture les erreurs potentielles
-                $email = (new TemplatedEmail()) // Crée un nouvel email avec template
-                    ->from(new Address('no-reply@gbs.com', 'Glow Beauty Skin')) // Définit l'expéditeur avec adresse et nom
-                    ->to('contact@gbs.com') // Définit le destinataire
-                    ->replyTo($data->email) // Définit l'adresse de réponse (celle saisie dans le formulaire)
-                    ->subject('Demande de contact depuis le site') // Définit l'objet de l'email
-                    ->htmlTemplate('email/contact.html.twig') // Définit le template Twig pour le contenu HTML
-                    ->context(['data' => $data]); // Passe le DTO au template (accessible via {{ data.nom }}, {{ data.email }}, etc.)
-
-                $mailer->send($email); // Envoie l'email via le service Mailer
-
-                $this->addFlash('success', 'Votre message a bien été envoyé.'); // Message de succès
-                return $this->redirectToRoute('app_contact_dto'); // Redirige vers la même page (évite la resoumission du formulaire)
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                // AJOUT : Sauvegarde en base de données
+                $contact = new Contact();
+                $contact->setName($data->name);
+                $contact->setEmail($data->email);
+                $contact->setMessage($data->message);
                 
-            } catch (\Exception $e) { // Bloc catch : capture toute exception levée dans le try
-                // $e contient l'objet Exception avec les détails de l'erreur
-                $this->addFlash('danger', 'Impossible d\'envoyer votre message. Veuillez réessayer.'); // Message d'erreur
+                $entityManager->persist($contact);
+                $entityManager->flush();
+
+                // Envoi de l'email (code existant)
+                $email = (new TemplatedEmail())
+                    ->from(new Address('no-reply@gbs.com', 'Glow Beauty Skin'))
+                    ->to('contact@gbs.com')
+                    ->replyTo($data->email)
+                    ->subject('Demande de contact depuis le site')
+                    ->htmlTemplate('email/contact.html.twig')
+                    ->context(['data' => $data]);
+
+                $mailer->send($email);
+
+                $this->addFlash('success', 'Votre message a bien été envoyé.');
+                return $this->redirectToRoute('app_contact_dto');
+                
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Impossible d\'envoyer votre message. Veuillez réessayer.');
             }
         }
 
-        return $this->render('contact/contact.html.twig', [ // Affiche le template du formulaire
-            'form' => $form, // Passe le formulaire au template
+        return $this->render('contact/contact.html.twig', [
+            'form' => $form,
         ]);
     }
 }
+
+
+
+

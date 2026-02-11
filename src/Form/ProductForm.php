@@ -150,7 +150,7 @@ class ProductForm extends AbstractType
             
             ])
 
-            // 🆕 NOUVEAUX CHAMPS NON MAPPÉS
+            
             ->add('ingredients', TextareaType::class, [
                 'label' => 'Ingrédients',
                 'required' => false,

@@ -202,9 +202,25 @@ header {
 
 /* ===== MAIN CONTENT ===== */
 
+
+/* 📲 Tablette */
+@media (min-width: 768px) {
+    .min-vh-100.container.main-content {
+        margin-top: 67px;
+    }
+}
+
+/* 💻 Desktop */
+@media (min-width: 990px) {
+    .min-vh-100.container.main-content {
+        margin-top: 163px;
+    }
+}
+
+
 /* MOBILE - Marge par défaut */
 .main-content {
-    margin-top: 7rem;
+    margin-top: 4.5rem; /* mobile-first */
 }
 
 /* ===== SECTION HERO / À PROPOS ===== */
@@ -331,6 +347,15 @@ header {
 .type-de-peau .img-fluid {
     width: 100%;
     height: auto;
+}
+
+/* MOBILE - Réduire l'espacement entre les types de peau */
+.types-peau-ligne .col-6 {
+    margin-bottom: 0.5rem !important;
+}
+
+.type-peau img {
+    margin-bottom: 0.5rem !important;
 }
 
 /* ===== SECTION MARQUES ===== */
@@ -907,7 +932,6 @@ footer p {
     /* ===== MARQUES - 2 par ligne comme mobile ===== */
     .section-marques {
         padding: 3rem 2% !important;
-        margin-top: 2rem;
     }
     
     .marques-conteneur {
@@ -1065,7 +1089,8 @@ footer p {
     }
     
     .type-de-peau-conteneur::before {
-        background: rgba(255, 255, 255, 0.85);
+        background: var(--color-beigef);
+        opacity: 0.7;
     }
     
     /* Image desktop reprend sa taille normale */

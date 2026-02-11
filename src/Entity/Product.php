@@ -112,8 +112,6 @@ public function setDescription(?string $description): self
         return $this;
     }
 
-
-
      public function getIngredients(): ?string
     {
         return $this->ingredients;

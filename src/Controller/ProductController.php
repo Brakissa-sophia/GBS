@@ -19,8 +19,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/produit')]
+#[IsGranted('ROLE_ADMIN', message: 'Accès refusé. Vous devez être administrateur pour gérer les produits.')]
 final class ProductController extends AbstractController
 {
     #[Route('/afficher', name:'app_product_index')]
@@ -56,7 +58,7 @@ final class ProductController extends AbstractController
             $entityManager->persist($stockHistory);
             $entityManager->flush();
 
-            flash()->success('Le produit "' . $product->getTitle() . '" a bien été ajouté avec ses images');
+            flash()->success('Le produit "' . $product->getTitle() . '" a bien été ajouté');
 
             return $this->redirectToRoute('app_product_index');
         }

@@ -139,29 +139,25 @@ class OrderController extends AbstractController
                 // Récupérer l'utilisateur connecté
                 $currentUser = $this->getUser();
                 
-                // Vérifier si l'utilisateur peut utiliser ce code
-                // (limite d'utilisation par utilisateur, etc.)
-                if (!$this->promoCodeRepository->canBeUsedByUser($promoCodeEntity, $currentUser)) {
-                    // Récupérer le nombre maximum d'utilisations autorisées
-                    $maxUses = $promoCodeEntity->getMaxUsesPerUser();
-                    
-                    // Message d'erreur approprié
-                    if ($maxUses !== null) {
+                // ✅ CORRECTION : Vérifier uniquement si l'utilisateur est connecté ET que le code a une limite
+                if ($currentUser && $promoCodeEntity->getMaxUsesPerUser() !== null) {
+                    // Vérifier si l'utilisateur peut utiliser ce code
+                    if (!$this->promoCodeRepository->canBeUsedByUser($promoCodeEntity, $currentUser)) {
+                        $maxUses = $promoCodeEntity->getMaxUsesPerUser();
                         flash()->error("Vous avez déjà utilisé ce code promo le nombre maximum de fois autorisé ({$maxUses}).");
-                    } else {
-                        flash()->error("Vous ne pouvez pas utiliser ce code promo.");
+                        
+                        // Retirer le code promo de la session
+                        $session->remove('promo_code');
+                        $appliedPromo = null;
+                        $promoCodeEntity = null;
                     }
-                    
-                    // Retirer le code promo de la session
-                    $session->remove('promo_code');
-                    $appliedPromo = null;
-                    $promoCodeEntity = null;
-                } else {
+                }
+                
+                // Si le code promo est toujours valide, calculer la réduction
+                if ($promoCodeEntity) {
                     // Calculer le montant éligible à la réduction
-                    // Certains codes promo ne s'appliquent qu'à certains produits
                     $eligibleAmount = 0;
                     foreach ($cartWithData as $item) {
-                        // Vérifier si l'article est éligible au code promo
                         if ($promoCodeEntity->isEligible($item['product'])) {
                             $eligibleAmount += $item['product']->getPrice() * $item['quantity'];
                         }
@@ -655,8 +651,7 @@ class OrderController extends AbstractController
      * @param Order $order Commande créée
      * @param float $subtotal Sous-total avant réduction
      * @param float $discount Montant de la réduction
-     * @param float $shipping Frais
-     * * de port
+     * @param float $shipping Frais de port
      * @return void
      */
     private function sendOrderConfirmationEmail(Order $order, float $subtotal, float $discount, float $shipping): void
